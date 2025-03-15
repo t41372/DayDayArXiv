@@ -19,7 +19,7 @@ export function Calendar() {
   const selectedDay = 20
 
   return (
-    <div className="bg-white rounded-lg p-4 mb-6 shadow-sm border border-black border-opacity-50">
+    <div className="bg-white/85 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-black border-opacity-50">
       <div className="flex items-center justify-between mb-4">
         <button className="p-1">
           <ChevronLeft className="h-5 w-5 text-[#45454a]" />

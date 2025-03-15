@@ -45,8 +45,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fffef7]">
-      <header className="border-b border-[#d9d9d9] py-4 px-6 flex justify-between items-center">
+    <div className="min-h-screen">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#d9d9d9] py-4 px-6 flex justify-between items-center backdrop-blur-md bg-white/80">
         <h1 className="text-2xl md:text-3xl font-bold">arXivDayDay.com</h1>
         <Sheet>
           <SheetTrigger asChild>
@@ -66,8 +66,8 @@ export default function Home() {
         </Sheet>
       </header>
 
-      <main className="container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
-        <aside className="hidden md:block md:w-1/3 lg:w-1/4 space-y-6 h-[calc(100vh-5rem)] overflow-y-auto sticky top-20">
+      <main className="container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6 mt-[72px]">
+        <aside className="hidden md:block md:w-1/3 lg:w-1/4 space-y-6 h-[calc(100vh-5rem)] overflow-y-auto sticky top-20 pr-4 md:pr-2">
           <Calendar selectedDate={selectedDate} onDateChange={handleDateChange} availableDates={[]} />
           <CategorySelector selectedCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
           <Sidebar />
@@ -83,7 +83,7 @@ export default function Home() {
               <DailySummary date={selectedDate} category={selectedCategory} summary={dailyData.summary} />
 
               {dailyData.papers.map((paper, index) => (
-                <PaperCard key={paper.id || index} paper={paper} />
+                <PaperCard key={paper.arxiv_id || index} paper={paper} />
               ))}
             </>
           ) : (

@@ -1,13 +1,16 @@
 export interface Paper {
-  id: string
+  arxiv_id: string
   title: string
-  titleZh: string
+  title_zh: string
   authors: string[]
   abstract: string
-  abstractZh: string
+  tldr_zh: string
   categories: string[]
-  date: string
+  primary_category: string
+  comment: string
   pdfUrl?: string
+  published_date: string
+  updated_date: string
 }
 
 export interface DailyData {
