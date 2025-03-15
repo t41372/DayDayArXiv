@@ -3,9 +3,12 @@ import './globals.css'
 import { BackgroundInitializer } from './components/background-initializer'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'ArXiv DayZ',
+  description: '每日 arXiv 摘要快讯',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+  },
 }
 
 export default function RootLayout({
@@ -14,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="zh-Hans">
       <body>
         <BackgroundInitializer />
         {children}

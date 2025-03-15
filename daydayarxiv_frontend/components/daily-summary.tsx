@@ -1,4 +1,5 @@
 import { format } from "date-fns"
+import ReactMarkdown from "react-markdown"
 
 interface DailySummaryProps {
   date: Date
@@ -12,7 +13,9 @@ export default function DailySummary({ date, category, summary }: DailySummaryPr
       <h2 className="text-xl font-medium mb-2">
         {format(date, "yyyy年MM月dd日")} {category} 论文速递
       </h2>
-      <p className="text-[#45454a] whitespace-pre-line">{summary}</p>
+      <div className="text-[#45454a] prose prose-sm max-w-none">
+        <ReactMarkdown>{summary}</ReactMarkdown>
+      </div>
     </div>
   )
 }

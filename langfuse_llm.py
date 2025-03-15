@@ -17,7 +17,14 @@ class LLM:
             base_url=os.environ.get("OPENAI_API_BASE_URL", "https://api.openai.com/v1"),
         )
         # Initialize session ID with current UTC date in YYYY-MM-DD format
-        self.session_id = time.strftime("%Y-%m-%d_%H-%M", time.gmtime()) + "_" + os.environ.get("LANGFUSE_SESSION_NOTE", "dev-1")
+        self.session_id = (
+            time.strftime("%Y-%m-%d_%H-%M", time.gmtime())
+            + "_"
+            + os.environ.get("LANGFUSE_SESSION_NOTE", "dev-1") + os.environ.get("LLM_MODEL", "unknown_model?")
+        )
+        logger.info(
+            f"Initializing Langfuse LLM class: {os.environ.get('LLM_MODEL')}, {os.environ.get('LLM_MODEL_STRONG')}, session_id: {self.session_id}"
+        )
 
     @observe()
     def _create_chat_completion_with_retry(self, **kwargs) -> str:
