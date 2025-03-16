@@ -22,4 +22,52 @@ GitHub action 会调用 python 脚本来生成每天的更新数据。更新数�
 - 前端页面，action 会不断往里面塞 json 文件
 - Python 脚本，被 action 调用来获取数据，处理数据，塞 json 之类的。
 
+# DayDayArXiv
+
+A tool to fetch and process arXiv papers with LLM-powered translation and summarization.
+
+## Usage
+
+```bash
+python fetch_arxiv.py [options]
+```
+
+### Options
+
+- `--date DATE`: Process papers for a specific date (YYYY-MM-DD format)
+- `--start-date DATE`: Start date for processing a date range (YYYY-MM-DD format)
+- `--end-date DATE`: End date for processing a date range (YYYY-MM-DD format)
+- `--category CATEGORY`: arXiv category to fetch (default: cs.AI)
+- `--rpm N`: Maximum API requests per minute (default: 60)
+- `--max-results N`: Maximum number of papers to fetch (default: 1000)
+- `--force`: Force refresh data even if it exists
+- `--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}`: Set logging level (default: INFO)
+
+### Examples
+
+Process papers from a specific date:
+```bash
+python fetch_arxiv.py --date 2025-03-01
+```
+
+Process papers from a date range:
+```bash
+python fetch_arxiv.py --start-date 2025-03-01 --end-date 2025-03-07
+```
+
+Process papers from a different category:
+```bash
+python fetch_arxiv.py --date 2025-03-01 --category cs.CL
+```
+
+Force refresh existing data:
+```bash
+python fetch_arxiv.py --date 2025-03-01 --force
+```
+
+Adjust rate limiting:
+```bash
+python fetch_arxiv.py --date 2025-03-01 --rpm 30
+```
+
 

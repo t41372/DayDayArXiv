@@ -18,7 +18,7 @@ class RawPaper(BaseModel):
     categories: list[str]
     primary_category: str
     comment: str
-    pdf_url: str
+    pdf_url: str | None
     published_date: str
     updated_date: str
 
