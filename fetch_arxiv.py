@@ -151,12 +151,29 @@ async def get_arxiv_papers(category: str, date_str: str, max_results: int = 1000
         sort_order=arxiv.SortOrder.Descending,
     )
 
-    # Get results
-    try:
-        results = list(client.results(search))
-        logger.info(f"API returned {len(results)} papers")
-    except Exception as e:
-        logger.error(f"Query error: {e}")
+    # Get results with retry logic
+    retry_delays = [5, 10, 15]  # Wait times in seconds before each retry
+    max_retries = len(retry_delays)
+    retry_count = 0
+    results = []
+    
+    while retry_count <= max_retries:
+        try:
+            results = list(client.results(search))
+            logger.info(f"API returned {len(results)} papers")
+            break  # Success, exit the loop
+        except Exception as e:
+            if retry_count < max_retries:
+                delay = retry_delays[retry_count]
+                retry_count += 1
+                logger.warning(f"Query error: {e}. Retrying in {delay}s (attempt {retry_count}/{max_retries})")
+                await asyncio.sleep(delay)
+            else:
+                logger.error(f"Query error after {max_retries} retries: {e}")
+                return []
+    
+    if not results:
+        logger.error("Query returned no results after all retries")
         return []
 
     # Extract metadata
