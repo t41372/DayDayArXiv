@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { BackgroundInitializer } from './components/background-initializer'
+import { PostHogProvider } from './providers'
 
 export const metadata: Metadata = {
   title: 'ArXiv DayZ',
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="zh-Hans">
       <body>
         <BackgroundInitializer />
-        {children}
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
       </body>
     </html>
   )
