@@ -47,7 +47,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#d9d9d9] py-4 px-6 flex justify-between items-center backdrop-blur-md bg-white/80">
-        <h1 className="text-2xl md:text-3xl font-bold">arXivDayDay.com</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">arx-lab.pages.dev</h1>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden">
