@@ -70,7 +70,10 @@ class AsyncLLM:
         model_strong: Optional[str] = None,
         base_url: Optional[str] = None,
         api_key: Optional[str] = None,
+        base_url_strong: Optional[str] = None,
+        api_key_strong: Optional[str] = None,
         rpm: int = 20,
+        rpm_strong: int = 10,
         max_retries: int = 3,
         retry_delay: int = 2,
     ):
@@ -80,32 +83,52 @@ class AsyncLLM:
         Args:
             model: Default model for standard requests
             model_strong: More capable model for complex tasks
-            base_url: Base URL for the OpenAI API
-            api_key: API key for the OpenAI API
-            rpm: Maximum requests per minute (rate limit)
+            base_url: Base URL for the OpenAI API (weak model)
+            api_key: API key for the OpenAI API (weak model)
+            base_url_strong: Base URL for the OpenAI API (strong model)
+            api_key_strong: API key for the OpenAI API (strong model)
+            rpm: Maximum requests per minute for weak model (rate limit)
+            rpm_strong: Maximum requests per minute for strong model (rate limit)
             max_retries: Maximum number of retries for failed requests
             retry_delay: Delay between retries in seconds
         """
-        # Use provided values or get from environment
+        # Use provided values or get from environment for weak model
         self.model = model or os.environ.get("LLM_MODEL")
-        self.model_strong = model_strong or os.environ.get("LLM_MODEL_STRONG")
         base_url = base_url or os.environ.get("OPENAI_API_BASE_URL", "https://api.openai.com/v1")
         api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        rpm = rpm or int(os.environ.get("LLM_RPM", 20))
+
+        # Use provided values or get from environment for strong model
+        self.model_strong = model_strong or os.environ.get("LLM_MODEL_STRONG")
+        base_url_strong = base_url_strong or os.environ.get("OPENAI_API_BASE_URL_STRONG", base_url)
+        api_key_strong = api_key_strong or os.environ.get("OPENAI_API_KEY_STRONG", api_key)
+        rpm_strong = rpm_strong or int(os.environ.get("LLM_RPM_STRONG", 10))
 
         # Configuration
         self.max_retries = max_retries
         self.retry_delay = retry_delay
 
-        # Create AsyncOpenAI client
+        # Create AsyncOpenAI client for weak model
         self.client = AsyncOpenAI(
             api_key=api_key,
             base_url=base_url,
         )
 
-        # Sync client for testing or synchronous fallback
+        # Create AsyncOpenAI client for strong model
+        self.client_strong = AsyncOpenAI(
+            api_key=api_key_strong,
+            base_url=base_url_strong,
+        )
+
+        # Sync clients for testing or synchronous fallback
         self.sync_client = OpenAI(
             api_key=api_key,
             base_url=base_url,
+        )
+
+        self.sync_client_strong = OpenAI(
+            api_key=api_key_strong,
+            base_url=base_url_strong,
         )
 
         # Initialize session ID with current UTC date
@@ -117,56 +140,67 @@ class AsyncLLM:
             + (self.model or "unknown_model?")
         )
 
-        # Rate limiter
+        # Rate limiters for both models
         self.rate_limiter = RateLimiter(rpm=rpm)
+        self.rate_limiter_strong = RateLimiter(rpm=rpm_strong)
 
         logger.info(
-            f"Initializing AsyncLLM: model={self.model}, model_strong={self.model_strong}, "
-            f"rpm={rpm}, max_retries={max_retries}, session_id={self.session_id}"
+            f"Initializing AsyncLLM: weak_model={self.model} (rpm={rpm}), "
+            f"strong_model={self.model_strong} (rpm={rpm_strong}), "
+            f"max_retries={max_retries}, session_id={self.session_id}"
         )
 
     @observe()
-    async def _create_chat_completion_with_retry(self, **kwargs) -> str | None:
+    async def _create_chat_completion_with_retry(
+        self, use_strong_model: bool = False, **kwargs
+    ) -> str | None:
         """Helper method that handles retries and rate limiting for API calls
 
         Args:
+            use_strong_model: Whether to use the strong model client
             **kwargs: Arguments to pass to the chat completion API
 
         Returns:
             The generated text
         """
         langfuse_context.update_current_trace(session_id=self.session_id)
+        
+        # Select appropriate client and rate limiter
+        client = self.client_strong if use_strong_model else self.client
+        rate_limiter = self.rate_limiter_strong if use_strong_model else self.rate_limiter
+        model_type = "strong" if use_strong_model else "weak"
 
         for attempt in range(self.max_retries + 1):
             try:
                 # Wait for rate limiter before making the request
-                await self.rate_limiter.wait_for_capacity()
+                await rate_limiter.wait_for_capacity()
 
                 # Make the API call
-                response: ChatCompletion = await self.client.chat.completions.create(**kwargs)
+                logger.debug(f"Making API call with {model_type} model")
+                response: ChatCompletion = await client.chat.completions.create(**kwargs)
                 return response.choices[0].message.content
 
             except RateLimitError as e:
                 if attempt < self.max_retries:
                     wait_time = self.retry_delay * (2**attempt)  # Exponential backoff
                     logger.warning(
-                        f"Rate limit exceeded (attempt {attempt + 1}/{self.max_retries + 1}): "
+                        f"Rate limit exceeded for {model_type} model (attempt {attempt + 1}/{self.max_retries + 1}): "
                         f"{str(e)}. Retrying in {wait_time} seconds..."
                     )
                     await asyncio.sleep(wait_time)
                 else:
-                    logger.error(f"Rate limit exceeded after {self.max_retries + 1} attempts: {str(e)}")
+                    logger.error(f"Rate limit exceeded for {model_type} model after {self.max_retries + 1} attempts: {str(e)}")
                     raise
 
             except Exception as e:
                 if attempt < self.max_retries:
                     logger.warning(
-                        f"API call failed (attempt {attempt + 1}/{self.max_retries + 1}): "
+                        f"API call failed for {model_type} model (attempt {attempt + 1}/{self.max_retries + 1}): "
                         f"{str(e)}. Retrying in {self.retry_delay} seconds..."
                     )
                     await asyncio.sleep(self.retry_delay)
                 else:
-                    logger.error(f"API call failed after {self.max_retries + 1} attempts: {str(e)}")
+                    logger.error(f"API call failed for {model_type} model after {self.max_retries + 1} attempts: {str(e)}")
                     raise
 
     @observe()
@@ -205,6 +239,7 @@ class AsyncLLM:
             model=self.model,
             temperature=0.5,
             messages=messages,
+            use_strong_model=False,
         )
 
     @observe()
@@ -244,6 +279,7 @@ class AsyncLLM:
             temperature=0.5,
             max_tokens=500,
             messages=messages,
+            use_strong_model=False,
         )
 
     @observe()
@@ -252,6 +288,7 @@ class AsyncLLM:
 
         Args:
             paper_string: String containing all paper info
+            date_str: Date string for context
 
         Returns:
             Daily summary in Chinese
@@ -272,4 +309,5 @@ class AsyncLLM:
             model=self.model_strong,
             temperature=0.5,
             messages=messages,
+            use_strong_model=True,
         )

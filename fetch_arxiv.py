@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 arXiv paper fetcher and processor with task persistence
 
@@ -6,7 +5,7 @@ This script fetches papers from arXiv for specified categories and dates, proces
 them using LLM for translation and summarization, and saves the results to JSON files.
 It includes state persistence to handle interruptions and resume processing.
 """
-
+import os
 import re
 import sys
 import json
@@ -221,7 +220,7 @@ async def process_single_paper(llm: AsyncLLM, paper: RawPaper, task_manager: Tas
 
         logger.success(f"Completed paper [{arxiv_id}]: {paper.title}")
 
-        # Create processed Paper object
+        # Create processed Paper object with task status
         processed_paper = Paper(
             arxiv_id=arxiv_id,
             title=paper.title,
@@ -235,6 +234,10 @@ async def process_single_paper(llm: AsyncLLM, paper: RawPaper, task_manager: Tas
             pdf_url=paper.pdf_url if paper.pdf_url else f"https://arxiv.org/pdf/{arxiv_id}",
             published_date=paper.published_date,
             updated_date=paper.updated_date,
+            processing_status=TaskStatus.COMPLETED,
+            attempts=0,  # Will be updated by task_manager
+            completed_steps=["translation", "tldr"],
+            last_update=datetime.now()
         )
 
         # Mark task as completed
@@ -383,8 +386,11 @@ def save_daily_data(daily_data: DailyData) -> str:
     output_dir.mkdir(parents=True, exist_ok=True)
     filename = output_dir / f"{daily_data.category}.json"
 
+    # Update the last_update timestamp
+    daily_data.last_update = datetime.now()
+
     # Convert to dict
-    data = daily_data.model_dump()
+    data = daily_data.model_dump(mode="json")
 
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -497,20 +503,32 @@ async def run_day_pipeline(
         # Load or create state
         state = task_manager.load_state(date_str, category)
 
-        # Check if pipeline was already completed AND there are no papers in "in_progress" state
+        # Check if pipeline was already completed AND whether any papers need processing
         if state.daily_data_saved and not force_refresh:
-            # Check if there are any papers in "in_progress" state that need processing
+            # Enhanced check for papers needing processing: in_progress, pending, or failed but retriable
             unfinished_papers = [
-                task_id
-                for task_id, task in state.tasks.items()
-                if task.status == TaskStatus.IN_PROGRESS or task.status == TaskStatus.PENDING
+                paper.arxiv_id 
+                for paper in state.papers
+                if (paper.processing_status in [TaskStatus.IN_PROGRESS, TaskStatus.PENDING, TaskStatus.RETRYING]) or
+                   (paper.processing_status == TaskStatus.FAILED and paper.attempts < paper.max_attempts)
             ]
 
             if not unfinished_papers:
-                logger.info(f"Pipeline for {date_str} was already completed. Use --force to rerun.")
-                return True
+                # Validate completion status
+                completion_status = verify_pipeline_completion(state)
+                if completion_status["is_complete"]:
+                    logger.info(f"Pipeline for {date_str} was already completed successfully. Use --force to rerun.")
+                    return True
+                else:
+                    logger.warning(f"Pipeline marked as complete but has issues: {completion_status['issues']}")
+                    if not force_refresh:
+                        logger.info("Continuing with processing to resolve issues...")
             else:
-                logger.info(f"Found {len(unfinished_papers)} papers that need processing from previous run.")
+                logger.info(f"Found {len(unfinished_papers)} papers that need processing from previous run:")
+                for status in [TaskStatus.IN_PROGRESS, TaskStatus.PENDING, TaskStatus.RETRYING, TaskStatus.FAILED]:
+                    count = len([p for p in state.papers if p.processing_status == status])
+                    if count > 0:
+                        logger.info(f"  - {status.value}: {count} papers")
                 # Continue with processing these papers
 
         # 1. Fetch raw papers if not already done
@@ -528,14 +546,14 @@ async def run_day_pipeline(
                     daily_data_saved=True,
                 )
                 print(f"\nNo papers were found for category '{category}' on {date_str}.")
-                print(f"No data files will be created for this date.")
+                print("No data files will be created for this date.")
                 return True
 
             # Save raw papers
             export_raw_papers(raw_papers, category, date_str)
 
             # Register papers in the task manager
-            task_manager.register_raw_papers([paper.arxiv_id for paper in raw_papers])
+            task_manager.register_raw_papers([paper.model_dump() for paper in raw_papers])
             task_manager.update_pipeline_status(raw_papers_fetched=True)
         else:
             # Load raw papers from file
@@ -549,11 +567,16 @@ async def run_day_pipeline(
                     logger.info(f"Empty raw file found for {category} on {date_str}, cleaning up")
                     cleanup_empty_data_dir(date_str, category)
                     print(f"\nNo papers were found for category '{category}' on {date_str}.")
-                    print(f"Cleaning up any empty files.")
+                    print("Cleaning up any empty files.")
                     return True
 
                 raw_papers = [RawPaper.model_validate(p) for p in raw_data]
                 logger.info(f"Loaded {len(raw_papers)} raw papers from {raw_file}")
+                
+                # Ensure all raw papers are registered in the task manager
+                if not state.raw_papers_fetched:
+                    task_manager.register_raw_papers([paper.model_dump() for paper in raw_papers])
+                    task_manager.update_pipeline_status(raw_papers_fetched=True)
             else:
                 logger.error(f"Raw paper file {raw_file} not found")
                 raw_papers = await get_arxiv_papers(category, date_str, max_results)
@@ -567,9 +590,10 @@ async def run_day_pipeline(
                         daily_data_saved=True,
                     )
                     print(f"\nNo papers were found for category '{category}' on {date_str}.")
-                    print(f"No data files will be created for this date.")
+                    print("No data files will be created for this date.")
                     return True
                 export_raw_papers(raw_papers, category, date_str)
+                task_manager.register_raw_papers([paper.model_dump() for paper in raw_papers])
 
         # Create a lookup dict for papers by ID
         paper_dict = {paper.arxiv_id: paper for paper in raw_papers}
@@ -578,20 +602,14 @@ async def run_day_pipeline(
         processed_papers: List[Paper] = []
         failed_papers: List[RawPaper] = []
 
-        # Check if we have any completed papers
-        completed_tasks = {
-            pid: task for pid, task in state.tasks.items() if task.status == TaskStatus.COMPLETED and task.result
-        }
-
-        if completed_tasks:
-            logger.info(f"Found {len(completed_tasks)} already processed papers in state")
-            # Load completed papers from state
-            for pid, task in completed_tasks.items():
-                if task.result:
-                    processed_papers.append(Paper.model_validate(task.result))
-
         # Get list of papers that need processing
         pending_papers = task_manager.get_pending_papers()
+
+        # Get completed papers from state
+        completed_papers = [p for p in state.papers if p.processing_status == TaskStatus.COMPLETED]
+        if completed_papers:
+            processed_papers.extend(completed_papers)
+            logger.info(f"Found {len(completed_papers)} already processed papers in state")
 
         # Process papers that need processing
         if pending_papers or force_refresh:
@@ -631,6 +649,14 @@ async def run_day_pipeline(
             # Create dict of failed papers
             failed_dict = {paper.arxiv_id: paper for paper in failed_papers}
 
+            # Log detailed info about retry attempts
+            for paper_id, paper in failed_dict.items():
+                paper_state = next((p for p in state.papers if p.arxiv_id == paper_id), None)
+                if paper_state:
+                    logger.info(f"Retrying paper {paper_id}: attempts={paper_state.attempts}/{paper_state.max_attempts}, error={paper_state.error}")
+                else:
+                    logger.info(f"Retrying paper {paper_id} (no state info available)")
+
             # Retry processing
             retry_processed, retry_failed = await process_papers_batch(
                 llm=retry_llm,
@@ -649,14 +675,8 @@ async def run_day_pipeline(
                 # Remove successfully retried papers from failed list
                 retry_success_ids = {p.arxiv_id for p in retry_processed}
                 failed_papers = [p for p in failed_papers if p.arxiv_id not in retry_success_ids]
-
-        # If we processed no papers successfully, clean up and exit
-        if not processed_papers:
-            logger.warning(f"No papers were successfully processed for {category} on {date_str}")
-            cleanup_empty_data_dir(date_str, category)
-            print(f"\nNo papers were successfully processed for category '{category}' on {date_str}.")
-            print(f"Cleaning up any created files.")
-            return False
+                
+                logger.success(f"Successfully recovered {len(retry_processed)} previously failed papers")
 
         # 3. Generate daily summary if we have processed papers
         summary = ""
@@ -670,42 +690,38 @@ async def run_day_pipeline(
             summary = await llm.tldr_for_all_papers(prompt_text, date_str=date_str)
             task_manager.update_pipeline_status(summary_generated=True)
         else:
-            # Look for existing data file to extract summary
-            data_file = Path(f"daydayarxiv_frontend/public/data/{date_str}/{category}.json")
-            if data_file.exists():
-                with open(data_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                summary = data.get("summary", "")
-                logger.info(f"Loaded summary from existing data file")
-            else:
-                # Generate prompt text from raw papers
-                prompt_text = export_prompt(raw_papers)
-
-                # Generate summary
-                summary = await llm.tldr_for_all_papers(prompt_text, date_str=date_str)
-                task_manager.update_pipeline_status(summary_generated=True)
+            # Use existing summary from state
+            summary = state.summary
+            logger.info("Using existing summary from state")
 
         # 4. Create and save daily data
-        daily_data = DailyData(
-            date=date_str, category=category, summary=summary if summary else "快报生成失败。", papers=processed_papers
-        )
-
-        save_daily_data(daily_data)
+        # Update the DailyData with the processed papers and summary
+        state.summary = summary if summary else "快报生成失败。"
+        state.papers = processed_papers  # Update with the complete list of processed papers
+        
+        # Save the updated state
+        save_daily_data(state)
         task_manager.update_pipeline_status(daily_data_saved=True)
 
-        # Check if we've processed all papers
-        unfinished_count = len(
-            [
-                task_id
-                for task_id, task in state.tasks.items()
-                if task.status not in [TaskStatus.COMPLETED, TaskStatus.FAILED]
-            ]
+        # Check if we've processed all papers and log detailed completion information
+        unfinished_count = sum(
+            1 for paper in state.papers
+            if paper.processing_status not in [TaskStatus.COMPLETED, TaskStatus.FAILED]
+        )
+        failed_count = sum(
+            1 for paper in state.papers
+            if paper.processing_status == TaskStatus.FAILED
         )
 
         if unfinished_count > 0:
             logger.warning(
                 f"Pipeline completed for {date_str} but {unfinished_count} papers remain unprocessed. "
                 f"Run again to process remaining papers."
+            )
+        elif failed_count > 0:
+            logger.warning(
+                f"Pipeline completed for {date_str} with {failed_count} permanently failed papers "
+                f"(exceeded max retry attempts)."
             )
         else:
             logger.success(
@@ -722,6 +738,45 @@ async def run_day_pipeline(
         cleanup_empty_data_dir(date_str, category)
         return False
 
+def verify_pipeline_completion(state: DailyData) -> dict:
+    """
+    Verify that a pipeline is truly complete by checking detailed status
+    
+    Args:
+        state: The DailyData object to verify
+        
+    Returns:
+        Dict with 'is_complete' boolean and 'issues' list
+    """
+    issues = []
+    
+    # Check for papers that should be processed but aren't
+    total_papers = state.papers_count
+    processed_count = sum(1 for p in state.papers if p.processing_status == TaskStatus.COMPLETED)
+    failed_count = sum(1 for p in state.papers if p.processing_status == TaskStatus.FAILED)
+    
+    # Check if processed + failed count matches the expected count
+    if processed_count + failed_count != total_papers:
+        issues.append(f"Paper count mismatch: {processed_count} processed + {failed_count} failed != {total_papers} total")
+    
+    # Check for papers with missing required fields
+    for paper in state.papers:
+        if paper.processing_status == TaskStatus.COMPLETED:
+            # Check if all required fields are populated
+            if not paper.title_zh:
+                issues.append(f"Paper {paper.arxiv_id} marked as completed but missing title_zh")
+            if not paper.tldr_zh and "tldr" in paper.completed_steps:
+                issues.append(f"Paper {paper.arxiv_id} marked as completed but missing tldr_zh")
+    
+    # Check for missing summary if we have papers
+    if processed_count > 0 and state.summary_generated and not state.summary:
+        issues.append("Summary marked as generated but is empty")
+    
+    # Result is complete if no issues found
+    return {
+        "is_complete": len(issues) == 0,
+        "issues": issues
+    }
 
 async def main() -> int:
     """Main entry point"""
@@ -757,8 +812,8 @@ async def main() -> int:
     parser.add_argument(
         "--rpm",
         type=int,
-        default=60,
-        help="Maximum API requests per minute (default: 60)",
+        default=os.getenv("RPM", 10),
+        help="Maximum API requests per minute (default: 10)",
     )
     parser.add_argument(
         "--max-results",
@@ -842,14 +897,19 @@ async def main() -> int:
 
     else:
         # Default to 2 days ago (UTC)
-        default_date = datetime.now(timezone.utc) - timedelta(days=2)
+        default_date = datetime.now(timezone.utc)
         dates_to_process = [default_date.strftime("%Y-%m-%d")]
 
     # Initialize LLM client with rate limiting
-    llm = AsyncLLM(rpm=args.rpm)
+    llm = AsyncLLM(
+        rpm=args.rpm,
+        # Use environment variables for both models' configs,
+        # we can override RPM from command line for the weak model
+        rpm_strong=int(os.getenv("LLM_RPM_STRONG", 10)),
+    )
 
     # Initialize task manager
-    task_manager = TaskManager(base_dir="task_state")
+    task_manager = TaskManager()
 
     # Process each date
     success_count = 0
@@ -888,6 +948,11 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
+    logger.info(
+        f"UTC time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}, Local time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+    logger.info("Starting arXiv paper fetcher")
+    logger.info("Loading environment variables")
     try:
         exit_code = asyncio.run(main())
         sys.exit(exit_code)

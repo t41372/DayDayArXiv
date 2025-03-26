@@ -6,83 +6,43 @@ tasks, specifically paper processing, to enable recovery after interruptions.
 """
 
 import json
+import os
 from datetime import datetime
-from enum import Enum
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
 from loguru import logger
 from pydantic import BaseModel
 
-
-class TaskStatus(str, Enum):
-    """Possible statuses for a task"""
-
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    RETRYING = "retrying"
-
-
-class PaperProcessingTask(BaseModel):
-    """Represents a paper processing task"""
-
-    arxiv_id: str
-    status: TaskStatus = TaskStatus.PENDING
-    attempts: int = 0
-    max_attempts: int = 3
-    error: Optional[str] = None
-    completed_steps: List[str] = []
-    result: Optional[Dict[str, Any]] = None
-    last_update: datetime = datetime.now()
-
-    class Config:
-        json_encoders = {
-            # Custom encoder for datetime objects
-            datetime: lambda dt: dt.isoformat()
-        }
-
-
-class PipelineState(BaseModel):
-    """Represents the overall state of a processing pipeline for a specific date"""
-
-    date: str  # YYYY-MM-DD
-    category: str
-    raw_papers_fetched: bool = False
-    papers_count: int = 0
-    processed_papers_count: int = 0
-    failed_papers_count: int = 0
-    summary_generated: bool = False
-    daily_data_saved: bool = False
-    tasks: Dict[str, PaperProcessingTask] = {}
-    last_update: datetime = datetime.now()
-
-    class Config:
-        json_encoders = {
-            # Custom encoder for datetime objects
-            datetime: lambda dt: dt.isoformat()
-        }
+from paper_type import Paper, DailyData, TaskStatus
 
 
 class TaskManager:
-    """Manages task state persistence for the paper processing pipeline"""
+    """Manages task state persistence directly in output JSON files"""
 
-    def __init__(self, base_dir: str = "task_state"):
+    def __init__(self, output_dir: str = "daydayarxiv_frontend/public/data"):
         """Initialize the task manager
 
         Args:
-            base_dir: Base directory for task state files
+            output_dir: Base directory for output files
         """
-        self.base_dir = Path(base_dir)
-        self.base_dir.mkdir(parents=True, exist_ok=True)
-        self.current_state: Optional[PipelineState] = None
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.current_state: Optional[DailyData] = None
 
-    def get_state_file_path(self, date: str, category: str) -> Path:
-        """Get the path to the state file for a given date and category"""
-        return self.base_dir / f"{date}_{category}_state.json"
+    def get_output_file_path(self, date: str, category: str) -> Path:
+        """Get the path to the output file for a given date and category"""
+        date_dir = self.output_dir / date
+        date_dir.mkdir(parents=True, exist_ok=True)
+        return date_dir / f"{category}.json"
+    
+    def get_raw_file_path(self, date: str, category: str) -> Path:
+        """Get the path to the raw file for a given date and category"""
+        date_dir = self.output_dir / date
+        date_dir.mkdir(parents=True, exist_ok=True)
+        return date_dir / f"{category}_raw.json"
 
-    def create_pipeline_state(self, date: str, category: str) -> PipelineState:
+    def create_pipeline_state(self, date: str, category: str) -> DailyData:
         """Create a new pipeline state
 
         Args:
@@ -90,59 +50,68 @@ class TaskManager:
             category: Category string (e.g. cs.AI)
 
         Returns:
-            A new PipelineState object
+            A new DailyData object
         """
-        state = PipelineState(date=date, category=category)
+        state = DailyData(
+            date=date,
+            category=category,
+            summary="",
+            papers=[],
+            last_update=datetime.now()
+        )
         self.current_state = state
         self.save_state()
         return state
 
-    def load_state(self, date: str, category: str) -> PipelineState:
-        """Load pipeline state from file or create a new one if not exists
+    def load_state(self, date: str, category: str) -> DailyData:
+        """Load pipeline state from output file or create a new one if not exists
 
         Args:
             date: Date string in YYYY-MM-DD format
             category: Category string (e.g. cs.AI)
 
         Returns:
-            The loaded or newly created PipelineState
+            The loaded or newly created DailyData
         """
-        state_file = self.get_state_file_path(date, category)
+        output_file = self.get_output_file_path(date, category)
 
-        if state_file.exists():
+        if output_file.exists():
             try:
-                with open(state_file, "r", encoding="utf-8") as f:
+                with open(output_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
 
-                state = PipelineState.model_validate(data)
-                logger.info(f"Loaded existing pipeline state from {state_file}")
+                state = DailyData.model_validate(data)
+                logger.info(f"Loaded existing pipeline state from {output_file}")
                 self.current_state = state
                 return state
             except Exception as e:
-                logger.error(f"Error loading pipeline state from {state_file}: {e}")
+                logger.error(f"Error loading pipeline state from {output_file}: {e}")
 
         # Create new state if file doesn't exist or loading failed
         logger.info(f"Creating new pipeline state for {date}, {category}")
         return self.create_pipeline_state(date, category)
 
     def save_state(self) -> None:
-        """Save the current pipeline state to file"""
+        """Save the current pipeline state to output file"""
         if not self.current_state:
             logger.error("No current state to save")
             return
 
-        state_file = self.get_state_file_path(self.current_state.date, self.current_state.category)
+        output_file = self.get_output_file_path(self.current_state.date, self.current_state.category)
 
         try:
-            # Convert to JSON using model_dump with date_format
+            # Update the last_update timestamp
+            self.current_state.last_update = datetime.now()
+            
+            # Convert to JSON using model_dump
             state_dict = self.current_state.model_dump(mode="json")
 
-            with open(state_file, "w", encoding="utf-8") as f:
+            with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(state_dict, f, ensure_ascii=False, indent=2)
 
-            logger.debug(f"Saved pipeline state to {state_file}")
+            logger.debug(f"Saved pipeline state to {output_file}")
         except Exception as e:
-            logger.error(f"Error saving pipeline state to {state_file}: {e}")
+            logger.error(f"Error saving pipeline state to {output_file}: {e}")
 
     def update_paper_task(
         self,
@@ -165,33 +134,69 @@ class TaskManager:
             logger.error("No current state")
             return
 
-        # Create task if it doesn't exist
-        if arxiv_id not in self.current_state.tasks:
-            self.current_state.tasks[arxiv_id] = PaperProcessingTask(arxiv_id=arxiv_id)
-
-        task = self.current_state.tasks[arxiv_id]
+        # Find paper if it exists
+        paper_index = next((i for i, p in enumerate(self.current_state.papers) if p.arxiv_id == arxiv_id), None)
+        
+        # Create paper if it doesn't exist
+        if paper_index is None:
+            new_paper = Paper(
+                arxiv_id=arxiv_id,
+                title="",
+                title_zh="",
+                authors=[],
+                abstract="",
+                tldr_zh="",
+                categories=[],
+                primary_category="",
+                comment="",
+                pdf_url=f"https://arxiv.org/pdf/{arxiv_id}",
+                published_date="",
+                updated_date="",
+                processing_status=TaskStatus.PENDING,
+                attempts=0,
+                last_update=datetime.now()
+            )
+            self.current_state.papers.append(new_paper)
+            paper = new_paper
+        else:
+            paper = self.current_state.papers[paper_index]
 
         # Update fields
         if status:
-            task.status = status
+            prev_status = paper.processing_status
+            paper.processing_status = status
+            
+            # Track attempt counts and status changes
             if status == TaskStatus.IN_PROGRESS:
-                task.attempts += 1
-            elif status == TaskStatus.COMPLETED:
+                if prev_status != TaskStatus.IN_PROGRESS:  # Only increment if newly starting
+                    paper.attempts += 1
+                    logger.debug(f"Paper {arxiv_id}: Attempt {paper.attempts}/{paper.max_attempts}")
+            elif status == TaskStatus.COMPLETED and prev_status != TaskStatus.COMPLETED:
                 self.current_state.processed_papers_count += 1
-            elif status == TaskStatus.FAILED:
+                logger.debug(f"Paper {arxiv_id}: Completed successfully on attempt {paper.attempts}")
+            elif status == TaskStatus.FAILED and prev_status != TaskStatus.FAILED:
                 self.current_state.failed_papers_count += 1
+                if paper.attempts >= paper.max_attempts:
+                    logger.warning(f"Paper {arxiv_id}: Failed permanently after {paper.attempts} attempts")
+                else:
+                    logger.warning(f"Paper {arxiv_id}: Failed on attempt {paper.attempts}, will retry later")
 
         if error:
-            task.error = error
+            paper.error = error
+            logger.debug(f"Paper {arxiv_id}: Error: {error}")
 
-        if step_completed and step_completed not in task.completed_steps:
-            task.completed_steps.append(step_completed)
+        if step_completed and step_completed not in paper.completed_steps:
+            paper.completed_steps.append(step_completed)
+            logger.debug(f"Paper {arxiv_id}: Completed step '{step_completed}'")
 
         if result:
-            task.result = result
+            # Update all fields from result
+            for key, value in result.items():
+                if hasattr(paper, key):
+                    setattr(paper, key, value)
 
         # Always update the timestamp
-        task.last_update = datetime.now()
+        paper.last_update = datetime.now()
         self.current_state.last_update = datetime.now()
 
         # Save the state after each update
@@ -207,17 +212,23 @@ class TaskManager:
             return []
 
         pending = []
-        for arxiv_id, task in self.current_state.tasks.items():
-            if task.status == TaskStatus.PENDING:
-                pending.append(arxiv_id)
+        for paper in self.current_state.papers:
+            if paper.processing_status == TaskStatus.PENDING:
+                pending.append(paper.arxiv_id)
             # Include papers that were in progress (process was interrupted)
-            elif task.status == TaskStatus.IN_PROGRESS:
-                logger.info(f"Paper {arxiv_id} was in progress but interrupted. Requeuing for processing.")
-                pending.append(arxiv_id)
+            elif paper.processing_status == TaskStatus.IN_PROGRESS:
+                logger.info(f"Paper {paper.arxiv_id} was in progress but interrupted. Requeuing for processing.")
+                pending.append(paper.arxiv_id)
+            # Include papers marked as retrying
+            elif paper.processing_status == TaskStatus.RETRYING:
+                pending.append(paper.arxiv_id)
             # Include failed papers that haven't exceeded max attempts
-            elif task.status == TaskStatus.FAILED and task.attempts < task.max_attempts:
-                task.status = TaskStatus.RETRYING
-                pending.append(arxiv_id)
+            elif paper.processing_status == TaskStatus.FAILED and paper.attempts < paper.max_attempts:
+                logger.info(f"Paper {paper.arxiv_id} failed but has {paper.attempts}/{paper.max_attempts} attempts. Will retry.")
+                # Update status to RETRYING
+                paper.processing_status = TaskStatus.RETRYING
+                self.save_state()
+                pending.append(paper.arxiv_id)
 
         return pending
 
@@ -231,28 +242,53 @@ class TaskManager:
             return []
 
         return [
-            arxiv_id
-            for arxiv_id, task in self.current_state.tasks.items()
-            if task.status == TaskStatus.FAILED and task.attempts >= task.max_attempts
+            paper.arxiv_id
+            for paper in self.current_state.papers
+            if paper.processing_status == TaskStatus.FAILED and paper.attempts >= paper.max_attempts
         ]
 
-    def register_raw_papers(self, arxiv_ids: List[str]) -> None:
+    def register_raw_papers(self, papers: List[dict]) -> None:
         """Register a list of raw papers in the pipeline state
 
         Args:
-            arxiv_ids: List of arXiv IDs to register
+            papers: List of raw papers with arxiv_id
         """
         if not self.current_state:
             logger.error("No current state")
             return
 
-        self.current_state.papers_count = len(arxiv_ids)
+        self.current_state.papers_count = len(papers)
         self.current_state.raw_papers_fetched = True
 
-        # Initialize tasks for each paper
-        for arxiv_id in arxiv_ids:
-            if arxiv_id not in self.current_state.tasks:
-                self.current_state.tasks[arxiv_id] = PaperProcessingTask(arxiv_id=arxiv_id)
+        # Initialize or update papers
+        for paper_data in papers:
+            arxiv_id = paper_data.get('arxiv_id')
+            if not arxiv_id:
+                continue
+                
+            # Check if paper already exists
+            existing = next((p for p in self.current_state.papers if p.arxiv_id == arxiv_id), None)
+            
+            if not existing:
+                # Create a minimal Paper object with just the arxiv_id and pending status
+                new_paper = Paper(
+                    arxiv_id=arxiv_id,
+                    title=paper_data.get('title', ''),
+                    title_zh='',
+                    authors=paper_data.get('authors', []),
+                    abstract=paper_data.get('abstract', ''),
+                    tldr_zh='',
+                    categories=paper_data.get('categories', []),
+                    primary_category=paper_data.get('primary_category', ''),
+                    comment=paper_data.get('comment', ''),
+                    pdf_url=paper_data.get('pdf_url', f"https://arxiv.org/pdf/{arxiv_id}"),
+                    published_date=paper_data.get('published_date', ''),
+                    updated_date=paper_data.get('updated_date', ''),
+                    processing_status=TaskStatus.PENDING,
+                    attempts=0,
+                    last_update=datetime.now()
+                )
+                self.current_state.papers.append(new_paper)
 
         self.save_state()
 
