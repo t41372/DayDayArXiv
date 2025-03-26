@@ -1,0 +1,60 @@
+name: Build Frontend
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    paths:
+      - 'daydayarxiv_frontend/public/data/**'  # Trigger on changes to data directory
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Full git history for proper branch management
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # Use an appropriate Node.js version
+          cache: 'npm'
+          cache-dependency-path: 'daydayarxiv_frontend/package-lock.json'
+          
+      - name: Install dependencies
+        run: |
+          cd daydayarxiv_frontend
+          npm ci
+          
+      - name: Build Next.js app
+        run: |
+          cd daydayarxiv_frontend
+          npm run build
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Push to build branch
+        run: |
+          # Create a temporary directory for the build branch
+          mkdir -p /tmp/build
+          cp -r daydayarxiv_frontend/.next /tmp/build/
+          cp -r daydayarxiv_frontend/public /tmp/build/
+          
+          # Create or update build branch
+          git checkout -b build || git checkout build
+          git pull origin build --rebase || true
+          
+          # Remove old build files and copy new ones
+          rm -rf .next public
+          cp -r /tmp/build/.next ./
+          cp -r /tmp/build/public ./
+          
+          # Commit and push changes
+          git add .next public
+          git commit -m "Update build artifacts [skip ci]" || echo "No changes to commit"
+          git push -f origin build
