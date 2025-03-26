@@ -31,7 +31,7 @@ A tool to fetch and process arXiv papers with LLM-powered translation and summar
 ## Usage
 
 ```bash
-python fetch_arxiv.py [options]
+uv run fetch_arxiv.py [options]
 ```
 
 ### Options
@@ -49,27 +49,27 @@ python fetch_arxiv.py [options]
 
 Process papers from a specific date:
 ```bash
-python fetch_arxiv.py --date 2025-03-01
+uv run fetch_arxiv.py --date 2025-03-01
 ```
 
 Process papers from a date range:
 ```bash
-python fetch_arxiv.py --start-date 2025-03-01 --end-date 2025-03-07
+uv run fetch_arxiv.py --start-date 2025-03-01 --end-date 2025-03-07
 ```
 
 Process papers from a different category:
 ```bash
-python fetch_arxiv.py --date 2025-03-01 --category cs.CL
+uv run fetch_arxiv.py --date 2025-03-01 --category cs.CL
 ```
 
 Force refresh existing data:
 ```bash
-python fetch_arxiv.py --date 2025-03-01 --force
+uv run fetch_arxiv.py --date 2025-03-01 --force
 ```
 
 Adjust rate limiting:
 ```bash
-python fetch_arxiv.py --date 2025-03-01 --rpm 30
+uv run fetch_arxiv.py --date 2025-03-01 --rpm 30
 ```
 
 

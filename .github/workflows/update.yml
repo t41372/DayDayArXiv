@@ -1,0 +1,109 @@
+name: Daily arXiv Update
+
+on:
+  schedule:
+    # Run at 00:20 UTC every day
+    - cron: '20 0 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Date to process (YYYY-MM-DD format)'
+        required: false
+        type: string
+      category:
+        description: 'arXiv category to process'
+        required: false
+        default: 'cs.AI'
+        type: string
+      force:
+        description: 'Force refresh existing data'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper commits
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install dependencies
+        run: uv sync
+      
+      - name: Set timezone to UTC
+        run: |
+          echo "TZ=UTC" >> $GITHUB_ENV
+          date  # Print current date/time for logging
+      
+      - name: Set current date
+        id: date
+        run: echo "current_date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+      
+      - name: Run fetch_arxiv script (with specified date)
+        if: ${{ inputs.date != '' }}
+        run: |
+          uv run fetch_arxiv.py --date ${{ inputs.date }} --category ${{ inputs.category }} ${{ inputs.force && '--force' || '' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+          RPM: ${{ secrets.RPM || '20' }}
+          OPENAI_API_KEY_STRONG: ${{ secrets.OPENAI_API_KEY_STRONG }}
+          OPENAI_API_BASE_URL_STRONG: ${{ secrets.OPENAI_API_BASE_URL_STRONG }}
+          LLM_MODEL_STRONG: ${{ secrets.LLM_MODEL_STRONG }}
+          LLM_RPM_STRONG: ${{ secrets.LLM_RPM_STRONG || '10' }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+          LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
+      
+      - name: Run fetch_arxiv script (with current date)
+        if: ${{ inputs.date == '' }}
+        run: |
+          uv run fetch_arxiv.py --category ${{ inputs.category || 'cs.AI' }} ${{ inputs.force && '--force' || '' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_API_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+          RPM: ${{ secrets.RPM || '20' }}
+          OPENAI_API_KEY_STRONG: ${{ secrets.OPENAI_API_KEY_STRONG }}
+          OPENAI_API_BASE_URL_STRONG: ${{ secrets.OPENAI_API_BASE_URL_STRONG }}
+          LLM_MODEL_STRONG: ${{ secrets.LLM_MODEL_STRONG }}
+          LLM_RPM_STRONG: ${{ secrets.LLM_RPM_STRONG || '10' }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+          LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          if [[ $(git status --porcelain) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          DATE=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
+          git add -A
+          git commit -m "Update data: $DATE"
+          git push
