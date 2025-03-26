@@ -36,6 +36,15 @@ export default function PaperCard({ paper }: PaperCardProps) {
           arXiv
         </a>
         <a
+          href={`https://www.alphaxiv.org/abs/${paper.arxiv_id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center text-blue-600 hover:underline"
+        >
+          <ExternalLink className="h-4 w-4 mr-1" />
+          alphaXiv
+        </a>
+        <a
           href={`https://arxiv.org/pdf/${paper.arxiv_id}.pdf`}
           target="_blank"
           rel="noopener noreferrer"
