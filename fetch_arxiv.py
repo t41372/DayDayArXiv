@@ -913,8 +913,8 @@ async def main() -> int:
             return 1
 
     else:
-        # Default to 2 days ago (UTC)
-        default_date = datetime.now(timezone.utc)
+        # Default to 1 day ago (UTC)
+        default_date = datetime.now(timezone.utc) - timedelta(days=1)
         dates_to_process = [default_date.strftime("%Y-%m-%d")]
 
     # Initialize LLM client with rate limiting
