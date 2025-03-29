@@ -914,9 +914,10 @@ async def main() -> int:
 
     else:
         # Default to 1 day ago (UTC)
-        default_date = datetime.now(timezone.utc) - timedelta(days=1)
+        default_date = datetime.now(timezone.utc) - timedelta(days=2)
         dates_to_process = [default_date.strftime("%Y-%m-%d")]
 
+    logger.info(f"Dates to process: {', '.join(dates_to_process)}")
     # Initialize LLM client with rate limiting
     llm = AsyncLLM(
         rpm=args.rpm,
