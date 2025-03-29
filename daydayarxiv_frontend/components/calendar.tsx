@@ -16,8 +16,11 @@ import {
   endOfWeek,
   isAfter,
   startOfDay,
+  subDays,
+  isBefore,
 } from "date-fns"
 import { cn } from "@/lib/utils"
+import { dataExists } from "@/lib/api"
 
 interface CalendarProps {
   selectedDate: Date
@@ -31,6 +34,39 @@ export default function Calendar({ selectedDate, onDateChange, availableDates }:
   // Get current date to compare against future dates
   const today = startOfDay(new Date())
   const days = ["一", "二", "三", "四", "五", "六", "日"]
+
+  // Check for the latest available date on component mount
+  useEffect(() => {
+    async function findLatestAvailableDate() {
+      // Start from today and go backwards
+      let checkDate = startOfDay(new Date());
+      let daysChecked = 0;
+      const category = "cs.AI"; // Default category
+      
+      // Only try to find data if we're using today as the default date
+      if (isSameDay(selectedDate, today)) {
+        // Check up to 30 days back
+        while (daysChecked < 30) {
+          // Don't check future dates
+          if (!isAfter(checkDate, today)) {
+            const hasData = await dataExists(checkDate, category);
+            if (hasData) {
+              // Found the latest date with data
+              onDateChange(checkDate);
+              setCurrentMonth(checkDate);
+              break;
+            }
+          }
+          
+          // Move one day back
+          checkDate = subDays(checkDate, 1);
+          daysChecked++;
+        }
+      }
+    }
+    
+    findLatestAvailableDate();
+  }, []);
 
   const handlePreviousMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1))
@@ -132,6 +168,7 @@ export default function Calendar({ selectedDate, onDateChange, availableDates }:
             const isSelected = isSameDay(day, selectedDate)
             const isAvailable = isDateAvailable(day)
             const isFutureDate = isAfter(day, today)
+            const isToday = isSameDay(day, today)
 
             return (
               <button
@@ -145,6 +182,7 @@ export default function Calendar({ selectedDate, onDateChange, availableDates }:
                   isCurrentMonth && !isFutureDate && !isAvailable && "text-[#c9c9c9] cursor-not-allowed",
                   isCurrentMonth && isAvailable && !isFutureDate && !isSelected && "hover:bg-gray-100 cursor-pointer",
                   isSelected && "bg-[#0e0e0f] text-white",
+                  isToday && !isSelected && "ring-1 ring-inset ring-black"
                 )}
               >
                 {format(day, "d")}
