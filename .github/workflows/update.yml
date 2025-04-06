@@ -108,3 +108,12 @@ jobs:
           git commit -m "Update data: $DATE"
           git remote set-url origin https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}
           git push
+
+      - name: Trigger build-frontend workflow
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.PAT_GITHUB }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-frontend.yml/dispatches \
+            -d '{"ref":"${{ github.ref }}"}'
