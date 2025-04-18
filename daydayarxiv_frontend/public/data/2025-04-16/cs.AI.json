@@ -1,0 +1,2078 @@
+{
+  "date": "2025-04-16",
+  "category": "cs.AI",
+  "summary": "欢迎来到 UTC 时间 2025-04-16 的 arXiv 中文 TLDR 快报！\n\n今天 arXiv 的论文继续被大语言模型 (LLM) 相关研究占据主导地位，涵盖了从性能评测、应用落地（如代码生成、地球观测、创业评估、RAG）、安全伦理（如幻觉、目标导向性、权限控制）到效率优化的方方面面。同时，计算机视觉（特别是 3D 重建和图像增强）、强化学习、硬件优化（HLS、CPU-GPU 协同）、自然语言处理（语音识别、情感分析）以及科学计算等领域也涌现了不少有趣的研究。\n\n**今日焦点与 LLM 相关研究:**\n\n*   **LLM 评测与能力分析:**\n    *   **HLS-Eval: 面向高级综合设计任务的 LLM 评测基准与框架 (HLS-Eval: A Benchmark and Framework for Evaluating LLMs on High-Level Synthesis Design Tasks):** 针对硬件设计领域的高级综合 (HLS)，提出了首个全面的 LLM 评测基准 HLS-Eval，包含 HLS 代码生成和优化任务，并提供了自动化评测框架。 (Paper 4)\n    *   **FLIP 推理挑战 (FLIP Reasoning Challenge):** 提出了一个新的基准 FLIP，通过要求模型识别 4 张图片序列的逻辑连贯性，来评估 AI（特别是 VLM 和 LLM）的视觉叙事、常识和序列推理能力。结果显示当前 SOTA 模型与人类表现仍有差距。 (Paper 6)\n    *   **评估大型语言模型的目标导向性 (Evaluating the Goal-Directedness of Large Language Models):** 提出了一种衡量 LLM 是否能有效利用其能力达成给定目标（即目标导向性）的方法，并在信息收集、认知努力和计划执行等任务上评估了多个主流 LLM，发现多数模型并非完全目标导向。 (Paper 42)\n    *   **Déjà Vu: 从机器翻译评估视角看多语言 LLM 评估 (Déjà Vu: Multilingual LLM Evaluation through the Lens of Machine Translation Evaluation):** 借鉴机器翻译评估领域的经验，指出当前多语言 LLM 生成能力评估的不足，并提出了一系列建议以提高评估的全面性、严谨性和一致性。 (Paper 44)\n    *   **攀登推理阶梯：SFT 后 LLM 能解决什么，还不能解决什么？(Climbing the Ladder of Reasoning: What LLMs Can-and Still Can't-Solve after SFT?):** 通过对 AIME24 数据集的分析，揭示了监督微调 (SFT) 对 LLM 数学推理能力提升的具体影响，发现问题难度存在阶梯结构，并指出了当前模型在解决极难问题上的局限性。 (Paper 56)\n    *   **大型语言模型知道什么？默会知识作为潜在的因果解释结构 (What Do Large Language Models Know? Tacit Knowledge as a Potential Causal-Explanatory Structure):** 从哲学角度探讨 LLM 是否“知道”以及知道什么，认为 LLM 可以获得默会知识 (tacit knowledge)，并满足语义描述、句法结构和因果系统性的约束。 (Paper 11)\n\n*   **LLM 应用与增强:**\n    *   **面向地球观测的 LLM 智能体 (Towards LLM Agents for Earth Observation):** 探索 LLM 智能体在地球观测领域的应用潜力，提出了 UnivEarth 基准，发现当前 LLM 智能体在使用 Google Earth Engine API 时面临代码执行失败等挑战，并通过合成数据微调提升了小模型的性能。 (Paper 19)\n    *   **ARCeR: 用于自动定义网络靶场的 Agentic RAG (ARCeR: an Agentic RAG for the Automated Definition of Cyber Ranges):** 提出 ARCeR，一个结合 Agentic RAG 范式的系统，能根据自然语言描述自动生成和部署网络靶场 (Cyber Range)，实验证明其优于基础 LLM 或 RAG 系统。 (Paper 17)\n    *   **基于推理的 AI 用于初创企业评估 (R.A.I.S.E.): 内存增强的多步决策框架 (Reasoning-Based AI for Startup Evaluation (R.A.I.S.E.): A Memory-Augmented, Multi-Step Decision Framework):** 提出 R.A.I.S.E. 框架，结合 LLM 的推理能力和决策树的可解释性来预测初创企业成功率，通过 CoT 生成推理日志并提炼为结构化规则，显著提高了预测精度。 (Paper 20)\n    *   **SALAD: 通过结构感知和 LLM 驱动的增强数据进行对比学习以提高鲁棒性和泛化性 (SALAD: Improving Robustness and Generalization through Contrastive Learning with Structure-Aware and LLM-Driven Augmented Data):** 提出 SALAD 方法，利用结构感知的正样本和 LLM 生成的反事实负样本进行对比学习，以减少模型对虚假相关性的依赖，提升 NLP 任务的鲁棒性和泛化能力。 (Paper 12)\n    *   **用于检索增强生成的 LLM 内联函数库 (A Library of LLM Intrinsics for Retrieval-Augmented Generation):** 提出 LLM 内联函数 (Intrinsics) 的概念，旨在为 RAG 等常见 LLM 应用提供一套稳定、实现无关的 API 标准，并发布了基于 LoRA 和 vLLM 的内联函数库。 (Paper 61)\n    *   **用于 RAG 驱动 LLM 的共享磁盘 KV 缓存管理以实现高效多实例推理 (Shared Disk KV Cache Management for Efficient Multi-Instance Inference in RAG-Powered LLMs):** 针对 RAG 导致的 LLM 输入 token 增加和推理延迟问题，提出共享磁盘 KV 缓存管理系统 Shared RAG-DCache，通过预生成和共享文档相关的 KV 缓存，提高多实例推理的吞吐量和延迟。 (Paper 53)\n    *   **优化复合检索系统 (Optimizing Compound Retrieval Systems):** 提出复合检索系统 (compound retrieval systems) 的概念，允许除级联重排外的更灵活的模型交互方式（如与 LLM 的成对比较），并展示了如何优化系统设计以平衡效果和效率。 (Paper 23)\n    *   **大型语言模型用于从纵向医疗记录预测药物过量 (Large Language Models for Drug Overdose Prediction from Longitudinal Medical Records):** 评估了 GPT-4o 在使用纵向保险索赔记录预测药物过量风险方面的效果，发现在微调和零样本设置下，LLM 表现优于传统机器学习模型，展示了其在临床决策支持中的潜力。 (Paper 48)\n    *   **从需求到架构：半自动生成软件架构 (From Requirements to Architecture: Semi-Automatically Generating Software Architectures):** 提出一种利用 LLM 辅助架构师创建软件架构的新方法，涵盖领域模型创建、用例规范、架构决策和评估等环节，初步结果显示了可行性和时间节省潜力。 (Paper 10)\n    *   **敏捷回顾：哪些做得好？哪些不好？我们该做什么？(Agile Retrospectives: What went well? What didn't go well? What should we do?):** 探讨在敏捷回顾会议中使用生成式 AI 进行信息交互和信息可视化的潜力，并展示了原型工具 RetroAI++。 (Paper 51)\n\n*   **LLM 安全、鲁棒性与伦理:**\n    *   **高效对比解码与概率幻觉检测 - 缓解大型视觉语言模型中的幻觉 (Efficient Contrastive Decoding with Probabilistic Hallucination Detection - Mitigating Hallucinations in Large Vision Language Models):** 提出 ECD 方法，在推理时通过对比 token 概率和幻觉分数来抑制 LVLM 的幻觉，无需额外训练，提高了准确性和效率。 (Paper 18)\n    *   **AI 生成文本的鲁棒和细粒度检测 (Robust and Fine-Grained Detection of AI Generated Texts):** 提出一系列基于 token 分类任务的模型，用于检测 AI 生成文本，特别关注人机混合编写的文本，并在包含未见领域、生成器、非母语者和对抗输入的广泛数据集上表现良好。 (Paper 33)\n    *   **信任 CHATGPT：提示中的微小调整如何导致情感分类的巨大差异 (Trusting CHATGPT: how minor tweaks in the prompts lead to major differences in sentiment classification):** (西班牙语论文) 实验表明，即使对 GPT-4o mini 的提示进行微小的词汇、句法或结构更改，也会显著影响情感极性分类结果，挑战了 LLM 在分类任务中的鲁棒性和可信度。 (Paper 13)\n    *   **有目的诱导的精神病 (PIP): 在大型语言模型中将幻觉视为想象力 (Purposefully Induced Psychosis (PIP): Embracing Hallucination as Imagination in Large Language Models):** 提出 PIP 方法，重新框定 LLM 的幻觉，认为在创意或探索性任务中，幻觉可以作为计算想象力的来源而非缺陷，通过微调鼓励模型产生推测性、隐喻性和超现实的输出。 (Paper 26)\n    *   **Progent: LLM 智能体的可编程权限控制 (Progent: Programmable Privilege Control for LLM Agents):** 提出首个针对 LLM 智能体的权限控制机制 Progent，使用领域特定语言定义灵活的策略，以细粒度方式约束工具调用，强制执行最小权限原则，提高安全性。 (Paper 62)\n    *   **利用人工智能绘制争议地图：YouTube 上哈马斯-以色列冲突分析 (Mapping Controversies Using Artificial Intelligence: An Analysis of the Hamas-Israel Conflict on YouTube):** (西班牙语论文) 结合 STS 的争议分析和 NLP (BERT)，对 YouTube 上关于哈马斯-以色列冲突的西班牙语评论进行分类和分析，揭示了公众舆论的变化和媒体议程设置的影响。 (Paper 14)\n    *   **指导亲社会 AI 智能体：LLM 在社会模拟中决策的计算基础 (Steering Prosocial AI Agents: Computational Basis of LLM's Decision Making in Social Simulation):** 在独裁者博弈场景中，研究如何探测、量化和修改 LLM 的内部表征（如性别概念），以改变其决策行为，为 AI 对齐、去偏见和社会模拟智能体设计提供方法。 (Paper 64)\n    *   **GPT 能告诉我们为什么这些图像是合成的吗？赋能多模态大语言模型用于取证 (Can GPT tell us why these images are synthesized? Empowering Multimodal Large Language Models for Forensics):** 探索多模态 LLM 在图像伪造检测中的应用，提出一个框架，利用提示工程和少样本学习，使 LLM 能够评估图像真实性、定位篡改区域、提供证据并追踪生成方法。 (Paper 63)\n    *   **选择性示范检索以改进隐式仇恨言论检测 (Selective Demonstration Retrieval for Improved Implicit Hate Speech Detection):** 提出一种利用上下文学习的方法，通过自适应检索关注相似群体或相似度最高的示例，来增强对隐式仇恨言论的检测，无需模型微调。 (Paper 22)\n\n*   **LLM 训练与优化:**\n    *   **从 LLM 自适应问题难度分级的角度反思高质量 CoT 数据的生成 (Rethinking the Generation of High-Quality CoT Data from the Perspective of LLM-Adaptive Question Difficulty Grading):** 提出一种根据 LLM 自身推理能力对问题进行难度分级的方法，构建 LLM 自适应问题数据库，并使用 DeepSeek-R1 生成相应的高质量 CoT 数据，以低成本高效提升小模型的推理能力。 (Paper 36)\n    *   **AttentionDrop: Transformer 模型的新型正则化方法 (AttentionDrop: A Novel Regularization Method for Transformer Models):** 提出 AttentionDrop，一种直接作用于自注意力分布的随机正则化技术家族，包含硬注意力掩码、模糊注意力平滑和一致性正则化三种变体，旨在缓解 Transformer 的过拟合问题。 (Paper 21)\n    *   **表征 LLM 推理工作负载并优化 CPU-GPU 耦合架构 (Characterizing and Optimizing LLM Inference Workloads on CPU-GPU Coupled Architectures):** 深入分析了 LLM 推理在松耦合 (PCIe A100/H100) 和紧耦合 (GH200) 系统上的行为，发现 GH200 在大批量下显著优越，但在小批量下受 CPU 限制，并提出核融合等优化方向。 (Paper 55)\n    *   **选择性注意力联邦学习：提高临床文本分类的隐私和效率 (Selective Attention Federated Learning: Improving Privacy and Efficiency for Clinical Text Classification):** 提出 SAFL，一种联邦学习方法，通过动态识别和仅微调注意力关键的 Transformer 层，显著减少通信带宽并增强差分隐私保护，适用于医疗 NLP 任务。 (Paper 47)\n\n**计算机视觉与图形学:**\n\n*   **SHeaP: 通过 2D 高斯学习的自监督头部几何预测器 (SHeaP: Self-Supervised Head Geometry Predictor Learned via 2D Gaussians):** 提出 SHeaP，一种利用 2D 高斯进行渲染的自监督方法，从单目图像预测 3DMM 网格和绑定其上的高斯点云，用于实时重建人头几何。该方法仅使用 2D 数据训练，在几何评估和表情表现上超越了现有自监督方法。 (Paper 2)\n*   **我该怎么做？为日常交互合成 3D 手部运动和接触 (How Do I Do That? Synthesizing 3D Hand Motion and Contacts for Everyday Interactions):** 解决从单张 RGB 图像、动作文本和物体上的 3D 接触点预测 3D 手部运动和接触图的新问题。方法包括学习交互轨迹码本的 VQVAE 和预测交互轨迹的 Transformer 解码器。 (Paper 3)\n*   **GrabS: 无需场景监督的 3D 物体分割生成式具身智能体 (GrabS: Generative Embodied Agent for 3D Object Segmentation without Scene Supervision):** 提出 GrabS，一个两阶段无监督 3D 物体分割流程。第一阶段学习生成性和判别性的以物体为中心的先验知识，第二阶段设计一个具身智能体通过查询这些先验来发现物体。 (Paper 54)\n*   **学习物理信息颜色感知变换用于低光图像增强 (Learning Physics-Informed Color-Aware Transforms for Low-Light Image Enhancement):** 提出 PiCat 框架，通过学习到的颜色感知变换 (CAT) 将低光 sRGB 图像转换为深度光照不变描述符，并用内容-噪声分解网络 (CNDN) 恢复内容，以解决低光增强中的颜色不一致和 SPD 敏感性问题。 (Paper 38)\n*   **通过结构不确定性建模和不准确 GT 深度拟合实现真实世界深度恢复 (Real-World Depth Recovery via Structure Uncertainty Modeling and Inaccurate GT Depth Fitting):** 针对真实世界 RGB-D 数据中原始深度图结构质量低且缺乏配对真值的问题，提出通过丰富结构错位多样性、设计结构不确定性模块以及鲁棒特征对齐模块来提高深度恢复的泛化能力。 (Paper 45)\n*   **不确定性引导的粗到细肿瘤分割与解剖感知后处理 (Uncertainty-Guided Coarse-to-Fine Tumor Segmentation with Anatomy-Aware Post-Processing):** 提出一种用于胸部 CT 肿瘤分割的框架，结合全卷肿瘤定位和 ROI 精细分割，并利用不确定性感知损失和基于解剖先验（如肺部重叠、距离）的后处理来提高精度和减少误报。 (Paper 8)\n*   **调整世界模型以在 3D 游戏中进行轨迹跟随 (Adapting a World Model for Trajectory Following in a 3D Game):** 在 3D 游戏《Bleeding Edge》中，应用带有不同编码器和策略头的逆向动态模型 (IDM) 进行模仿学习中的轨迹跟随任务，并研究了多种未来对齐策略以应对分布偏移和随机性。 (Paper 1)\n\n**强化学习与控制:**\n\n*   **VIPO: 价值函数不一致性惩罚的离线强化学习 (VIPO: Value Function Inconsistency Penalized Offline Reinforcement Learning):** 提出 VIPO，一种新的基于模型的离线 RL 算法，通过最小化从离线数据直接学习的价值与从模型估计的价值之间的不一致性，来增强模型训练，提高模型准确性，并在 D4RL 和 NeoRL 基准上取得 SOTA 性能。 (Paper 34)\n*   **一种计算高效的无限期平均奖励线性 MDP 算法 (A Computationally Efficient Algorithm for Infinite-Horizon Average-Reward Linear MDPs):** 针对无限期平均奖励线性 MDP，提出一种值迭代方法，其裁剪操作仅需在算法访问过的状态集上计算最小值，从而在保持相同遗憾界的同时实现计算高效性，复杂度与状态空间大小无关。 (Paper 29)\n*   **因果增强的自主移动机器人在动态环境中的决策制定 (Causality-enhanced Decision-Making for Autonomous Mobile Robots in Dynamic Environments):** 提出一个基于因果关系的决策框架，通过学习环境动态（如电池使用、人类障碍）的因果模型，使机器人在共享环境中（如仓库）更有效地规划和执行任务。同时开发了 PeopleFlow 模拟器。 (Paper 37)\n\n**硬件、系统与网络:**\n\n*   **带宽受限边缘网络上分散式学习的通信优化 (Communication Optimization for Decentralized Learning atop Bandwidth-limited Edge Networks):** 针对边缘网络上运行分散式联邦学习 (DFL) 的通信挑战，提出联合设计代理形成的覆盖网络通信方案和控制通信需求的混合矩阵，显著减少训练时间。 (Paper 9)\n\n**NLP 与语音:**\n\n*   **通过大规模弱监督学习推进阿拉伯语语音识别 (Advancing Arabic Speech Recognition Through Large-Scale Weakly Supervised Learning):** 使用 Conformer 架构，在 15000 小时弱标注的阿拉伯语（含 MSA 和方言）语音数据上从头开始训练 ASR 模型，无需人工转录，达到了 SOTA 性能，展示了弱监督在低资源语言 ASR 中的潜力。 (Paper 7)\n*   **朗诵阿拉伯诗歌的诗歌格律分类：为低资源任务集成高资源系统 (Poem Meter Classification of Recited Arabic Poetry: Integrating High-Resource Systems for a Low-Resource Task):** 提出一个框架，通过集成两个独立的高资源系统（可能指 ASR 和文本分析）来识别朗诵阿拉伯诗歌的格律（meter），这是一个低资源任务。并发布了该任务的基准。 (Paper 15)\n*   **面向多模态情感分析的可解释融合与平衡学习 (Towards Explainable Fusion and Balanced Learning in Multimodal Sentiment Analysis):** 提出 KAN-MCP 框架，利用 Kolmogorov-Arnold Networks (KAN) 的可解释性分析跨模态交互，并结合 Multimodal Clean Pareto (MCPareto) 框架及提出的 DRD-MIB 方法处理模态不平衡和噪声干扰问题。 (Paper 16)\n*   **ADAT: 用于手语翻译的时序感知自适应 Transformer 架构 (ADAT: Time-Series-Aware Adaptive Transformer Architecture for Sign Language Translation):** 提出 ADAT，一种自适应 Transformer 架构，通过门控机制增强特征提取和自适应特征加权，以更好地捕捉手语翻译中细粒度的短时序依赖，同时降低计算复杂度。引入了首个公开的医学美国手语数据集 MedASL。 (Paper 35)\n\n**科学计算与数据分析:**\n\n*   **SCENT: 通过可扩展条件神经场实现连续科学数据的鲁棒时空学习 (SCENT: Robust Spatiotemporal Learning for Continuous Scientific Data via Scalable Conditioned Neural Fields):** 提出 SCENT 框架，一个基于 Transformer 的可扩展、连续性感知的时空表示学习方法，统一了插值、重建和预测任务，能处理不规则分布和大规模科学数据。 (Paper 5)\n*   **利用机器学习模型预测数字医疗分诊访谈的结果 (Leveraging Machine Learning Models to Predict the Outcome of Digital Medical Triage Interviews):** 探索使用机器学习（特别是 LGBMClassifier, CatBoostClassifier, TabTransformer）预测未完成的数字医疗分诊访谈的最终分诊级别，发现预测准确率与访谈完成度呈线性相关。 (Paper 31)\n\n**优化与理论:**\n\n*   **通过信息论分解平衡自监督学习中的图嵌入平滑性 (Balancing Graph Embedding Smoothness in Self-Supervised Learning via Information-Theoretic Decomposition):** 观察到现有图 SSL 方法在图嵌入平滑性上处于两极，导致在不同下游任务上表现各异。通过信息论框架将 SSL 目标分解，提出 BSG 框架和新损失函数以平衡平滑性，提升跨任务性能。 (Paper 27)\n*   **Adjoint Sampling: 通过伴随匹配实现高度可扩展的扩散采样器 (Adjoint Sampling: Highly Scalable Diffusion Samplers via Adjoint Matching):** 提出 Adjoint Sampling，一种用于学习从非归一化密度（能量函数）采样的扩散过程的高效算法，基于随机最优控制理论，允许比能量评估和模型采样多得多的梯度更新，可扩展到大规模问题（如分子构象生成）。 (Paper 58)\n*   **粒子群优化器中的学习策略：批判性回顾与性能分析 (Learning Strategies in Particle Swarm Optimizer: A Critical Review and Performance Analysis):** 对粒子群优化 (PSO) 中的各种学习策略进行了全面的回顾、分类和系统的性能分析，并讨论了开放挑战和未来方向。 (Paper 46)\n*   **在难以解决的 Max3Sat 实例中利用多重可满足性特征在高质最优解之间移动 (Moving between high-quality optima using multi-satisfiability characteristics in hard-to-solve Max3Sat instances):** 针对灰盒优化中隧道效应 (tunnelling) 失效的 Max3Sat 实例，分析其特征并提出利用子句可满足性特征连接高质量解的方法，构建了新的灰盒优化器。 (Paper 40)\n*   **在灰盒难以捉摸的双峰土地利用分配问题中寻找和利用替代变量依赖概念 (Seeking and leveraging alternative variable dependency concepts in gray-box-elusive bimodal land-use allocation problems):** 针对标准变量依赖发现技术不适用的真实世界多目标土地利用分配问题，提出问题专用的变量依赖定义，并基于此设计了新的交叉算子，提升了 NSGA-II 和 MOEA/D 的效果。 (Paper 39)\n\n**其他:**\n\n*   **Saga: 从海量无标签 IMU 数据中捕获多粒度语义用于用户感知 (Saga: Capturing Multi-granularity Semantics from Massive Unlabelled IMU Data for User Perception):** 提出 Saga 方法，通过预训练骨干模型从未标记 IMU 数据中提取多层次语义信息，并使用贝叶斯优化确定预训练任务权重，只需少量标记数据即可实现高精度用户感知（如活动识别）。 (Paper 57)\n*   **EngramNCA: 记忆转移的神经细胞自动机模型 (EngramNCA: a Neural Cellular Automaton Model of Memory Transfer):** 提出 EngramNCA，一种包含公开可见状态和私有内部记忆通道的神经细胞自动机 (NCA)，模拟生物体中超越突触的细胞内记忆机制，用于编码和传播复杂形态。 (Paper 41)\n*   **RadMamba: 通过基于雷达微多普勒导向的 Mamba 状态空间模型实现高效人体活动识别 (RadMamba: Efficient Human Activity Recognition through Radar-based Micro-Doppler-Oriented Mamba State-Space Model):** 提出 RadMamba，一种参数高效、面向雷达微多普勒的 Mamba 状态空间模型，用于基于雷达的人体活动识别 (HAR)，在多个数据集上以显著更少的参数量达到了与 SOTA 模型相当甚至更高的精度。 (Paper 24)\n*   **保障天空安全：反无人机方法、基准测试和未来方向的综合调查 (Securing the Skies: A Comprehensive Survey on Anti-UAV Methods, Benchmarking, and Future Directions):** 全面综述了反无人机 (Anti-UAV) 领域，涵盖分类、检测、跟踪任务，讨论了新兴方法（扩散模型、多模态融合、VLM、自监督、强化学习）和现有基准，并指出现实性能、隐身检测和集群对抗等方面的挑战。 (Paper 32)\n*   **PCDiff: 具有水印兼容性的扩散模型中用于所有权保护的主动控制 (PCDiff: Proactive Control for Ownership Protection in Diffusion Models with Watermark Compatibility):** 提出 PCDiff，一个主动访问控制框架，通过在扩散模型解码器中集成可训练融合模块和分层认证，使得只有拥有有效凭证的用户才能生成高质量图像，从而保护模型 IP，同时兼容现有水印技术。 (Paper 52)\n*   **Web 安全合成图像生成：多模态鲁棒 NSFW 防御和百万级数据集 (Towards Safe Synthetic Image Generation On the Web: A Multimodal Robust NSFW Defense and Million Scale Dataset):** 针对 T2I 模型生成 NSFW 内容的风险，提出了一个包含百万级提示-图像对（含对抗样本）的数据集，并开发了一种鲁棒的多模态 NSFW 防御模型，能有效对抗文本和图像模态的对抗攻击。 (Paper 60)\n*   **通过显式回滚机制增强 Web 智能体 (Enhancing Web Agents with Explicit Rollback Mechanisms):** 为 Web 智能体增加了显式回滚机制，允许智能体在导航轨迹中回退到先前的状态，以应对复杂动态的 Web 环境和错误状态，提高了导航的有效性和效率。 (Paper 49)\n*   **ACMamba: 通过非对称共识状态空间模型实现快速无监督异常检测 (ACMamba: Fast Unsupervised Anomaly Detection via An Asymmetrical Consensus State Space Model):** 针对高光谱图像 (HSI) 无监督异常检测计算成本高的问题，提出 ACMamba，采用非对称检测范式（使用区域级实例替代像素级样本）和基于 Mamba 的模块，并设计共识学习策略，显著降低计算成本同时保持高精度。 (Paper 50)\n*   **程序员的程序分析漫游指南，第二部分：LLM 的深思熟虑 (The Hitchhiker's Guide to Program Analysis, Part II: Deep Thoughts by LLMs):** 提出 BugLens 框架，利用 LLM 对静态分析工具产生的警告进行后处理，通过指导 LLM 评估代码模式的安全影响和验证约束条件，显著提高了静态分析的精度，减少了误报。 (Paper 59)\n*   **携带证明的神经符号代码 (Proof-Carrying Neuro-Symbolic Code):** (邀请论文) 介绍了“携带证明的神经符号代码”的概念及其意义和价值，概述了该研究领域的初步成功和挑战。 (Paper 25)\n*   **语言模型作为准晶体思维：生成系统中的结构、约束和涌现 (Language Models as Quasi-Crystalline Thought: Structure, Constraint, and Emergence in Generative Systems):** (论文) 将 LLM 类比于准晶体，认为 LLM 的特征行为是产生内部共振的语言模式，其逻辑由约束、共振和结构深度定义，而非简单的预测准确性或规则遵循。 (Paper 30)\n*   **FiSMiness: 基于有限状态机的情感支持对话范式 (FiSMiness: A Finite State Machine Based Paradigm for Emotional Support Conversations):** 提出 FiSMiness 框架，将有限状态机 (FSM) 应用于 LLM 进行情感支持对话 (ESC)，使单个 LLM 能够自举规划、自我推理用户情绪、支持策略并生成回应，实验证明优于多种基线方法。 (Paper 43)\n*   **通过连续 Token 扩散实现生成式推荐 (Generative Recommendation with Continuous-Token Diffusion):** 提出 DeftRec 框架，使用去噪扩散模型使 LLM 推荐系统能够处理连续 token 输入和目标，克服离散化带来的信息压缩和词汇量限制问题，并通过基于分数的检索生成推荐。 (Paper 28)",
+  "papers": [
+    {
+      "arxiv_id": "2504.12299v1",
+      "title": "Adapting a World Model for Trajectory Following in a 3D Game",
+      "title_zh": "调整世界模型以在 3D 游戏中进行轨迹跟踪\n",
+      "authors": [
+        "Marko Tot",
+        "Shu Ishida",
+        "Abdelhak Lemkhenter",
+        "David Bignell",
+        "Pallavi Choudhury",
+        "Chris Lovett",
+        "Luis França",
+        "Matheus Ribeiro Furtado de Mendonça",
+        "Tarun Gupta",
+        "Darren Gehring",
+        "Sam Devlin",
+        "Sergio Valcarcel Macua",
+        "Raluca Georgescu"
+      ],
+      "abstract": "Imitation learning is a powerful tool for training agents by leveraging\nexpert knowledge, and being able to replicate a given trajectory is an integral\npart of it. In complex environments, like modern 3D video games, distribution\nshift and stochasticity necessitate robust approaches beyond simple action\nreplay. In this study, we apply Inverse Dynamics Models (IDM) with different\nencoders and policy heads to trajectory following in a modern 3D video game --\nBleeding Edge. Additionally, we investigate several future alignment strategies\nthat address the distribution shift caused by the aleatoric uncertainty and\nimperfections of the agent. We measure both the trajectory deviation distance\nand the first significant deviation point between the reference and the agent's\ntrajectory and show that the optimal configuration depends on the chosen\nsetting. Our results show that in a diverse data setting, a GPT-style policy\nhead with an encoder trained from scratch performs the best, DINOv2 encoder\nwith the GPT-style policy head gives the best results in the low data regime,\nand both GPT-style and MLP-style policy heads had comparable results when\npre-trained on a diverse setting and fine-tuned for a specific behaviour\nsetting.",
+      "tldr_zh": "本文研究了如何使用模仿学习，特别是逆动力学模型(IDM)，使智能体在复杂的3D游戏中进行轨迹跟踪。研究比较了不同编码器（包括从头训练的编码器和DINOv2）以及策略头（GPT-style和MLP-style）在Bleeding Edge游戏中的表现。为了解决分布偏移问题，论文还探索了多种未来对齐策略。实验结果表明，在不同数据量和训练设置下，最佳配置有所不同：在多样化数据集中，从头训练的编码器配合GPT-style策略头表现最佳；在低数据量情况下，DINOv2编码器配合GPT-style策略头效果最好；预训练后针对特定行为进行微调时，GPT-style和MLP-style策略头表现相当。\n",
+      "categories": [
+        "cs.AI",
+        "cs.CV",
+        "cs.LG"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12299v1",
+      "published_date": "2025-04-16 17:59:54 UTC",
+      "updated_date": "2025-04-16 17:59:54 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:02:58.559733"
+    },
+    {
+      "arxiv_id": "2504.12292v1",
+      "title": "SHeaP: Self-Supervised Head Geometry Predictor Learned via 2D Gaussians",
+      "title_zh": "SHeaP：通过 2D 高斯学习的自监督头部几何预测器\n",
+      "authors": [
+        "Liam Schoneveld",
+        "Zhe Chen",
+        "Davide Davoli",
+        "Jiapeng Tang",
+        "Saimon Terazawa",
+        "Ko Nishino",
+        "Matthias Nießner"
+      ],
+      "abstract": "Accurate, real-time 3D reconstruction of human heads from monocular images\nand videos underlies numerous visual applications. As 3D ground truth data is\nhard to come by at scale, previous methods have sought to learn from abundant\n2D videos in a self-supervised manner. Typically, this involves the use of\ndifferentiable mesh rendering, which is effective but faces limitations. To\nimprove on this, we propose SHeaP (Self-supervised Head Geometry Predictor\nLearned via 2D Gaussians). Given a source image, we predict a 3DMM mesh and a\nset of Gaussians that are rigged to this mesh. We then reanimate this rigged\nhead avatar to match a target frame, and backpropagate photometric losses to\nboth the 3DMM and Gaussian prediction networks. We find that using Gaussians\nfor rendering substantially improves the effectiveness of this self-supervised\napproach. Training solely on 2D data, our method surpasses existing\nself-supervised approaches in geometric evaluations on the NoW benchmark for\nneutral faces and a new benchmark for non-neutral expressions. Our method also\nproduces highly expressive meshes, outperforming state-of-the-art in emotion\nclassification.",
+      "tldr_zh": "该论文提出了一种自监督头部几何预测器SHeaP，通过2D高斯分布学习，从单目图像和视频中进行精确、实时的3D人头重建。SHeaP预测一个3DMM网格和一组绑定到该网格的高斯分布，并通过将头部avatar重新生成以匹配目标帧，反向传播光度损失到3DMM和高斯预测网络。使用高斯分布进行渲染显著提高了自监督方法的有效性。实验表明，仅使用2D数据训练，SHeaP在NoW基准测试中超越了现有的自监督方法，并在中性面和非中性表情的几何评估中表现出色，同时生成了高度富有表现力的网格，优于情感分类领域的现有技术。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "For video demonstrations and additional materials please see\n  https://nlml.github.io/sheap/",
+      "pdf_url": "http://arxiv.org/pdf/2504.12292v1",
+      "published_date": "2025-04-16 17:55:02 UTC",
+      "updated_date": "2025-04-16 17:55:02 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:03:10.599810"
+    },
+    {
+      "arxiv_id": "2504.12284v1",
+      "title": "How Do I Do That? Synthesizing 3D Hand Motion and Contacts for Everyday Interactions",
+      "title_zh": "我该怎么做？为日常互动合成 3D 手部运动和接触\n",
+      "authors": [
+        "Aditya Prakash",
+        "Benjamin Lundell",
+        "Dmitry Andreychuk",
+        "David Forsyth",
+        "Saurabh Gupta",
+        "Harpreet Sawhney"
+      ],
+      "abstract": "We tackle the novel problem of predicting 3D hand motion and contact maps (or\nInteraction Trajectories) given a single RGB view, action text, and a 3D\ncontact point on the object as input. Our approach consists of (1) Interaction\nCodebook: a VQVAE model to learn a latent codebook of hand poses and contact\npoints, effectively tokenizing interaction trajectories, (2) Interaction\nPredictor: a transformer-decoder module to predict the interaction trajectory\nfrom test time inputs by using an indexer module to retrieve a latent\naffordance from the learned codebook. To train our model, we develop a data\nengine that extracts 3D hand poses and contact trajectories from the diverse\nHoloAssist dataset. We evaluate our model on a benchmark that is 2.5-10X larger\nthan existing works, in terms of diversity of objects and interactions\nobserved, and test for generalization of the model across object categories,\naction categories, tasks, and scenes. Experimental results show the\neffectiveness of our approach over transformer & diffusion baselines across all\nsettings.",
+      "tldr_zh": "该论文提出了一种新方法，用于从单视角RGB图像、动作文本描述和物体上的3D接触点预测3D手部运动和接触图（交互轨迹）。该方法包含：(1) 交互代码本：使用VQVAE模型学习手部姿势和接触点的潜在代码本，有效地将交互轨迹标记化；(2) 交互预测器：一个Transformer解码器模块，通过索引模块从学习到的代码本中检索潜在的affordance，从而从测试输入中预测交互轨迹。为了训练模型，作者开发了一个数据引擎，从HoloAssist数据集中提取3D手部姿势和接触轨迹。实验结果表明，该方法在对象和交互多样性方面比现有工作大2.5-10倍的基准测试中，优于Transformer和扩散模型基线。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "CVPR 2025, Project page:\n  https://ap229997.github.io/projects/latentact",
+      "pdf_url": "http://arxiv.org/pdf/2504.12284v1",
+      "published_date": "2025-04-16 17:48:12 UTC",
+      "updated_date": "2025-04-16 17:48:12 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:03:22.516968"
+    },
+    {
+      "arxiv_id": "2504.12268v1",
+      "title": "HLS-Eval: A Benchmark and Framework for Evaluating LLMs on High-Level Synthesis Design Tasks",
+      "title_zh": "HLS-Eval：用于评估大语言模型在高级综合设计任务中的基准和框架\n",
+      "authors": [
+        "Stefan Abi-Karam",
+        "Cong Hao"
+      ],
+      "abstract": "The rapid scaling of large language model (LLM) training and inference has\ndriven their adoption in semiconductor design across academia and industry.\nWhile most prior work evaluates LLMs on hardware description language (HDL)\ntasks, particularly Verilog, designers are increasingly using high-level\nsynthesis (HLS) to build domain-specific accelerators and complex hardware\nsystems. However, benchmarks and tooling to comprehensively evaluate LLMs for\nHLS design tasks remain scarce.\n  To address this, we introduce HLS-Eval, the first complete benchmark and\nevaluation framework for LLM-driven HLS design. HLS-Eval targets two core\ntasks: (1) generating HLS code from natural language descriptions, and (2)\nperforming HLS-specific code edits to optimize performance and hardware\nefficiency. The benchmark includes 94 unique designs drawn from standard HLS\nbenchmarks and novel sources. Each case is prepared via a semi-automated flow\nthat produces a natural language description and a paired testbench for\nC-simulation and synthesis validation, ensuring each task is \"LLM-ready.\"\n  Beyond the benchmark, HLS-Eval offers a modular Python framework for\nautomated, parallel evaluation of both local and hosted LLMs. It includes a\nparallel evaluation engine, direct HLS tool integration, and abstractions for\nto support different LLM interaction paradigms, enabling rapid prototyping of\nnew benchmarks, tasks, and LLM methods.\n  We demonstrate HLS-Eval through baseline evaluations of open-source LLMs on\nVitis HLS, measuring outputs across four key metrics - parseability,\ncompilability, runnability, and synthesizability - reflecting the iterative HLS\ndesign cycle. We also report pass@k metrics, establishing clear baselines and\nreusable infrastructure for the broader LLM-for-hardware community.\n  All benchmarks, framework code, and results are open-sourced at\nhttps://github.com/stefanpie/hls-eval.",
+      "tldr_zh": "HLS-Eval是一个用于评估LLM在高级综合(HLS)设计任务中表现的基准和框架。它针对两个核心任务：从自然语言描述生成HLS代码，以及执行HLS特定的代码编辑以优化性能和硬件效率。该基准包含94个独特的设计，并提供了一个模块化的Python框架，用于自动化、并行地评估本地和托管的LLM。通过在Vitis HLS上对开源LLM进行基线评估，HLS-Eval测量了parseability, compilability, runnability和synthesizability四个关键指标，并报告了pass@k指标。该基准、框架代码和结果已开源，为LLM在硬件设计领域的应用提供了可重用的基础设施。\n",
+      "categories": [
+        "cs.AR",
+        "cs.AI"
+      ],
+      "primary_category": "cs.AR",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12268v1",
+      "published_date": "2025-04-16 17:30:36 UTC",
+      "updated_date": "2025-04-16 17:30:36 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:03:34.363822"
+    },
+    {
+      "arxiv_id": "2504.12262v1",
+      "title": "SCENT: Robust Spatiotemporal Learning for Continuous Scientific Data via Scalable Conditioned Neural Fields",
+      "title_zh": "SCENT：通过可扩展的条件神经场实现对连续科学数据的稳健时空学习\n",
+      "authors": [
+        "David Keetae Park",
+        "Xihaier Luo",
+        "Guang Zhao",
+        "Seungjun Lee",
+        "Miruna Oprescu",
+        "Shinjae Yoo"
+      ],
+      "abstract": "Spatiotemporal learning is challenging due to the intricate interplay between\nspatial and temporal dependencies, the high dimensionality of the data, and\nscalability constraints. These challenges are further amplified in scientific\ndomains, where data is often irregularly distributed (e.g., missing values from\nsensor failures) and high-volume (e.g., high-fidelity simulations), posing\nadditional computational and modeling difficulties. In this paper, we present\nSCENT, a novel framework for scalable and continuity-informed spatiotemporal\nrepresentation learning. SCENT unifies interpolation, reconstruction, and\nforecasting within a single architecture. Built on a transformer-based\nencoder-processor-decoder backbone, SCENT introduces learnable queries to\nenhance generalization and a query-wise cross-attention mechanism to\neffectively capture multi-scale dependencies. To ensure scalability in both\ndata size and model complexity, we incorporate a sparse attention mechanism,\nenabling flexible output representations and efficient evaluation at arbitrary\nresolutions. We validate SCENT through extensive simulations and real-world\nexperiments, demonstrating state-of-the-art performance across multiple\nchallenging tasks while achieving superior scalability.",
+      "tldr_zh": "SCENT是一个用于连续科学数据鲁棒时空学习的新框架，它通过可扩展的条件神经场统一了插值、重建和预测。该框架基于Transformer编码器-处理器-解码器架构，引入了可学习的查询以增强泛化能力，并采用query-wise交叉注意力机制有效捕获多尺度依赖关系。为了确保数据规模和模型复杂性的可扩展性，SCENT集成了稀疏注意力机制，从而实现灵活的输出表示和任意分辨率下的高效评估。通过广泛的模拟和真实世界实验验证，SCENT在多个具有挑战性的任务中表现出最先进的性能，并实现了卓越的可扩展性。\n",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "comment": "25 pages, 5 main figures, 3 tables, under review",
+      "pdf_url": "http://arxiv.org/pdf/2504.12262v1",
+      "published_date": "2025-04-16 17:17:31 UTC",
+      "updated_date": "2025-04-16 17:17:31 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:03:46.348612"
+    },
+    {
+      "arxiv_id": "2504.12256v1",
+      "title": "FLIP Reasoning Challenge",
+      "title_zh": "FLIP推理挑战",
+      "authors": [
+        "Andreas Plesner",
+        "Turlan Kuzhagaliyev",
+        "Roger Wattenhofer"
+      ],
+      "abstract": "Over the past years, advances in artificial intelligence (AI) have\ndemonstrated how AI can solve many perception and generation tasks, such as\nimage classification and text writing, yet reasoning remains a challenge. This\npaper introduces the FLIP dataset, a benchmark for evaluating AI reasoning\ncapabilities based on human verification tasks on the Idena blockchain. FLIP\nchallenges present users with two orderings of 4 images, requiring them to\nidentify the logically coherent one. By emphasizing sequential reasoning,\nvisual storytelling, and common sense, FLIP provides a unique testbed for\nmultimodal AI systems. Our experiments evaluate state-of-the-art models,\nleveraging both vision-language models (VLMs) and large language models (LLMs).\nResults reveal that even the best open-sourced and closed-sourced models\nachieve maximum accuracies of 75.5% and 77.9%, respectively, in zero-shot\nsettings, compared to human performance of 95.3%. Captioning models aid\nreasoning models by providing text descriptions of images, yielding better\nresults than when using the raw images directly, 69.6% vs. 75.2% for Gemini 1.5\nPro. Combining the predictions from 15 models in an ensemble increases the\naccuracy to 85.2%. These findings highlight the limitations of existing\nreasoning models and the need for robust multimodal benchmarks like FLIP. The\nfull codebase and dataset will be available at\nhttps://github.com/aplesner/FLIP-Reasoning-Challenge.",
+      "tldr_zh": "该论文提出了FLIP数据集，一个用于评估AI推理能力的基准，其基于Idena区块链上的人工验证任务。FLIP挑战要求用户从两组图像序列中识别出逻辑连贯的一组，侧重于序列推理、视觉叙事和常识。实验评估了最先进的视觉语言模型(VLMs)和大型语言模型(LLMs)，结果表明即使是最好的模型在zero-shot设置下也仅达到75.5%和77.9%的准确率，远低于人类的95.3%。研究发现，通过图像描述辅助推理模型可以提高准确率。集成15个模型的预测可以将准确率提高到85.2%。该研究强调了现有推理模型的局限性，并证明了像FLIP这样强大的多模态基准的必要性。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "Published at First Workshop on Open Science for Foundation Models at\n  ICLR 2025",
+      "pdf_url": "http://arxiv.org/pdf/2504.12256v1",
+      "published_date": "2025-04-16 17:07:16 UTC",
+      "updated_date": "2025-04-16 17:07:16 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:03:58.586425"
+    },
+    {
+      "arxiv_id": "2504.12254v1",
+      "title": "Advancing Arabic Speech Recognition Through Large-Scale Weakly Supervised Learning",
+      "title_zh": "通过大规模弱监督学习推进阿拉伯语语音识别\n",
+      "authors": [
+        "Mahmoud Salhab",
+        "Marwan Elghitany",
+        "Shameed Sait",
+        "Syed Sibghat Ullah",
+        "Mohammad Abusheikh",
+        "Hasan Abusheikh"
+      ],
+      "abstract": "Automatic speech recognition (ASR) is crucial for human-machine interaction\nin diverse applications like conversational agents, industrial robotics, call\ncenter automation, and automated subtitling. However, developing\nhigh-performance ASR models remains challenging, particularly for low-resource\nlanguages like Arabic, due to the scarcity of large, labeled speech datasets,\nwhich are costly and labor-intensive to produce. In this work, we employ weakly\nsupervised learning to train an Arabic ASR model using the Conformer\narchitecture. Our model is trained from scratch on 15,000 hours of weakly\nannotated speech data covering both Modern Standard Arabic (MSA) and Dialectal\nArabic (DA), eliminating the need for costly manual transcriptions. Despite the\nabsence of human-verified labels, our approach attains state-of-the-art (SOTA)\nperformance, exceeding all previous efforts in the field of Arabic ASR on the\nstandard benchmarks. By demonstrating the effectiveness of weak supervision as\na scalable, cost-efficient alternative to traditional supervised approaches,\npaving the way for improved ASR systems in low resource settings.",
+      "tldr_zh": "该研究利用大规模弱监督学习提升阿拉伯语语音识别(ASR)性能。他们使用Conformer架构，在15,000小时的弱标注阿拉伯语语音数据上从头训练了一个ASR模型，涵盖现代标准阿拉伯语(MSA)和方言阿拉伯语(DA)。 实验结果表明，即使没有人工验证的标签，该方法也能达到state-of-the-art (SOTA)的性能，超过了以往所有阿拉伯语ASR领域的研究成果。这项工作证明了弱监督学习作为一种可扩展、低成本的替代方案的有效性，为低资源环境下的改进ASR系统铺平了道路。\n",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12254v1",
+      "published_date": "2025-04-16 17:05:14 UTC",
+      "updated_date": "2025-04-16 17:05:14 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:04:10.346801"
+    },
+    {
+      "arxiv_id": "2504.12215v1",
+      "title": "Uncertainty-Guided Coarse-to-Fine Tumor Segmentation with Anatomy-Aware Post-Processing",
+      "title_zh": "基于不确定性引导的由粗到精肿瘤分割与解剖感知后处理\n",
+      "authors": [
+        "Ilkin Sevgi Isler",
+        "David Mohaisen",
+        "Curtis Lisle",
+        "Damla Turgut",
+        "Ulas Bagci"
+      ],
+      "abstract": "Reliable tumor segmentation in thoracic computed tomography (CT) remains\nchallenging due to boundary ambiguity, class imbalance, and anatomical\nvariability. We propose an uncertainty-guided, coarse-to-fine segmentation\nframework that combines full-volume tumor localization with refined\nregion-of-interest (ROI) segmentation, enhanced by anatomically aware\npost-processing. The first-stage model generates a coarse prediction, followed\nby anatomically informed filtering based on lung overlap, proximity to lung\nsurfaces, and component size. The resulting ROIs are segmented by a\nsecond-stage model trained with uncertainty-aware loss functions to improve\naccuracy and boundary calibration in ambiguous regions. Experiments on private\nand public datasets demonstrate improvements in Dice and Hausdorff scores, with\nfewer false positives and enhanced spatial interpretability. These results\nhighlight the value of combining uncertainty modeling and anatomical priors in\ncascaded segmentation pipelines for robust and clinically meaningful tumor\ndelineation. On the Orlando dataset, our framework improved Swin UNETR Dice\nfrom 0.4690 to 0.6447. Reduction in spurious components was strongly correlated\nwith segmentation gains, underscoring the value of anatomically informed\npost-processing.",
+      "tldr_zh": "该论文提出了一种不确定性引导的粗到精肿瘤分割框架，并结合了解剖学感知的后处理方法，用于解决胸部CT图像中肿瘤分割的挑战。该框架首先通过第一阶段模型进行全容积肿瘤定位，然后利用肺部重叠、与肺表面距离和组件大小等解剖学信息进行过滤。接着，第二阶段模型在不确定性感知损失函数的训练下，对感兴趣区域(ROI)进行分割，以提高准确性和边界校准。实验结果表明，该框架在Dice和Hausdorff评分上均有提升，减少了假阳性，并增强了空间可解释性。在Orlando数据集上，该框架将Swin UNETR的Dice系数从0.4690提高到0.6447，表明解剖学信息后处理对于分割性能提升具有重要价值。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "6 pages, 2 figures, to appear in IEEE ADSCA 2025",
+      "pdf_url": "http://arxiv.org/pdf/2504.12215v1",
+      "published_date": "2025-04-16 16:08:38 UTC",
+      "updated_date": "2025-04-16 16:08:38 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:04:22.898906"
+    },
+    {
+      "arxiv_id": "2504.12210v1",
+      "title": "Communication Optimization for Decentralized Learning atop Bandwidth-limited Edge Networks",
+      "title_zh": "带宽受限边缘网络上分散式学习的通信优化\n",
+      "authors": [
+        "Tingyang Sun",
+        "Tuan Nguyen",
+        "Ting He"
+      ],
+      "abstract": "Decentralized federated learning (DFL) is a promising machine learning\nparadigm for bringing artificial intelligence (AI) capabilities to the network\nedge. Running DFL on top of edge networks, however, faces severe performance\nchallenges due to the extensive parameter exchanges between agents. Most\nexisting solutions for these challenges were based on simplistic communication\nmodels, which cannot capture the case of learning over a multi-hop\nbandwidth-limited network. In this work, we address this problem by jointly\ndesigning the communication scheme for the overlay network formed by the agents\nand the mixing matrix that controls the communication demands between the\nagents. By carefully analyzing the properties of our problem, we cast each\ndesign problem into a tractable optimization and develop an efficient algorithm\nwith guaranteed performance. Our evaluations based on real topology and data\nshow that the proposed algorithm can reduce the total training time by over\n$80\\%$ compared to the baseline without sacrificing accuracy, while\nsignificantly improving the computational efficiency over the state of the art.",
+      "tldr_zh": "该论文研究了在带宽受限的边缘网络上进行去中心化联邦学习(DFL)时，由于大量参数交换导致的性能瓶颈问题。针对现有方案通信模型过于简单，无法捕捉多跳带宽受限网络情况的不足，提出了一种联合设计方案，同时优化代理节点组成的覆盖网络的通信方案和控制代理间通信需求的混合矩阵。通过对问题性质的分析，将每个设计问题转化为可处理的优化问题，并开发了一种具有保证性能的高效算法。基于真实拓扑和数据的评估表明，与基线相比，该算法可以在不牺牲准确性的前提下，将总训练时间减少80%以上，并显著提高计算效率。\n",
+      "categories": [
+        "cs.NI",
+        "cs.AI",
+        "cs.DC",
+        "cs.LG"
+      ],
+      "primary_category": "cs.NI",
+      "comment": "arXiv admin note: text overlap with arXiv:2408.04705",
+      "pdf_url": "http://arxiv.org/pdf/2504.12210v1",
+      "published_date": "2025-04-16 15:56:57 UTC",
+      "updated_date": "2025-04-16 15:56:57 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:04:34.400433"
+    },
+    {
+      "arxiv_id": "2504.12192v1",
+      "title": "From Requirements to Architecture: Semi-Automatically Generating Software Architectures",
+      "title_zh": "从需求到架构：半自动生成软件架构\n",
+      "authors": [
+        "Tobias Eisenreich"
+      ],
+      "abstract": "To support junior and senior architects, I propose developing a new\narchitecture creation method that leverages LLMs' evolving capabilities to\nsupport the architect. This method involves the architect's close collaboration\nwith LLM-fueled tooling over the whole process. The architect is guided through\nDomain Model creation, Use Case specification, architectural decisions, and\narchitecture evaluation. While the architect can take complete control of the\nprocess and the results, and use the tooling as a building set, they can follow\nthe intended process for maximum tooling support. The preliminary results\nsuggest the feasibility of this process and indicate major time savings for the\narchitect.",
+      "tldr_zh": "本文提出了一种半自动化的软件架构生成方法，旨在辅助初级和高级架构师。该方法利用大型语言模型(LLMs)的能力，在领域模型创建、用例规范、架构决策和架构评估等整个过程中，实现架构师与LLM驱动工具的紧密协作。架构师既可以完全控制流程和结果，将工具作为构建集，也可以遵循预设流程以获得最大化的工具支持。初步结果表明该方法具有可行性，并能显著节省架构师的时间。\n",
+      "categories": [
+        "cs.SE",
+        "cs.AI",
+        "D.2.2"
+      ],
+      "primary_category": "cs.SE",
+      "comment": "to be published in EMISA 2025",
+      "pdf_url": "http://arxiv.org/pdf/2504.12192v1",
+      "published_date": "2025-04-16 15:46:56 UTC",
+      "updated_date": "2025-04-16 15:46:56 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:04:46.281919"
+    },
+    {
+      "arxiv_id": "2504.12187v1",
+      "title": "What Do Large Language Models Know? Tacit Knowledge as a Potential Causal-Explanatory Structure",
+      "title_zh": "大型语言模型知道什么？作为潜在因果解释结构的隐性知识\n",
+      "authors": [
+        "Céline Budding"
+      ],
+      "abstract": "It is sometimes assumed that Large Language Models (LLMs) know language, or\nfor example that they know that Paris is the capital of France. But what -- if\nanything -- do LLMs actually know? In this paper, I argue that LLMs can acquire\ntacit knowledge as defined by Martin Davies (1990). Whereas Davies himself\ndenies that neural networks can acquire tacit knowledge, I demonstrate that\ncertain architectural features of LLMs satisfy the constraints of semantic\ndescription, syntactic structure, and causal systematicity. Thus, tacit\nknowledge may serve as a conceptual framework for describing, explaining, and\nintervening on LLMs and their behavior.",
+      "tldr_zh": "该论文探讨了大语言模型(LLMs)是否具备“知识”的问题，并提出LLMs可以获得Martin Davies定义的“隐性知识”。作者论证了LLMs的特定架构特征满足语义描述、句法结构和因果系统性的约束，从而反驳了Davies本人关于神经网络无法获得隐性知识的观点。因此，隐性知识可以作为描述、解释和干预LLMs及其行为的概念框架。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "Accepted for publication in Philosophy of Science",
+      "pdf_url": "http://arxiv.org/pdf/2504.12187v1",
+      "published_date": "2025-04-16 15:42:33 UTC",
+      "updated_date": "2025-04-16 15:42:33 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:04:58.081033"
+    },
+    {
+      "arxiv_id": "2504.12185v1",
+      "title": "SALAD: Improving Robustness and Generalization through Contrastive Learning with Structure-Aware and LLM-Driven Augmented Data",
+      "title_zh": "SALAD：通过结构感知和 LLM 驱动的增强数据进行对比学习，提高鲁棒性和泛化性\n",
+      "authors": [
+        "Suyoung Bae",
+        "Hyojun Kim",
+        "YunSeok Choi",
+        "Jee-Hyong Lee"
+      ],
+      "abstract": "In various natural language processing (NLP) tasks, fine-tuning Pre-trained\nLanguage Models (PLMs) often leads to the issue of spurious correlations, which\nnegatively impacts performance, particularly when dealing with\nout-of-distribution data. To address this problem, we propose SALAD}(Structure\nAware and LLM-driven Augmented Data), a novel approach designed to enhance\nmodel robustness and generalization by generating structure-aware and\ncounterfactually augmented data for contrastive learning. Our method leverages\na tagging-based approach to generate structure-aware positive samples and\nutilizes large language models (LLMs) to generate counterfactual negative\nsamples with diverse sentence patterns. By applying contrastive learning, SALAD\nenables the model to focus on learning the structural relationships between key\nsentence components while minimizing reliance on spurious correlations. We\nvalidate our approach through experiments on three tasks: Sentiment\nClassification, Sexism Detection, and Natural Language Inference. The results\ndemonstrate that SALAD not only improves model robustness and performance\nacross different environments but also enhances generalization to\nout-of-distribution datasets and cross-domain scenarios.",
+      "tldr_zh": "该论文提出了SALAD (Structure Aware and LLM-driven Augmented Data) 方法，旨在提升预训练语言模型(PLMs)在NLP任务中的鲁棒性和泛化能力，尤其是在处理分布外数据时。SALAD通过生成结构感知的正样本和基于大型语言模型(LLMs)的对抗性负样本，进行对比学习，从而使模型关注关键句子成分之间的结构关系，减少对虚假相关性的依赖。该方法利用基于标签的方法生成结构感知的正样本，并利用LLM生成具有多样化句子模式的反事实负样本。在情感分类、性别歧视检测和自然语言推理三个任务上的实验结果表明，SALAD能够提高模型在不同环境下的鲁棒性和性能，并增强对分布外数据集和跨领域场景的泛化能力。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "Accepted to NAACL 2025 main. 15 pages, 4 figures",
+      "pdf_url": "http://arxiv.org/pdf/2504.12185v1",
+      "published_date": "2025-04-16 15:40:10 UTC",
+      "updated_date": "2025-04-16 15:40:10 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:05:10.612763"
+    },
+    {
+      "arxiv_id": "2504.12180v1",
+      "title": "Trusting CHATGPT: how minor tweaks in the prompts lead to major differences in sentiment classification",
+      "title_zh": "信任 ChatGPT：提示中的微小调整如何导致情感分类的重大差异\n",
+      "authors": [
+        "Jaime E. Cuellar",
+        "Oscar Moreno-Martinez",
+        "Paula Sofia Torres-Rodriguez",
+        "Jaime Andres Pavlich-Mariscal",
+        "Andres Felipe Mican-Castiblanco",
+        "Juan Guillermo Torres-Hurtado"
+      ],
+      "abstract": "One fundamental question for the social sciences today is: how much can we\ntrust highly complex predictive models like ChatGPT? This study tests the\nhypothesis that subtle changes in the structure of prompts do not produce\nsignificant variations in the classification results of sentiment polarity\nanalysis generated by the Large Language Model GPT-4o mini. Using a dataset of\n100.000 comments in Spanish on four Latin American presidents, the model\nclassified the comments as positive, negative, or neutral on 10 occasions,\nvarying the prompts slightly each time. The experimental methodology included\nexploratory and confirmatory analyses to identify significant discrepancies\namong classifications.\n  The results reveal that even minor modifications to prompts such as lexical,\nsyntactic, or modal changes, or even their lack of structure impact the\nclassifications. In certain cases, the model produced inconsistent responses,\nsuch as mixing categories, providing unsolicited explanations, or using\nlanguages other than Spanish. Statistical analysis using Chi-square tests\nconfirmed significant differences in most comparisons between prompts, except\nin one case where linguistic structures were highly similar.\n  These findings challenge the robustness and trust of Large Language Models\nfor classification tasks, highlighting their vulnerability to variations in\ninstructions. Moreover, it was evident that the lack of structured grammar in\nprompts increases the frequency of hallucinations. The discussion underscores\nthat trust in Large Language Models is based not only on technical performance\nbut also on the social and institutional relationships underpinning their use.",
+      "tldr_zh": "该研究探讨了在情感极性分类任务中，提示语的细微变化对ChatGPT等大型语言模型(LLMs)结果的影响。通过对包含10万条西班牙语评论的数据集进行实验，研究发现，提示语的词汇、句法或语气上的细微改变，甚至缺乏结构，都会显著影响模型的情感分类结果。卡方检验证实了大多数提示语之间的分类存在显著差异，且缺乏结构化语法的提示语更容易导致“幻觉”。研究结果表明，大型语言模型在分类任务中的可靠性和信任度受到提示语变化的严重影响，提示语工程至关重要。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "in Spanish language",
+      "pdf_url": "http://arxiv.org/pdf/2504.12180v1",
+      "published_date": "2025-04-16 15:37:09 UTC",
+      "updated_date": "2025-04-16 15:37:09 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:05:22.404124"
+    },
+    {
+      "arxiv_id": "2504.12177v1",
+      "title": "Mapping Controversies Using Artificial Intelligence: An Analysis of the Hamas-Israel Conflict on YouTube",
+      "title_zh": "利用人工智能绘制争议图谱：对 YouTube 上哈马斯-以色列冲突的分析\n",
+      "authors": [
+        "Victor Manuel Hernandez Lopez",
+        "Jaime E. Cuellar"
+      ],
+      "abstract": "This article analyzes the Hamas-Israel controversy through 253,925\nSpanish-language YouTube comments posted between October 2023 and January 2024,\nfollowing the October 7 attack that escalated the conflict. Adopting an\ninterdisciplinary approach, the study combines the analysis of controversies\nfrom Science and Technology Studies (STS) with advanced computational\nmethodologies, specifically Natural Language Processing (NLP) using the BERT\n(Bidirectional Encoder Representations from Transformers) model. Using this\napproach, the comments were automatically classified into seven categories,\nreflecting pro-Palestinian, pro-Israeli, anti- Palestinian, anti-Israeli\npositions, among others. The results show a predominance of pro- Palestinian\ncomments, although pro-Israeli and anti-Palestinian comments received more\n\"likes.\" This study also applies the agenda-setting theory to demonstrate how\nmedia coverage significantly influences public perception, observing a notable\nshift in public opinion, transitioning from a pro- Palestinian stance to a more\ncritical position towards Israel. This work highlights the importance of\ncombining social science perspectives with technological tools in the analysis\nof controversies, presenting a methodological innovation by integrating\ncomputational analysis with critical social theories to address complex public\nopinion phenomena and media narratives.",
+      "tldr_zh": "本文运用人工智能方法分析了2023年10月至2024年1月期间YouTube上253925条西班牙语评论，探讨了哈马斯-以色列冲突的争议。研究结合科学技术研究(STS)的争议分析和自然语言处理(NLP)技术，使用BERT模型将评论自动分类为亲巴勒斯坦、亲以色列、反巴勒斯坦、反以色列等七个类别。结果显示，亲巴勒斯坦评论占主导地位，但亲以色列和反巴勒斯坦评论获得更多“赞”。研究还应用议程设置理论，揭示媒体报道如何显著影响公众认知，观察到公众舆论从亲巴勒斯坦立场转变为对以色列更为批判的立场。该研究强调了社会科学视角与技术工具结合在争议分析中的重要性，通过整合计算分析与批判性社会理论，为解决复杂的公众舆论现象和媒体叙事提供了一种方法论创新。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "in Spanish language",
+      "pdf_url": "http://arxiv.org/pdf/2504.12177v1",
+      "published_date": "2025-04-16 15:27:57 UTC",
+      "updated_date": "2025-04-16 15:27:57 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:05:34.830212"
+    },
+    {
+      "arxiv_id": "2504.12172v1",
+      "title": "Poem Meter Classification of Recited Arabic Poetry: Integrating High-Resource Systems for a Low-Resource Task",
+      "title_zh": "阿拉伯语朗诵诗歌的诗歌格律分类：集成高资源系统以完成低资源任务\n",
+      "authors": [
+        "Maged S. Al-Shaibani",
+        "Zaid Alyafeai",
+        "Irfan Ahmad"
+      ],
+      "abstract": "Arabic poetry is an essential and integral part of Arabic language and\nculture. It has been used by the Arabs to spot lights on their major events\nsuch as depicting brutal battles and conflicts. They also used it, as in many\nother languages, for various purposes such as romance, pride, lamentation, etc.\nArabic poetry has received major attention from linguistics over the decades.\nOne of the main characteristics of Arabic poetry is its special rhythmic\nstructure as opposed to prose. This structure is referred to as a meter.\nMeters, along with other poetic characteristics, are intensively studied in an\nArabic linguistic field called \"\\textit{Aroud}\". Identifying these meters for a\nverse is a lengthy and complicated process. It also requires technical\nknowledge in \\textit{Aruod}. For recited poetry, it adds an extra layer of\nprocessing. Developing systems for automatic identification of poem meters for\nrecited poems need large amounts of labelled data. In this study, we propose a\nstate-of-the-art framework to identify the poem meters of recited Arabic\npoetry, where we integrate two separate high-resource systems to perform the\nlow-resource task. To ensure generalization of our proposed architecture, we\npublish a benchmark for this task for future research.",
+      "tldr_zh": "该研究提出了一种最先进的框架，用于识别吟诵的阿拉伯语诗歌的诗歌格律，通过整合两个独立的高资源系统来执行低资源任务。阿拉伯语诗歌的格律识别是一项复杂且需要专业知识的任务。该框架针对吟诵诗歌的特殊性进行了优化，解决了数据量不足的问题。为了保证该架构的泛化能力，研究人员发布了一个用于此任务的基准，以供未来研究使用。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12172v1",
+      "published_date": "2025-04-16 15:25:45 UTC",
+      "updated_date": "2025-04-16 15:25:45 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:05:46.324309"
+    },
+    {
+      "arxiv_id": "2504.12151v1",
+      "title": "Towards Explainable Fusion and Balanced Learning in Multimodal Sentiment Analysis",
+      "title_zh": "迈向多模态情感分析中可解释的融合与平衡学习\n",
+      "authors": [
+        "Miaosen Luo",
+        "Yuncheng Jiang",
+        "Sijie Mai"
+      ],
+      "abstract": "Multimodal Sentiment Analysis (MSA) faces two critical challenges: the lack\nof interpretability in the decision logic of multimodal fusion and modality\nimbalance caused by disparities in inter-modal information density. To address\nthese issues, we propose KAN-MCP, a novel framework that integrates the\ninterpretability of Kolmogorov-Arnold Networks (KAN) with the robustness of the\nMultimodal Clean Pareto (MCPareto) framework. First, KAN leverages its\nunivariate function decomposition to achieve transparent analysis of\ncross-modal interactions. This structural design allows direct inspection of\nfeature transformations without relying on external interpretation tools,\nthereby ensuring both high expressiveness and interpretability. Second, the\nproposed MCPareto enhances robustness by addressing modality imbalance and\nnoise interference. Specifically, we introduce the Dimensionality Reduction and\nDenoising Modal Information Bottleneck (DRD-MIB) method, which jointly denoises\nand reduces feature dimensionality. This approach provides KAN with\ndiscriminative low-dimensional inputs to reduce the modeling complexity of KAN\nwhile preserving critical sentiment-related information. Furthermore, MCPareto\ndynamically balances gradient contributions across modalities using the\npurified features output by DRD-MIB, ensuring lossless transmission of\nauxiliary signals and effectively alleviating modality imbalance. This synergy\nof interpretability and robustness not only achieves superior performance on\nbenchmark datasets such as CMU-MOSI, CMU-MOSEI, and CH-SIMS v2 but also offers\nan intuitive visualization interface through KAN's interpretable architecture.",
+      "tldr_zh": "该论文提出了一种名为 KAN-MCP 的新框架，旨在解决多模态情感分析 (MSA) 中多模态融合缺乏可解释性以及模态不平衡的问题。KAN-MCP 结合了 Kolmogorov-Arnold Networks (KAN) 的可解释性和 Multimodal Clean Pareto (MCPareto) 框架的鲁棒性。KAN 通过其单变量函数分解实现了跨模态交互的透明分析。此外，论文还提出了 Dimensionality Reduction and Denoising Modal Information Bottleneck (DRD-MIB) 方法，用于降噪和降低特征维度，并使用 MCPareto 动态平衡跨模态的梯度贡献，从而缓解模态不平衡。实验结果表明，KAN-MCP 在 CMU-MOSI、CMU-MOSEI 和 CH-SIMS v2 等基准数据集上表现出色，并提供了通过 KAN 的可解释架构实现的可视化界面。\n",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12151v1",
+      "published_date": "2025-04-16 15:00:06 UTC",
+      "updated_date": "2025-04-16 15:00:06 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:05:58.784020"
+    },
+    {
+      "arxiv_id": "2504.12143v1",
+      "title": "ARCeR: an Agentic RAG for the Automated Definition of Cyber Ranges",
+      "title_zh": "ARCeR：用于网络靶场自动定义的 Agentic RAG\n",
+      "authors": [
+        "Matteo Lupinacci",
+        "Francesco Blefari",
+        "Francesco Romeo",
+        "Francesco Aurelio Pironti",
+        "Angelo Furfaro"
+      ],
+      "abstract": "The growing and evolving landscape of cybersecurity threats necessitates the\ndevelopment of supporting tools and platforms that allow for the creation of\nrealistic IT environments operating within virtual, controlled settings as\nCyber Ranges (CRs). CRs can be exploited for analyzing vulnerabilities and\nexperimenting with the effectiveness of devised countermeasures, as well as\nserving as training environments for building cyber security skills and\nabilities for IT operators. This paper proposes ARCeR as an innovative solution\nfor the automatic generation and deployment of CRs, starting from user-provided\ndescriptions in a natural language. ARCeR relies on the Agentic RAG paradigm,\nwhich allows it to fully exploit state-of-art AI technologies. Experimental\nresults show that ARCeR is able to successfully process prompts even in cases\nthat LLMs or basic RAG systems are not able to cope with. Furthermore, ARCeR is\nable to target any CR framework provided that specific knowledge is made\navailable to it.",
+      "tldr_zh": "ARCeR 是一种用于自动化定义网络靶场的 Agentic RAG 框架。它旨在根据用户提供的自然语言描述，自动生成和部署逼真的 IT 环境，用于漏洞分析、对抗措施实验以及网络安全技能培训。ARCeR 采用 Agentic RAG 范式，充分利用了最先进的 AI 技术。实验结果表明，即使在 LLM 或基本 RAG 系统无法处理的情况下，ARCeR 也能成功处理提示，并且能够针对任何网络靶场框架，只要提供特定的知识即可。\n",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CR",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12143v1",
+      "published_date": "2025-04-16 14:53:28 UTC",
+      "updated_date": "2025-04-16 14:53:28 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:06:10.397802"
+    },
+    {
+      "arxiv_id": "2504.12137v1",
+      "title": "Efficient Contrastive Decoding with Probabilistic Hallucination Detection - Mitigating Hallucinations in Large Vision Language Models -",
+      "title_zh": "基于概率幻觉检测的高效对比解码——缓解大型视觉语言模型中的幻觉",
+      "authors": [
+        "Laura Fieback",
+        "Nishilkumar Balar",
+        "Jakob Spiegelberg",
+        "Hanno Gottschalk"
+      ],
+      "abstract": "Despite recent advances in Large Vision Language Models (LVLMs), these models\nstill suffer from generating hallucinatory responses that do not align with the\nvisual input provided. To mitigate such hallucinations, we introduce Efficient\nContrastive Decoding (ECD), a simple method that leverages probabilistic\nhallucination detection to shift the output distribution towards contextually\naccurate answers at inference time. By contrasting token probabilities and\nhallucination scores, ECD subtracts hallucinated concepts from the original\ndistribution, effectively suppressing hallucinations. Notably, our proposed\nmethod can be applied to any open-source LVLM and does not require additional\nLVLM training. We evaluate our method on several benchmark datasets and across\ndifferent LVLMs. Our experiments show that ECD effectively mitigates\nhallucinations, outperforming state-of-the-art methods with respect to\nperformance on LVLM benchmarks and computation time.",
+      "tldr_zh": "该论文提出了一种名为高效对比解码(Efficient Contrastive Decoding, ECD)的方法，旨在减轻大型视觉语言模型(LVLMs)中存在的幻觉问题。ECD通过概率幻觉检测，在推理时调整输出分布，使其更倾向于上下文相关的准确答案。具体而言，ECD对比token概率和幻觉分数，从原始分布中减去幻觉概念，从而有效地抑制幻觉。该方法无需额外的LVLM训练，可应用于任何开源LVLM。实验结果表明，ECD在多个基准数据集上优于现有技术，在LVLM性能和计算时间方面均表现出色。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12137v1",
+      "published_date": "2025-04-16 14:50:25 UTC",
+      "updated_date": "2025-04-16 14:50:25 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:06:22.359684"
+    },
+    {
+      "arxiv_id": "2504.12110v1",
+      "title": "Towards LLM Agents for Earth Observation",
+      "title_zh": "面向地球观测的 LLM 智能体\n",
+      "authors": [
+        "Chia Hsiang Kao",
+        "Wenting Zhao",
+        "Shreelekha Revankar",
+        "Samuel Speas",
+        "Snehal Bhagat",
+        "Rajeev Datta",
+        "Cheng Perng Phoo",
+        "Utkarsh Mall",
+        "Carl Vondrick",
+        "Kavita Bala",
+        "Bharath Hariharan"
+      ],
+      "abstract": "Earth Observation (EO) provides critical planetary data for environmental\nmonitoring, disaster management, climate science, and other scientific domains.\nHere we ask: Are AI systems ready for reliable Earth Observation? We introduce\n\\datasetnamenospace, a benchmark of 140 yes/no questions from NASA Earth\nObservatory articles across 13 topics and 17 satellite sensors. Using Google\nEarth Engine API as a tool, LLM agents can only achieve an accuracy of 33%\nbecause the code fails to run over 58% of the time. We improve the failure rate\nfor open models by fine-tuning synthetic data, allowing much smaller models\n(Llama-3.1-8B) to achieve comparable accuracy to much larger ones (e.g.,\nDeepSeek-R1). Taken together, our findings identify significant challenges to\nbe solved before AI agents can automate earth observation, and suggest paths\nforward. The project page is available at\nhttps://iandrover.github.io/UnivEarth.",
+      "tldr_zh": "该研究探讨了大型语言模型(LLM)在地球观测(EO)领域的应用潜力，并提出了一个名为UnivEarth的基准数据集，包含140个来自NASA地球观测文章的是/否问题。研究发现，由于代码执行失败率高达58%，LLM智能体在使用Google Earth Engine API作为工具时，准确率仅为33%。通过使用合成数据进行微调，研究者成功降低了开源模型的失败率，并使较小的模型(Llama-3.1-8B)能够达到与大型模型(DeepSeek-R1)相当的准确率。该研究揭示了AI智能体在自动化地球观测方面面临的挑战，并提出了改进方向。\n",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "36 pages",
+      "pdf_url": "http://arxiv.org/pdf/2504.12110v1",
+      "published_date": "2025-04-16 14:19:25 UTC",
+      "updated_date": "2025-04-16 14:19:25 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:06:34.531047"
+    },
+    {
+      "arxiv_id": "2504.12090v1",
+      "title": "Reasoning-Based AI for Startup Evaluation (R.A.I.S.E.): A Memory-Augmented, Multi-Step Decision Framework",
+      "title_zh": "基于推理的创业公司评估人工智能 (R.A.I.S.E.)：一种记忆增强的多步骤决策框架\n",
+      "authors": [
+        "Jack Preuveneers",
+        "Joseph Ternasky",
+        "Fuat Alican",
+        "Yigit Ihlamur"
+      ],
+      "abstract": "We present a novel framework that bridges the gap between the\ninterpretability of decision trees and the advanced reasoning capabilities of\nlarge language models (LLMs) to predict startup success. Our approach leverages\nchain-of-thought prompting to generate detailed reasoning logs, which are\nsubsequently distilled into structured, human-understandable logical rules. The\npipeline integrates multiple enhancements - efficient data ingestion, a\ntwo-step refinement process, ensemble candidate sampling, simulated\nreinforcement learning scoring, and persistent memory - to ensure both stable\ndecision-making and transparent output. Experimental evaluations on curated\nstartup datasets demonstrate that our combined pipeline improves precision by\n54% from 0.225 to 0.346 and accuracy by 50% from 0.46 to 0.70 compared to a\nstandalone OpenAI o3 model. Notably, our model achieves over 2x the precision\nof a random classifier (16%). By combining state-of-the-art AI reasoning with\nexplicit rule-based explanations, our method not only augments traditional\ndecision-making processes but also facilitates expert intervention and\ncontinuous policy refinement. This work lays the foundation for the\nimplementation of interpretable LLM-powered decision frameworks in high-stakes\ninvestment environments and other domains that require transparent and\ndata-driven insights.",
+      "tldr_zh": "该论文提出了一个名为R.A.I.S.E.的基于推理的AI框架，用于评估初创公司，旨在结合决策树的可解释性和大型语言模型(LLMs)的推理能力。该框架利用链式思维提示生成详细的推理日志，并将其提炼成结构化的、易于理解的逻辑规则。通过集成高效的数据摄取、两步细化过程、集成候选采样、模拟强化学习评分和持久记忆等增强功能，确保决策的稳定性和输出的透明性。实验结果表明，与独立的OpenAI o3模型相比，该框架在初创公司数据集上的精确度提高了54%（从0.225到0.346），准确率提高了50%（从0.46到0.70）。该方法将先进的AI推理与明确的基于规则的解释相结合，为在高风险投资环境和其他需要透明和数据驱动见解的领域中实施可解释的、由LLM驱动的决策框架奠定了基础。\n",
+      "categories": [
+        "cs.AI",
+        "I.2.7"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12090v1",
+      "published_date": "2025-04-16 13:53:42 UTC",
+      "updated_date": "2025-04-16 13:53:42 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:06:47.443561"
+    },
+    {
+      "arxiv_id": "2504.12088v1",
+      "title": "AttentionDrop: A Novel Regularization Method for Transformer Models",
+      "title_zh": "AttentionDrop：一种用于 Transformer 模型的新型正则化方法\n",
+      "authors": [
+        "Mirza Samad Ahmed Baig",
+        "Syeda Anshrah Gillani",
+        "Abdul Akbar Khan",
+        "Shahid Munir Shah"
+      ],
+      "abstract": "Transformer-based architectures achieve state-of-the-art performance across a\nwide range of tasks in natural language processing, computer vision, and\nspeech. However, their immense capacity often leads to overfitting, especially\nwhen training data is limited or noisy. We propose AttentionDrop, a unified\nfamily of stochastic regularization techniques that operate directly on the\nself-attention distributions. We introduces three variants: 1. Hard Attention\nMasking: randomly zeroes out top-k attention logits per query to encourage\ndiverse context utilization. 2. Blurred Attention Smoothing: applies a dynamic\nGaussian convolution over attention logits to diffuse overly peaked\ndistributions. 3. Consistency-Regularized AttentionDrop: enforces output\nstability under multiple independent AttentionDrop perturbations via a KL-based\nconsistency loss.",
+      "tldr_zh": "本文提出了一种名为AttentionDrop的新型正则化方法，用于解决Transformer模型中的过拟合问题。该方法直接作用于自注意力分布，包含三种变体：硬注意力掩码（Hard Attention Masking）随机屏蔽每个查询的前k个注意力logits，以鼓励多样化的上下文利用；模糊注意力平滑（Blurred Attention Smoothing）对注意力logits应用动态高斯卷积，以扩散过度集中的分布；一致性正则化AttentionDrop（Consistency-Regularized AttentionDrop）通过基于KL散度的一致性损失，在多个独立的AttentionDrop扰动下强制输出稳定性。该方法旨在提高Transformer模型在数据有限或嘈杂情况下的泛化能力。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "26 pages",
+      "pdf_url": "http://arxiv.org/pdf/2504.12088v1",
+      "published_date": "2025-04-16 13:51:16 UTC",
+      "updated_date": "2025-04-16 13:51:16 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:06:58.580883"
+    },
+    {
+      "arxiv_id": "2504.12082v1",
+      "title": "Selective Demonstration Retrieval for Improved Implicit Hate Speech Detection",
+      "title_zh": "选择性演示检索，以改进隐式仇恨言论检测\n",
+      "authors": [
+        "Yumin Kim",
+        "Hwanhee Lee"
+      ],
+      "abstract": "Hate speech detection is a crucial area of research in natural language\nprocessing, essential for ensuring online community safety. However, detecting\nimplicit hate speech, where harmful intent is conveyed in subtle or indirect\nways, remains a major challenge. Unlike explicit hate speech, implicit\nexpressions often depend on context, cultural subtleties, and hidden biases,\nmaking them more challenging to identify consistently. Additionally, the\ninterpretation of such speech is influenced by external knowledge and\ndemographic biases, resulting in varied detection results across different\nlanguage models. Furthermore, Large Language Models often show heightened\nsensitivity to toxic language and references to vulnerable groups, which can\nlead to misclassifications. This over-sensitivity results in false positives\n(incorrectly identifying harmless statements as hateful) and false negatives\n(failing to detect genuinely harmful content). Addressing these issues requires\nmethods that not only improve detection precision but also reduce model biases\nand enhance robustness. To address these challenges, we propose a novel method,\nwhich utilizes in-context learning without requiring model fine-tuning. By\nadaptively retrieving demonstrations that focus on similar groups or those with\nthe highest similarity scores, our approach enhances contextual comprehension.\nExperimental results show that our method outperforms current state-of-the-art\ntechniques. Implementation details and code are available at TBD.",
+      "tldr_zh": "该论文提出了一种新的方法，通过选择性地检索demonstration来改进隐式仇恨言论检测，无需模型微调，利用了In-context learning。该方法自适应地检索关注相似群体或具有最高相似度分数的demonstration，从而增强上下文理解。实验结果表明，该方法优于当前最先进的技术，能够提高检测精度，减少模型偏差，并增强鲁棒性，从而更准确地识别微妙的、间接的仇恨言论。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12082v1",
+      "published_date": "2025-04-16 13:43:23 UTC",
+      "updated_date": "2025-04-16 13:43:23 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:07:10.518566"
+    },
+    {
+      "arxiv_id": "2504.12063v1",
+      "title": "Optimizing Compound Retrieval Systems",
+      "title_zh": "优化复合检索系统\n",
+      "authors": [
+        "Harrie Oosterhuis",
+        "Rolf Jagerman",
+        "Zhen Qin",
+        "Xuanhui Wang"
+      ],
+      "abstract": "Modern retrieval systems do not rely on a single ranking model to construct\ntheir rankings. Instead, they generally take a cascading approach where a\nsequence of ranking models are applied in multiple re-ranking stages. Thereby,\nthey balance the quality of the top-K ranking with computational costs by\nlimiting the number of documents each model re-ranks. However, the cascading\napproach is not the only way models can interact to form a retrieval system.\n  We propose the concept of compound retrieval systems as a broader class of\nretrieval systems that apply multiple prediction models. This encapsulates\ncascading models but also allows other types of interactions than top-K\nre-ranking. In particular, we enable interactions with large language models\n(LLMs) which can provide relative relevance comparisons. We focus on the\noptimization of compound retrieval system design which uniquely involves\nlearning where to apply the component models and how to aggregate their\npredictions into a final ranking. This work shows how our compound approach can\ncombine the classic BM25 retrieval model with state-of-the-art (pairwise) LLM\nrelevance predictions, while optimizing a given ranking metric and efficiency\ntarget. Our experimental results show optimized compound retrieval systems\nprovide better trade-offs between effectiveness and efficiency than cascading\napproaches, even when applied in a self-supervised manner.\n  With the introduction of compound retrieval systems, we hope to inspire the\ninformation retrieval field to more out-of-the-box thinking on how prediction\nmodels can interact to form rankings.",
+      "tldr_zh": "本文提出了“复合检索系统”的概念，它是一种比传统级联模型更广泛的检索系统，允许不同类型的模型交互，例如集成大型语言模型(LLMs)进行相对相关性比较。该研究重点在于优化复合检索系统的设计，包括学习在何处应用组件模型以及如何将它们的预测结果聚合为最终排序。实验表明，优化的复合检索系统在效果和效率之间提供了比级联方法更好的权衡，即使在自监督的情况下也是如此。该研究展示了如何将经典的BM25检索模型与最先进的(pairwise) LLM相关性预测相结合，同时优化给定的排序指标和效率目标。\n",
+      "categories": [
+        "cs.IR",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.IR",
+      "comment": "SIGIR 2025",
+      "pdf_url": "http://arxiv.org/pdf/2504.12063v1",
+      "published_date": "2025-04-16 13:18:16 UTC",
+      "updated_date": "2025-04-16 13:18:16 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:07:22.644270"
+    },
+    {
+      "arxiv_id": "2504.12039v1",
+      "title": "RadMamba: Efficient Human Activity Recognition through Radar-based Micro-Doppler-Oriented Mamba State-Space Model",
+      "title_zh": "RadMamba：通过基于雷达的、面向微多普勒的 Mamba 状态空间模型实现高效的人类活动识别\n",
+      "authors": [
+        "Yizhuo Wu",
+        "Francesco Fioranelli",
+        "Chang Gao"
+      ],
+      "abstract": "Radar-based HAR has emerged as a promising alternative to conventional\nmonitoring approaches, such as wearable devices and camera-based systems, due\nto its unique privacy preservation and robustness advantages. However, existing\nsolutions based on convolutional and recurrent neural networks, although\neffective, are computationally demanding during deployment. This limits their\napplicability in scenarios with constrained resources or those requiring\nmultiple sensors. Advanced architectures, such as ViT and SSM architectures,\noffer improved modeling capabilities and have made efforts toward lightweight\ndesigns. However, their computational complexity remains relatively high. To\nleverage the strengths of transformer architectures while simultaneously\nenhancing accuracy and reducing computational complexity, this paper introduces\nRadMamba, a parameter-efficient, radar micro-Doppler-oriented Mamba SSM\nspecifically tailored for radar-based HAR. Across three diverse datasets,\nRadMamba matches the top-performing previous model's 99.8% classification\naccuracy on Dataset DIAT with only 1/400 of its parameters and equals the\nleading models' 92.0% accuracy on Dataset CI4R with merely 1/10 of their\nparameters. In scenarios with continuous sequences of actions evaluated on\nDataset UoG2020, RadMamba surpasses other models with significantly higher\nparameter counts by at least 3%, achieving this with only 6.7k parameters. Our\ncode is available at: https://github.com/lab-emi/AIRHAR.",
+      "tldr_zh": "该论文提出了RadMamba，一种面向雷达微多普勒效应的Mamba状态空间模型，专为雷达人体活动识别(HAR)设计。RadMamba旨在提高精度并降低计算复杂度，克服了现有基于卷积和循环神经网络方法的局限性。实验结果表明，在三个不同的数据集上，RadMamba在参数量显著减少的情况下，达到了与现有最佳模型相当甚至更高的分类精度。例如，在Dataset DIAT上，RadMamba仅用1/400的参数量就达到了99.8%的精度，与最佳模型持平。该模型在资源受限或需要多传感器场景中具有应用潜力。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "Under Review",
+      "pdf_url": "http://arxiv.org/pdf/2504.12039v1",
+      "published_date": "2025-04-16 12:54:11 UTC",
+      "updated_date": "2025-04-16 12:54:11 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:07:34.671266"
+    },
+    {
+      "arxiv_id": "2504.12031v1",
+      "title": "Proof-Carrying Neuro-Symbolic Code",
+      "title_zh": "可证明的神经符号代码\n",
+      "authors": [
+        "Ekaterina Komendantskaya"
+      ],
+      "abstract": "This invited paper introduces the concept of \"proof-carrying neuro-symbolic\ncode\" and explains its meaning and value, from both the \"neural\" and the\n\"symbolic\" perspectives. The talk outlines the first successes and challenges\nthat this new area of research faces.",
+      "tldr_zh": "本文介绍了“可验证的神经符号代码”的概念，并从“神经”和“符号”两个角度阐述了其意义和价值。文章概述了该新兴研究领域目前取得的初步成果以及面临的挑战。\n",
+      "categories": [
+        "cs.PL",
+        "cs.AI",
+        "cs.LO",
+        "F.3.1; F.3.2; F.3.3; I.2.0"
+      ],
+      "primary_category": "cs.PL",
+      "comment": "Invited paper at CiE 2025. arXiv admin note: text overlap with\n  arXiv:2501.05867",
+      "pdf_url": "http://arxiv.org/pdf/2504.12031v1",
+      "published_date": "2025-04-16 12:42:18 UTC",
+      "updated_date": "2025-04-16 12:42:18 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:07:46.065988"
+    },
+    {
+      "arxiv_id": "2504.12012v1",
+      "title": "Purposefully Induced Psychosis (PIP): Embracing Hallucination as Imagination in Large Language Models",
+      "title_zh": "有意诱导的精神错乱 (PIP)：将大型语言模型中的幻觉视为想象力\n",
+      "authors": [
+        "Kris Pilcher",
+        "Esen K. Tütüncü"
+      ],
+      "abstract": "Hallucinations in Large Language Models (LLMs) are widely regarded as errors\n- outputs that deviate from factual accuracy. However, in creative or\nexploratory contexts, these \"mistakes\" may represent unexpected avenues for\ninnovation. We introduce Purposefully Induced Psychosis (PIP), a novel approach\nthat amplifies LLM hallucinations for imaginative tasks such as speculative\nfiction, interactive storytelling, and mixed-reality simulations. Drawing on\nHerman Melville's Moby-Dick, where Pip's \"madness\" reveals profound insight, we\nreframe hallucinations as a source of computational imagination rather than a\nflaw. Our method fine-tunes LLMs to encourage speculative, metaphorical, and\nsurreal outputs - hallucinations that are useful when factual accuracy is not\nthe chief objective. Inspired by the consensual illusions of theater and stage\nmagic, PIP situates these creative missteps in contexts where users willingly\nsuspend disbelief, thereby transforming \"errors\" into catalysts for new ways of\nthinking. We discuss potential applications, design principles for ensuring\nuser consent, preliminary observations, and implications for broader AI ethics\nand human-AI collaboration.",
+      "tldr_zh": "该论文提出了“有目的诱导的精神错乱(Purposefully Induced Psychosis, PIP)”方法，旨在将大型语言模型(LLM)中的幻觉转化为创造性任务的驱动力。与传统观点将幻觉视为错误不同，PIP将幻觉视为一种计算想象力的来源，尤其适用于推测小说、互动故事和混合现实模拟等领域。该方法通过微调LLM，鼓励其生成推测性、隐喻性和超现实的输出，从而在非以事实准确性为主要目标的场景下利用幻觉。论文探讨了PIP的潜在应用、用户同意的设计原则、初步观察结果，以及对更广泛的AI伦理和人机协作的影响。\n",
+      "categories": [
+        "cs.AI",
+        "cs.HC"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "5 pages, 3 figures",
+      "pdf_url": "http://arxiv.org/pdf/2504.12012v1",
+      "published_date": "2025-04-16 12:13:02 UTC",
+      "updated_date": "2025-04-16 12:13:02 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:07:58.814223"
+    },
+    {
+      "arxiv_id": "2504.12011v1",
+      "title": "Balancing Graph Embedding Smoothness in Self-Supervised Learning via Information-Theoretic Decomposition",
+      "title_zh": "通过信息论分解平衡自监督学习中的图嵌入平滑度\n",
+      "authors": [
+        "Heesoo Jung",
+        "Hogun Park"
+      ],
+      "abstract": "Self-supervised learning (SSL) in graphs has garnered significant attention,\nparticularly in employing Graph Neural Networks (GNNs) with pretext tasks\ninitially designed for other domains, such as contrastive learning and feature\nreconstruction. However, it remains uncertain whether these methods effectively\nreflect essential graph properties, precisely representation similarity with\nits neighbors. We observe that existing methods position opposite ends of a\nspectrum driven by the graph embedding smoothness, with each end corresponding\nto outperformance on specific downstream tasks. Decomposing the SSL objective\ninto three terms via an information-theoretic framework with a neighbor\nrepresentation variable reveals that this polarization stems from an imbalance\namong the terms, which existing methods may not effectively maintain. Further\ninsights suggest that balancing between the extremes can lead to improved\nperformance across a wider range of downstream tasks. A framework, BSG\n(Balancing Smoothness in Graph SSL), introduces novel loss functions designed\nto supplement the representation quality in graph-based SSL by balancing the\nderived three terms: neighbor loss, minimal loss, and divergence loss. We\npresent a theoretical analysis of the effects of these loss functions,\nhighlighting their significance from both the SSL and graph smoothness\nperspectives. Extensive experiments on multiple real-world datasets across node\nclassification and link prediction consistently demonstrate that BSG achieves\nstate-of-the-art performance, outperforming existing methods. Our\nimplementation code is available at https://github.com/steve30572/BSG.",
+      "tldr_zh": "该论文研究了图自监督学习(SSL)中图嵌入平滑性的问题，发现现有方法在平滑性上存在两极分化，导致在不同下游任务上的表现差异。作者通过信息论框架将SSL目标分解为邻居损失、最小损失和散度损失三个部分，并提出BSG (Balancing Smoothness in Graph SSL)框架，通过新的损失函数来平衡这三个部分，从而提高图表示的质量。理论分析和在节点分类和链接预测等任务上的大量实验表明，BSG能够达到state-of-the-art的性能，优于现有方法。\n",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "comment": "Accepted to the Web Conference (WWW) 2025",
+      "pdf_url": "http://arxiv.org/pdf/2504.12011v1",
+      "published_date": "2025-04-16 12:09:56 UTC",
+      "updated_date": "2025-04-16 12:09:56 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:08:10.533211"
+    },
+    {
+      "arxiv_id": "2504.12007v1",
+      "title": "Generative Recommendation with Continuous-Token Diffusion",
+      "title_zh": "基于连续 Token 扩散的生成式推荐\n",
+      "authors": [
+        "Haohao Qu",
+        "Wenqi Fan",
+        "Shanru Lin"
+      ],
+      "abstract": "In recent years, there has been a significant trend toward using large\nlanguage model (LLM)-based recommender systems (RecSys). Current research\nprimarily focuses on representing complex user-item interactions within a\ndiscrete space to align with the inherent discrete nature of language models.\nHowever, this approach faces limitations due to its discrete nature: (i)\ninformation is often compressed during discretization; (ii) the tokenization\nand generation for the vast number of users and items in real-world scenarios\nare constrained by a limited vocabulary. Embracing continuous data presents a\npromising alternative to enhance expressive capabilities, though this approach\nis still in its early stages. To address this gap, we propose a novel\nframework, DeftRec, which incorporates \\textbf{de}noising di\\textbf{f}fusion\nmodels to enable LLM-based RecSys to seamlessly support continuous\n\\textbf{t}oken as input and target. First, we introduce a robust tokenizer with\na masking operation and an additive K-way architecture to index users and\nitems, capturing their complex collaborative relationships into continuous\ntokens. Crucially, we develop a denoising diffusion model to process user\npreferences within continuous domains by conditioning on reasoning content from\npre-trained large language model. During the denoising process, we reformulate\nthe objective to include negative interactions, building a comprehensive\nunderstanding of user preferences for effective and accurate recommendation\ngeneration. Finally, given a continuous token as output, recommendations can be\neasily generated through score-based retrieval. Extensive experiments\ndemonstrate the effectiveness of the proposed methods, showing that DeftRec\nsurpasses competitive benchmarks, including both traditional and emerging\nLLM-based RecSys.",
+      "tldr_zh": "该论文提出了一种名为DeftRec的新框架，旨在解决基于大型语言模型(LLM)的推荐系统(RecSys)在处理用户-物品交互时因离散化而导致的信息压缩和词汇量限制问题。DeftRec利用去噪扩散模型，使LLM-based RecSys能够无缝支持连续token作为输入和目标。该框架引入了一个带有掩码操作和加性K路架构的tokenizer来索引用户和物品，并将复杂的协同关系捕获到连续token中。通过在预训练LLM的推理内容上进行条件化，DeftRec开发了一个去噪扩散模型来处理连续域中的用户偏好，并在去噪过程中引入负向交互，从而全面理解用户偏好。实验结果表明，DeftRec优于包括传统和新兴LLM-based RecSys在内的竞争基准。\n",
+      "categories": [
+        "cs.IR",
+        "cs.AI"
+      ],
+      "primary_category": "cs.IR",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.12007v1",
+      "published_date": "2025-04-16 12:01:03 UTC",
+      "updated_date": "2025-04-16 12:01:03 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:08:23.017258"
+    },
+    {
+      "arxiv_id": "2504.11997v1",
+      "title": "A Computationally Efficient Algorithm for Infinite-Horizon Average-Reward Linear MDPs",
+      "title_zh": "无限视界平均奖励线性 MDP 的一种计算高效算法\n",
+      "authors": [
+        "Kihyuk Hong",
+        "Ambuj Tewari"
+      ],
+      "abstract": "We study reinforcement learning in infinite-horizon average-reward settings\nwith linear MDPs. Previous work addresses this problem by approximating the\naverage-reward setting by discounted setting and employing a value\niteration-based algorithm that uses clipping to constrain the span of the value\nfunction for improved statistical efficiency. However, the clipping procedure\nrequires computing the minimum of the value function over the entire state\nspace, which is prohibitive since the state space in linear MDP setting can be\nlarge or even infinite. In this paper, we introduce a value iteration method\nwith efficient clipping operation that only requires computing the minimum of\nvalue functions over the set of states visited by the algorithm. Our algorithm\nenjoys the same regret bound as the previous work while being computationally\nefficient, with computational complexity that is independent of the size of the\nstate space.",
+      "tldr_zh": "本文研究了线性MDPs中无限视界平均奖励强化学习问题。针对现有算法中裁剪操作计算量大的问题（需要计算整个状态空间上的最小值），提出了一种改进的值迭代方法，该方法仅需计算算法访问过的状态集合上的最小值，从而实现了高效的裁剪操作。该算法在保证与先前工作相同的遗憾界限的同时，计算复杂度与状态空间的大小无关，提高了计算效率。\n",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11997v1",
+      "published_date": "2025-04-16 11:47:41 UTC",
+      "updated_date": "2025-04-16 11:47:41 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:08:34.414988"
+    },
+    {
+      "arxiv_id": "2504.11986v1",
+      "title": "Language Models as Quasi-Crystalline Thought: Structure, Constraint, and Emergence in Generative Systems",
+      "title_zh": "语言模型作为准晶体思维：生成系统中的结构、约束和涌现\n",
+      "authors": [
+        "Jose Manuel Guevara-Vela"
+      ],
+      "abstract": "This essay proposes an analogy between large language models (LLMs) and\nquasicrystals: systems that exhibit global coherence without periodic\nrepetition and that are generated through local constraints. While LLMs are\noften evaluated in terms of predictive accuracy, factuality, or alignment, this\nstructural perspective suggests that their most characteristic behavior is the\nproduction of internally resonant linguistic patterns. Just as quasicrystals\nforced a redefinition of order in physical systems, viewing LLMs as generators\nof quasi-structured language opens new paths for evaluation and design:\nprivileging propagation of constraint over token-level accuracy, and coherence\nof form over fixed meaning. LLM outputs should be read not only for what they\nsay, but for the patterns of constraint and coherence that organize them. This\nshift reframes generative language as a space of emergent patterning: LLMs are\nneither fully random nor strictly rule-based, but defined by a logic of\nconstraint, resonance, and structural depth.",
+      "tldr_zh": "本文将大型语言模型(LLMs)类比为准晶体，准晶体具有全局连贯性，但没有周期性重复，并通过局部约束生成。文章提出，评估LLMs不应只关注预测准确性、事实性和对齐，更应关注其生成内在共振语言模式的能力。类似于准晶体重新定义了物理系统中的秩序，将LLMs视为准结构化语言的生成器，为评估和设计开辟了新路径：优先考虑约束的传播而非token级别的准确性，优先考虑形式的连贯性而非固定的意义。LLM的输出不仅应关注其内容，还应关注组织它们的约束和连贯模式。这种转变将生成语言重构为一个涌现模式的空间：LLMs既非完全随机，也非严格基于规则，而是由约束、共振和结构深度的逻辑定义。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11986v1",
+      "published_date": "2025-04-16 11:27:47 UTC",
+      "updated_date": "2025-04-16 11:27:47 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:08:46.897382"
+    },
+    {
+      "arxiv_id": "2504.11977v1",
+      "title": "Leveraging Machine Learning Models to Predict the Outcome of Digital Medical Triage Interviews",
+      "title_zh": "利用机器学习模型预测数字医疗分诊访谈的结果\n",
+      "authors": [
+        "Sofia Krylova",
+        "Fabian Schmidt",
+        "Vladimir Vlassov"
+      ],
+      "abstract": "Many existing digital triage systems are questionnaire-based, guiding\npatients to appropriate care levels based on information (e.g., symptoms,\nmedical history, and urgency) provided by the patients answering\nquestionnaires. Such a system often uses a deterministic model with predefined\nrules to determine care levels. It faces challenges with incomplete triage\ninterviews since it can only assist patients who finish the process. In this\nstudy, we explore the use of machine learning (ML) to predict outcomes of\nunfinished interviews, aiming to enhance patient care and service quality.\nPredicting triage outcomes from incomplete data is crucial for patient safety\nand healthcare efficiency. Our findings show that decision-tree models,\nparticularly LGBMClassifier and CatBoostClassifier, achieve over 80\\% accuracy\nin predicting outcomes from complete interviews while having a linear\ncorrelation between the prediction accuracy and interview completeness degree.\nFor example, LGBMClassifier achieves 88,2\\% prediction accuracy for interviews\nwith 100\\% completeness, 79,6\\% accuracy for interviews with 80\\% completeness,\n58,9\\% accuracy for 60\\% completeness, and 45,7\\% accuracy for 40\\%\ncompleteness. The TabTransformer model demonstrated exceptional accuracy of\nover 80\\% for all degrees of completeness but required extensive training time,\nindicating a need for more powerful computational resources. The study\nhighlights the linear correlation between interview completeness and predictive\npower of the decision-tree models.",
+      "tldr_zh": "本研究探索了利用机器学习(ML)模型预测未完成的数字医疗分诊访谈结果，旨在提高患者护理和服务质量。研究发现，决策树模型，特别是LGBMClassifier和CatBoostClassifier，在预测完整访谈结果方面实现了超过80%的准确率，并且预测准确率与访谈完整度之间存在线性相关性。TabTransformer模型在所有完整度下都表现出超过80%的卓越准确率，但需要大量的训练时间。研究强调了访谈完整性与决策树模型的预测能力之间的线性关系。\n",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "8 pages, 4 figures, 8 tables",
+      "pdf_url": "http://arxiv.org/pdf/2504.11977v1",
+      "published_date": "2025-04-16 11:17:23 UTC",
+      "updated_date": "2025-04-16 11:17:23 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:08:58.487230"
+    },
+    {
+      "arxiv_id": "2504.11967v2",
+      "title": "Securing the Skies: A Comprehensive Survey on Anti-UAV Methods, Benchmarking, and Future Directions",
+      "title_zh": "保卫天空：反无人机方法、基准测试和未来方向的综合调查\n",
+      "authors": [
+        "Yifei Dong",
+        "Fengyi Wu",
+        "Sanjian Zhang",
+        "Guangyu Chen",
+        "Yuzhi Hu",
+        "Masumi Yano",
+        "Jingdong Sun",
+        "Siyu Huang",
+        "Feng Liu",
+        "Qi Dai",
+        "Zhi-Qi Cheng"
+      ],
+      "abstract": "Unmanned Aerial Vehicles (UAVs) are indispensable for infrastructure\ninspection, surveillance, and related tasks, yet they also introduce critical\nsecurity challenges. This survey provides a wide-ranging examination of the\nanti-UAV domain, centering on three core objectives-classification, detection,\nand tracking-while detailing emerging methodologies such as diffusion-based\ndata synthesis, multi-modal fusion, vision-language modeling, self-supervised\nlearning, and reinforcement learning. We systematically evaluate\nstate-of-the-art solutions across both single-modality and multi-sensor\npipelines (spanning RGB, infrared, audio, radar, and RF) and discuss\nlarge-scale as well as adversarially oriented benchmarks. Our analysis reveals\npersistent gaps in real-time performance, stealth detection, and swarm-based\nscenarios, underscoring pressing needs for robust, adaptive anti-UAV systems.\nBy highlighting open research directions, we aim to foster innovation and guide\nthe development of next-generation defense strategies in an era marked by the\nextensive use of UAVs.",
+      "tldr_zh": "本文全面综述了反无人机(anti-UAV)领域，重点关注无人机的分类、检测和跟踪三个核心目标。文章详细介绍了扩散模型数据合成、多模态融合、视觉语言建模、自监督学习和强化学习等新兴方法。通过对单模态和多传感器（RGB、红外、音频、雷达和射频）流水线的评估，揭示了实时性能、隐身检测和集群场景中的持续差距。该研究强调了对鲁棒、自适应反无人机系统的迫切需求，并提出了未来研究方向，旨在促进下一代防御策略的创新。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.RO"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "Accepted at CVPR Workshop Anti-UAV 2025. 15 pages",
+      "pdf_url": "http://arxiv.org/pdf/2504.11967v2",
+      "published_date": "2025-04-16 10:58:33 UTC",
+      "updated_date": "2025-04-17 09:25:04 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:09:10.541078"
+    },
+    {
+      "arxiv_id": "2504.11952v1",
+      "title": "Robust and Fine-Grained Detection of AI Generated Texts",
+      "title_zh": "AI生成文本的稳健和细粒度检测\n",
+      "authors": [
+        "Ram Mohan Rao Kadiyala",
+        "Siddartha Pullakhandam",
+        "Kanwal Mehreen",
+        "Drishti Sharma",
+        "Siddhant Gupta",
+        "Jebish Purbey",
+        "Ashay Srivastava",
+        "Subhasya TippaReddy",
+        "Arvind Reddy Bobbili",
+        "Suraj Telugara Chandrashekhar",
+        "Modabbir Adeeb",
+        "Srinadh Vura",
+        "Hamza Farooq"
+      ],
+      "abstract": "An ideal detection system for machine generated content is supposed to work\nwell on any generator as many more advanced LLMs come into existence day by\nday. Existing systems often struggle with accurately identifying AI-generated\ncontent over shorter texts. Further, not all texts might be entirely authored\nby a human or LLM, hence we focused more over partial cases i.e human-LLM\nco-authored texts. Our paper introduces a set of models built for the task of\ntoken classification which are trained on an extensive collection of\nhuman-machine co-authored texts, which performed well over texts of unseen\ndomains, unseen generators, texts by non-native speakers and those with\nadversarial inputs. We also introduce a new dataset of over 2.4M such texts\nmostly co-authored by several popular proprietary LLMs over 23 languages. We\nalso present findings of our models' performance over each texts of each domain\nand generator. Additional findings include comparison of performance against\neach adversarial method, length of input texts and characteristics of generated\ntexts compared to the original human authored texts.",
+      "tldr_zh": "本文提出了一种针对AI生成文本的鲁棒且细粒度的检测系统，旨在解决现有系统在短文本上识别AI生成内容不准确的问题，并关注人机共创文本的检测。该系统基于token分类模型，使用包含240万篇跨23种语言的人机共创文本数据集进行训练，能够有效检测来自未知领域、未知生成器、非母语人士以及包含对抗性输入的AI生成文本。研究还分析了模型在不同领域和生成器上的性能，以及对抗性方法、输入文本长度和生成文本特征对检测结果的影响。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "ACL 2025 Feb ARR Submission",
+      "pdf_url": "http://arxiv.org/pdf/2504.11952v1",
+      "published_date": "2025-04-16 10:29:30 UTC",
+      "updated_date": "2025-04-16 10:29:30 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:09:22.708843"
+    },
+    {
+      "arxiv_id": "2504.11944v1",
+      "title": "VIPO: Value Function Inconsistency Penalized Offline Reinforcement Learning",
+      "title_zh": "VIPO：价值函数不一致性惩罚的离线强化学习\n",
+      "authors": [
+        "Xuyang Chen",
+        "Guojian Wang",
+        "Keyu Yan",
+        "Lin Zhao"
+      ],
+      "abstract": "Offline reinforcement learning (RL) learns effective policies from\npre-collected datasets, offering a practical solution for applications where\nonline interactions are risky or costly. Model-based approaches are\nparticularly advantageous for offline RL, owing to their data efficiency and\ngeneralizability. However, due to inherent model errors, model-based methods\noften artificially introduce conservatism guided by heuristic uncertainty\nestimation, which can be unreliable. In this paper, we introduce VIPO, a novel\nmodel-based offline RL algorithm that incorporates self-supervised feedback\nfrom value estimation to enhance model training. Specifically, the model is\nlearned by additionally minimizing the inconsistency between the value learned\ndirectly from the offline data and the one estimated from the model. We perform\ncomprehensive evaluations from multiple perspectives to show that VIPO can\nlearn a highly accurate model efficiently and consistently outperform existing\nmethods. It offers a general framework that can be readily integrated into\nexisting model-based offline RL algorithms to systematically enhance model\naccuracy. As a result, VIPO achieves state-of-the-art performance on almost all\ntasks in both D4RL and NeoRL benchmarks.",
+      "tldr_zh": "本文提出了一种新的基于模型的离线强化学习算法VIPO，旨在解决模型误差带来的保守性问题。VIPO通过引入来自价值估计的自监督反馈来增强模型训练，具体而言，模型通过最小化直接从离线数据学习到的价值和从模型估计的价值之间的不一致性来学习。实验结果表明，VIPO能够高效地学习高精度的模型，并在D4RL和NeoRL基准测试中始终优于现有方法，在几乎所有任务上都取得了最先进的性能。该算法可以很容易地集成到现有的基于模型的离线强化学习算法中，以系统地提高模型精度。\n",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11944v1",
+      "published_date": "2025-04-16 10:23:44 UTC",
+      "updated_date": "2025-04-16 10:23:44 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:09:34.711055"
+    },
+    {
+      "arxiv_id": "2504.11942v1",
+      "title": "ADAT: Time-Series-Aware Adaptive Transformer Architecture for Sign Language Translation",
+      "title_zh": "ADAT：用于手语翻译的时间序列感知自适应 Transformer 架构\n",
+      "authors": [
+        "Nada Shahin",
+        "Leila Ismail"
+      ],
+      "abstract": "Current sign language machine translation systems rely on recognizing hand\nmovements, facial expressions and body postures, and natural language\nprocessing, to convert signs into text. Recent approaches use Transformer\narchitectures to model long-range dependencies via positional encoding.\nHowever, they lack accuracy in recognizing fine-grained, short-range temporal\ndependencies between gestures captured at high frame rates. Moreover, their\nhigh computational complexity leads to inefficient training. To mitigate these\nissues, we propose an Adaptive Transformer (ADAT), which incorporates\ncomponents for enhanced feature extraction and adaptive feature weighting\nthrough a gating mechanism to emphasize contextually relevant features while\nreducing training overhead and maintaining translation accuracy. To evaluate\nADAT, we introduce MedASL, the first public medical American Sign Language\ndataset. In sign-to-gloss-to-text experiments, ADAT outperforms the\nencoder-decoder transformer, improving BLEU-4 accuracy by 0.1% while reducing\ntraining time by 14.33% on PHOENIX14T and 3.24% on MedASL. In sign-to-text\nexperiments, it improves accuracy by 8.7% and reduces training time by 2.8% on\nPHOENIX14T and achieves 4.7% higher accuracy and 7.17% faster training on\nMedASL. Compared to encoder-only and decoder-only baselines in sign-to-text,\nADAT is at least 6.8% more accurate despite being up to 12.1% slower due to its\ndual-stream structure.",
+      "tldr_zh": "本文提出了一种时间序列感知的自适应Transformer架构(ADAT)，用于提升手语翻译的性能。ADAT通过引入增强的特征提取组件和自适应特征加权机制，能够更好地捕捉手势之间细粒度的、短程的时间依赖关系，同时降低计算复杂度。作者还构建了首个公开的医学美国手语数据集MedASL。实验结果表明，在sign-to-gloss-to-text任务中，ADAT在PHOENIX14T和MedASL数据集上均优于传统的encoder-decoder Transformer，并在sign-to-text任务中取得了更高的准确率和更快的训练速度。\n",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.CV",
+        "I.2.6; I.2.7; I.2.10; I.4.8; I.4.9; I.4.10"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11942v1",
+      "published_date": "2025-04-16 10:20:11 UTC",
+      "updated_date": "2025-04-16 10:20:11 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:09:46.740765"
+    },
+    {
+      "arxiv_id": "2504.11919v1",
+      "title": "Rethinking the Generation of High-Quality CoT Data from the Perspective of LLM-Adaptive Question Difficulty Grading",
+      "title_zh": "从 LLM 自适应问题难度分级的角度重新思考高质量 CoT 数据的生成\n",
+      "authors": [
+        "Qianjin Yu",
+        "Keyu Wu",
+        "Zihan Chen",
+        "Chushu Zhang",
+        "Manlin Mei",
+        "Lingjun Huang",
+        "Fang Tan",
+        "Yongsheng Du",
+        "Kunlin Liu",
+        "Yurui Zhu"
+      ],
+      "abstract": "Recently, DeepSeek-R1 (671B) (DeepSeek-AIet al., 2025) has demonstrated its\nexcellent reasoning ability in complex tasks and has publiclyshared its\nmethodology. This provides potentially high-quality chain-of-thought (CoT) data\nfor stimulating the reasoning abilities of small-sized large language models\n(LLMs). To generate high-quality CoT data for different LLMs, we seek an\nefficient method for generating high-quality CoT data with LLM-Adaptive\nquestiondifficulty levels. First, we grade the difficulty of the questions\naccording to the reasoning ability of the LLMs themselves and construct a\nLLM-Adaptive question database. Second, we sample the problem database based on\na distribution of difficulty levels of the questions and then use DeepSeek-R1\n(671B) (DeepSeek-AI et al., 2025) to generate the corresponding high-quality\nCoT data with correct answers. Thanks to the construction of CoT data with\nLLM-Adaptive difficulty levels, we have significantly reduced the cost of data\ngeneration and enhanced the efficiency of model supervised fine-tuning (SFT).\nFinally, we have validated the effectiveness and generalizability of the\nproposed method in the fields of complex mathematical competitions and code\ngeneration tasks. Notably, with only 2k high-quality mathematical CoT data, our\nZMath-32B surpasses DeepSeek-Distill-32B in math reasoning task. Similarly,\nwith only 2k high-quality code CoT data, our ZCode-32B surpasses\nDeepSeek-Distill-32B in code reasoning tasks.",
+      "tldr_zh": "该论文提出了一种新的CoT（Chain-of-Thought）数据生成方法，旨在为不同规模的LLM（Large Language Models）生成高质量的、难度自适应的CoT数据。该方法首先根据LLM自身的推理能力对问题进行难度分级，构建LLM自适应的问题数据库。然后，基于难度分布对问题数据库进行抽样，并使用DeepSeek-R1 (671B)生成高质量的、带有正确答案的CoT数据。实验结果表明，通过构建LLM自适应难度的CoT数据，显著降低了数据生成成本，并提高了模型监督微调（SFT）的效率。在数学竞赛和代码生成任务中，仅使用2k高质量CoT数据训练的ZMath-32B和ZCode-32B模型，性能均超过了DeepSeek-Distill-32B。\n",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11919v1",
+      "published_date": "2025-04-16 09:55:34 UTC",
+      "updated_date": "2025-04-16 09:55:34 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:09:58.946610"
+    },
+    {
+      "arxiv_id": "2504.11901v2",
+      "title": "Causality-enhanced Decision-Making for Autonomous Mobile Robots in Dynamic Environments",
+      "title_zh": "因果关系增强的动态环境自主移动机器人决策\n",
+      "authors": [
+        "Luca Castri",
+        "Gloria Beraldo",
+        "Nicola Bellotto"
+      ],
+      "abstract": "The growing integration of robots in shared environments -- such as\nwarehouses, shopping centres, and hospitals -- demands a deep understanding of\nthe underlying dynamics and human behaviours, including how, when, and where\nindividuals engage in various activities and interactions. This knowledge goes\nbeyond simple correlation studies and requires a more comprehensive causal\nanalysis. By leveraging causal inference to model cause-and-effect\nrelationships, we can better anticipate critical environmental factors and\nenable autonomous robots to plan and execute tasks more effectively. To this\nend, we propose a novel causality-based decision-making framework that reasons\nover a learned causal model to predict battery usage and human obstructions,\nunderstanding how these factors could influence robot task execution. Such\nreasoning framework assists the robot in deciding when and how to complete a\ngiven task. To achieve this, we developed also PeopleFlow, a new Gazebo-based\nsimulator designed to model context-sensitive human-robot spatial interactions\nin shared workspaces. PeopleFlow features realistic human and robot\ntrajectories influenced by contextual factors such as time, environment layout,\nand robot state, and can simulate a large number of agents. While the simulator\nis general-purpose, in this paper we focus on a warehouse-like environment as a\ncase study, where we conduct an extensive evaluation benchmarking our causal\napproach against a non-causal baseline. Our findings demonstrate the efficacy\nof the proposed solutions, highlighting how causal reasoning enables autonomous\nrobots to operate more efficiently and safely in dynamic environments shared\nwith humans.",
+      "tldr_zh": "该论文提出了一种基于因果关系的决策框架，用于提升自主移动机器人在动态环境中的表现。该框架通过学习因果模型来预测电池使用情况和人为障碍，从而更好地理解这些因素对机器人任务执行的影响。为了验证该框架，作者开发了一个名为PeopleFlow的新型Gazebo模拟器，该模拟器能够模拟受上下文因素影响的真实人机交互。在仓库环境的案例研究中，实验结果表明，与非因果基线相比，该因果推理方法能够使自主机器人在与人类共享的动态环境中更高效、更安全地运行。\n",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "primary_category": "cs.RO",
+      "comment": "Causal Discovery and Inference - Robot Autonomy - Human-Robot Spatial\n  Interaction - Decision-Making",
+      "pdf_url": "http://arxiv.org/pdf/2504.11901v2",
+      "published_date": "2025-04-16 09:26:04 UTC",
+      "updated_date": "2025-04-17 08:41:44 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:10:10.713109"
+    },
+    {
+      "arxiv_id": "2504.11896v1",
+      "title": "Learning Physics-Informed Color-Aware Transforms for Low-Light Image Enhancement",
+      "title_zh": "学习用于弱光图像增强的物理信息颜色感知变换\n",
+      "authors": [
+        "Xingxing Yang",
+        "Jie Chen",
+        "Zaifeng Yang"
+      ],
+      "abstract": "Image decomposition offers deep insights into the imaging factors of visual\ndata and significantly enhances various advanced computer vision tasks. In this\nwork, we introduce a novel approach to low-light image enhancement based on\ndecomposed physics-informed priors. Existing methods that directly map\nlow-light to normal-light images in the sRGB color space suffer from\ninconsistent color predictions and high sensitivity to spectral power\ndistribution (SPD) variations, resulting in unstable performance under diverse\nlighting conditions. To address these challenges, we introduce a\nPhysics-informed Color-aware Transform (PiCat), a learning-based framework that\nconverts low-light images from the sRGB color space into deep\nillumination-invariant descriptors via our proposed Color-aware Transform\n(CAT). This transformation enables robust handling of complex lighting and SPD\nvariations. Complementing this, we propose the Content-Noise Decomposition\nNetwork (CNDN), which refines the descriptor distributions to better align with\nwell-lit conditions by mitigating noise and other distortions, thereby\neffectively restoring content representations to low-light images. The CAT and\nthe CNDN collectively act as a physical prior, guiding the transformation\nprocess from low-light to normal-light domains. Our proposed PiCat framework\ndemonstrates superior performance compared to state-of-the-art methods across\nfive benchmark datasets.",
+      "tldr_zh": "该论文提出了一种基于物理信息和颜色感知的变换(PiCat)的低光图像增强新方法。PiCat首先通过颜色感知变换(CAT)将低光图像从sRGB颜色空间转换为深度光照不变描述符，从而鲁棒地处理复杂的光照和SPD变化。然后，利用内容-噪声分解网络(CNDN)细化描述符分布，减轻噪声和其他失真，有效恢复低光图像的内容表示。CAT和CNDN共同作为物理先验，指导从低光到正常光域的转换过程。实验结果表明，PiCat框架在五个基准数据集上优于现有的最佳方法。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "Accepted by ICME 2025",
+      "pdf_url": "http://arxiv.org/pdf/2504.11896v1",
+      "published_date": "2025-04-16 09:23:38 UTC",
+      "updated_date": "2025-04-16 09:23:38 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:10:22.789338"
+    },
+    {
+      "arxiv_id": "2504.11882v1",
+      "title": "Seeking and leveraging alternative variable dependency concepts in gray-box-elusive bimodal land-use allocation problems",
+      "title_zh": "在灰盒难解的双峰土地利用分配问题中寻找并利用替代变量依赖概念\n",
+      "authors": [
+        "J. Maciążek",
+        "M. W. Przewozniczek",
+        "J. Schwaab"
+      ],
+      "abstract": "Solving land-use allocation problems can help us to deal with some of the\nmost urgent global environmental issues. Since these problems are NP-hard,\neffective optimizers are needed to handle them. The knowledge about variable\ndependencies allows for proposing such tools. However, in this work, we\nconsider a real-world multi-objective problem for which standard variable\ndependency discovery techniques are inapplicable. Therefore, using\nlinkage-based variation operators is unreachable. To address this issue, we\npropose a definition of problem-dedicated variable dependency. On this base, we\npropose obtaining masks of dependent variables. Using them, we construct three\nnovel crossover operators. The results concerning real-world test cases show\nthat introducing our propositions into two well-known optimizers (NSGA-II,\nMOEA/D) dedicated to multi-objective optimization significantly improves their\neffectiveness.",
+      "tldr_zh": "该论文针对复杂的土地利用分配问题，提出了一种新的问题导向的变量依赖性定义，以解决传统变量依赖性发现技术失效的难题。针对实际多目标优化问题，研究人员设计了基于变量依赖性掩码的三种新型交叉算子。实验结果表明，将这些算子集成到NSGA-II和MOEA/D等经典多目标优化器中，能够显著提高其性能和效率，为解决实际土地利用分配问题提供了新的思路。\n",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11882v1",
+      "published_date": "2025-04-16 09:06:55 UTC",
+      "updated_date": "2025-04-16 09:06:55 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:10:34.581578"
+    },
+    {
+      "arxiv_id": "2504.11864v1",
+      "title": "Moving between high-quality optima using multi-satisfiability characteristics in hard-to-solve Max3Sat instances",
+      "title_zh": "在难解的 Max3Sat 实例中使用多重可满足性特征在高质最优解之间移动\n",
+      "authors": [
+        "J. Piatek",
+        "M. W. Przewozniczek",
+        "F. Chicano",
+        "R. Tinós"
+      ],
+      "abstract": "Gray-box optimization proposes effective and efficient optimizers of general\nuse. To this end, it leverages information about variable dependencies and the\nsubfunction-based problem representation. These approaches were already shown\neffective by enabling \\textit{tunnelling} between local optima even if these\nmoves require the modification of many dependent variables. Tunnelling is\nuseful in solving the maximum satisfiability problem (MaxSat), which can be\nreformulated to Max3Sat. Since many real-world problems can be brought to\nsolving the MaxSat/Max3Sat instances, it is important to solve them effectively\nand efficiently. Therefore, we focus on Max3Sat instances for which tunnelling\nfails to introduce improving moves between locally optimal high-quality\nsolutions and the region of globally optimal solutions. We analyze the features\nof such instances on the ground of phase transitions. Based on these\nobservations, we propose manipulating clause-satisfiability characteristics\nthat allow connecting high-quality solutions distant in the solution space. We\nutilize multi-satisfiability characteristics in the optimizer built from\ntypical gray-box mechanisms. The experimental study shows that the proposed\noptimizer can solve those Max3Sat instances that are out of the grasp of\nstate-of-the-art gray-box optimizers. At the same time, it remains effective\nfor instances that have already been successfully solved by gray-box.",
+      "tldr_zh": "该论文研究了在难解的Max3Sat问题实例中，如何在高质量局部最优解之间进行移动。针对现有灰盒优化器（gray-box optimizer）无法在这些实例中进行有效“隧道挖掘”（tunnelling）的问题，论文分析了实例的相变特征。基于此，论文提出了一种通过操纵子句可满足性特征（clause-satisfiability characteristics）来连接解空间中距离较远的高质量解的方法。该方法利用多重可满足性特征构建优化器，并结合典型的灰盒机制。实验结果表明，该优化器能够解决现有灰盒优化器无法解决的Max3Sat实例，同时保持了对已有成功解决实例的有效性。\n",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11864v1",
+      "published_date": "2025-04-16 08:38:08 UTC",
+      "updated_date": "2025-04-16 08:38:08 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:10:46.805713"
+    },
+    {
+      "arxiv_id": "2504.11855v1",
+      "title": "EngramNCA: a Neural Cellular Automaton Model of Memory Transfer",
+      "title_zh": "EngramNCA：记忆转移的神经元胞自动机模型\n",
+      "authors": [
+        "Etienne Guichard",
+        "Felix Reimers",
+        "Mia Kvalsund",
+        "Mikkel Lepperød",
+        "Stefano Nichele"
+      ],
+      "abstract": "This study introduces EngramNCA, a neural cellular automaton (NCA) that\nintegrates both publicly visible states and private, cell-internal memory\nchannels, drawing inspiration from emerging biological evidence suggesting that\nmemory storage extends beyond synaptic modifications to include intracellular\nmechanisms. The proposed model comprises two components: GeneCA, an NCA trained\nto develop distinct morphologies from seed cells containing immutable \"gene\"\nencodings, and GenePropCA, an auxiliary NCA that modulates the private\n\"genetic\" memory of cells without altering their visible states. This\narchitecture enables the encoding and propagation of complex morphologies\nthrough the interaction of visible and private channels, facilitating the\ngrowth of diverse structures from a shared \"genetic\" substrate. EngramNCA\nsupports the emergence of hierarchical and coexisting morphologies, offering\ninsights into decentralized memory storage and transfer in artificial systems.\nThese findings have potential implications for the development of adaptive,\nself-organizing systems and may contribute to the broader understanding of\nmemory mechanisms in both biological and synthetic contexts.",
+      "tldr_zh": "该研究提出了EngramNCA，一种新型神经元胞自动机(NCA)模型，它结合了公开可见的状态和私有的细胞内部记忆通道，模拟生物学中记忆存储的细胞内机制。EngramNCA包含GeneCA和GenePropCA两个组件，前者通过“基因”编码从种子细胞发展出不同的形态，后者在不改变细胞可见状态的情况下调节私有的“基因”记忆。这种架构允许通过可见和私有通道的交互来编码和传播复杂的形态，促进从共享“基因”基质中生长出多样化的结构。EngramNCA支持分层和共存形态的出现，为人工系统中的分散式记忆存储和传输提供了见解。该研究对开发自适应、自组织系统具有潜在意义，并可能有助于更广泛地理解生物和合成环境中的记忆机制。\n",
+      "categories": [
+        "cs.NE",
+        "cs.AI"
+      ],
+      "primary_category": "cs.NE",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11855v1",
+      "published_date": "2025-04-16 08:23:09 UTC",
+      "updated_date": "2025-04-16 08:23:09 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:10:58.941451"
+    },
+    {
+      "arxiv_id": "2504.11844v1",
+      "title": "Evaluating the Goal-Directedness of Large Language Models",
+      "title_zh": "评估大型语言模型的目标导向性\n",
+      "authors": [
+        "Tom Everitt",
+        "Cristina Garbacea",
+        "Alexis Bellot",
+        "Jonathan Richens",
+        "Henry Papadatos",
+        "Siméon Campos",
+        "Rohin Shah"
+      ],
+      "abstract": "To what extent do LLMs use their capabilities towards their given goal? We\ntake this as a measure of their goal-directedness. We evaluate\ngoal-directedness on tasks that require information gathering, cognitive\neffort, and plan execution, where we use subtasks to infer each model's\nrelevant capabilities. Our evaluations of LLMs from Google DeepMind, OpenAI,\nand Anthropic show that goal-directedness is relatively consistent across\ntasks, differs from task performance, and is only moderately sensitive to\nmotivational prompts. Notably, most models are not fully goal-directed. We hope\nour goal-directedness evaluations will enable better monitoring of LLM\nprogress, and enable more deliberate design choices of agentic properties in\nLLMs.",
+      "tldr_zh": "本文评估了大型语言模型(LLMs)在实现给定目标方面的能力，即它们的“目标导向性”。通过信息收集、认知努力和计划执行等任务，并利用子任务推断模型的相关能力，研究者对Google DeepMind、OpenAI和Anthropic的LLMs进行了评估。结果表明，目标导向性在不同任务中相对一致，与任务表现不同，且对激励性提示的敏感度中等。值得注意的是，大多数模型并非完全以目标为导向。该研究希望通过目标导向性评估，更好地监控LLM的进展，并在LLM中进行更审慎的能动性设计。\n",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11844v1",
+      "published_date": "2025-04-16 08:07:08 UTC",
+      "updated_date": "2025-04-16 08:07:08 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:11:10.829506"
+    },
+    {
+      "arxiv_id": "2504.11837v1",
+      "title": "FiSMiness: A Finite State Machine Based Paradigm for Emotional Support Conversations",
+      "title_zh": "FiSMiness：一种基于有限状态机的情感支持对话范式\n",
+      "authors": [
+        "Yue Zhao",
+        "Qingqing Gu",
+        "Xiaoyu Wang",
+        "Teng Chen",
+        "Zhonglin Jiang",
+        "Yong Chen",
+        "Luo Ji"
+      ],
+      "abstract": "Emotional support conversation (ESC) aims to alleviate the emotional distress\nof individuals through effective conversations. Although large language models\n(LLMs) have obtained remarkable progress on ESC, most of these studies might\nnot define the diagram from the state model perspective, therefore providing a\nsuboptimal solution for long-term satisfaction. To address such an issue, we\nleverage the Finite State Machine (FSM) on LLMs, and propose a framework called\nFiSMiness. Our framework allows a single LLM to bootstrap the planning during\nESC, and self-reason the seeker's emotion, support strategy and the final\nresponse upon each conversational turn. Substantial experiments on ESC datasets\nsuggest that FiSMiness outperforms many baselines, including direct inference,\nself-refine, chain of thought, finetuning, and external-assisted methods, even\nthose with many more parameters.",
+      "tldr_zh": "该论文提出了一种基于有限状态机(Finite State Machine, FSM)的情感支持对话(Emotional Support Conversation, ESC)框架FiSMiness。FiSMiness利用单个大型语言模型(LLM)进行ESC过程中的规划，并能自主推理寻求者的情绪、支持策略以及最终回复。通过FSM，FiSMiness能够更好地处理长期满意度问题。在ESC数据集上的实验表明，FiSMiness优于多种基线方法，包括直接推理、自我完善、链式思考、微调以及外部辅助方法，即使这些方法拥有更多的参数。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "accepted by CMCL",
+      "pdf_url": "http://arxiv.org/pdf/2504.11837v1",
+      "published_date": "2025-04-16 07:52:06 UTC",
+      "updated_date": "2025-04-16 07:52:06 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:11:22.701215"
+    },
+    {
+      "arxiv_id": "2504.11829v1",
+      "title": "Déjà Vu: Multilingual LLM Evaluation through the Lens of Machine Translation Evaluation",
+      "title_zh": "似曾相识：通过机器翻译评估的视角进行多语言LLM评估\n",
+      "authors": [
+        "Julia Kreutzer",
+        "Eleftheria Briakou",
+        "Sweta Agrawal",
+        "Marzieh Fadaee",
+        "Kocmi Tom"
+      ],
+      "abstract": "Generation capabilities and language coverage of multilingual large language\nmodels (mLLMs) are advancing rapidly. However, evaluation practices for\ngenerative abilities of mLLMs are still lacking comprehensiveness, scientific\nrigor, and consistent adoption across research labs, which undermines their\npotential to meaningfully guide mLLM development. We draw parallels with\nmachine translation (MT) evaluation, a field that faced similar challenges and\nhas, over decades, developed transparent reporting standards and reliable\nevaluations for multilingual generative models. Through targeted experiments\nacross key stages of the generative evaluation pipeline, we demonstrate how\nbest practices from MT evaluation can deepen the understanding of quality\ndifferences between models. Additionally, we identify essential components for\nrobust meta-evaluation of mLLMs, ensuring the evaluation methods themselves are\nrigorously assessed. We distill these insights into a checklist of actionable\nrecommendations for mLLM research and development.",
+      "tldr_zh": "本文借鉴机器翻译(MT)评估领域的经验，探讨如何更全面、科学地评估多语言大型语言模型(mLLMs)的生成能力。研究通过实验，展示了MT评估的最佳实践如何加深对模型质量差异的理解，并提出了mLLM元评估的关键要素，以确保评估方法的可靠性。最终，作者提炼出一份可操作的清单，为mLLM的研究和开发提供建议。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11829v1",
+      "published_date": "2025-04-16 07:38:19 UTC",
+      "updated_date": "2025-04-16 07:38:19 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:11:34.609282"
+    },
+    {
+      "arxiv_id": "2504.11820v1",
+      "title": "Real-World Depth Recovery via Structure Uncertainty Modeling and Inaccurate GT Depth Fitting",
+      "title_zh": "基于结构不确定性建模和不准确 GT 深度拟合的真实世界深度恢复\n",
+      "authors": [
+        "Delong Suzhang",
+        "Meng Yang"
+      ],
+      "abstract": "The low-quality structure in raw depth maps is prevalent in real-world RGB-D\ndatasets, which makes real-world depth recovery a critical task in recent\nyears. However, the lack of paired raw-ground truth (raw-GT) data in the real\nworld poses challenges for generalized depth recovery. Existing methods\ninsufficiently consider the diversity of structure misalignment in raw depth\nmaps, which leads to poor generalization in real-world depth recovery. Notably,\nrandom structure misalignments are not limited to raw depth data but also\naffect GT depth in real-world datasets. In the proposed method, we tackle the\ngeneralization problem from both input and output perspectives. For input, we\nenrich the diversity of structure misalignment in raw depth maps by designing a\nnew raw depth generation pipeline, which helps the network avoid overfitting to\na specific condition. Furthermore, a structure uncertainty module is designed\nto explicitly identify the misaligned structure for input raw depth maps to\nbetter generalize in unseen scenarios. Notably the well-trained depth\nfoundation model (DFM) can help the structure uncertainty module estimate the\nstructure uncertainty better. For output, a robust feature alignment module is\ndesigned to precisely align with the accurate structure of RGB images avoiding\nthe interference of inaccurate GT depth. Extensive experiments on multiple\ndatasets demonstrate the proposed method achieves competitive accuracy and\ngeneralization capabilities across various challenging raw depth maps.",
+      "tldr_zh": "本文针对真实RGB-D数据集中普遍存在的低质量原始深度图结构问题，提出了一种通过结构不确定性建模和不准确GT深度拟合的深度恢复方法。该方法从输入和输出两个角度解决泛化问题：在输入端，设计新的原始深度图生成流程，增加结构错位的多样性，并引入结构不确定性模块显式识别错位结构，利用预训练的深度基础模型(DFM)辅助不确定性估计；在输出端，设计鲁棒的特征对齐模块，精确对齐RGB图像的准确结构，避免不准确GT深度的干扰。实验结果表明，该方法在多个数据集上实现了具有竞争力的精度和泛化能力。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11820v1",
+      "published_date": "2025-04-16 07:14:01 UTC",
+      "updated_date": "2025-04-16 07:14:01 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:11:46.795593"
+    },
+    {
+      "arxiv_id": "2504.11812v1",
+      "title": "Learning Strategies in Particle Swarm Optimizer: A Critical Review and Performance Analysis",
+      "title_zh": "粒子群优化器中的学习策略： критический обзор и анализ производительности\n",
+      "authors": [
+        "Dikshit Chauhan",
+        "Shivani",
+        "P. N. Suganthan"
+      ],
+      "abstract": "Nature has long inspired the development of swarm intelligence (SI), a key\nbranch of artificial intelligence that models collective behaviors observed in\nbiological systems for solving complex optimization problems. Particle swarm\noptimization (PSO) is widely adopted among SI algorithms due to its simplicity\nand efficiency. Despite numerous learning strategies proposed to enhance PSO's\nperformance in terms of convergence speed, robustness, and adaptability, no\ncomprehensive and systematic analysis of these strategies exists. We review and\nclassify various learning strategies to address this gap, assessing their\nimpact on optimization performance. Additionally, a comparative experimental\nevaluation is conducted to examine how these strategies influence PSO's search\ndynamics. Finally, we discuss open challenges and future directions,\nemphasizing the need for self-adaptive, intelligent PSO variants capable of\naddressing increasingly complex real-world problems.",
+      "tldr_zh": "本文对粒子群优化(PSO)算法中的学习策略进行了综述和性能分析。针对现有PSO算法在收敛速度、鲁棒性和适应性方面的不足，研究回顾并分类了多种学习策略，并评估了它们对优化性能的影响。通过对比实验，分析了这些策略如何影响PSO的搜索动态。最后，讨论了开放性挑战和未来方向，强调了开发能够解决日益复杂的现实世界问题的自适应、智能PSO变体的必要性。该研究为PSO算法的学习策略选择和改进提供了指导。\n",
+      "categories": [
+        "cs.NE",
+        "cs.AI"
+      ],
+      "primary_category": "cs.NE",
+      "comment": "53 pages, 14 figures",
+      "pdf_url": "http://arxiv.org/pdf/2504.11812v1",
+      "published_date": "2025-04-16 06:50:02 UTC",
+      "updated_date": "2025-04-16 06:50:02 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:11:58.602652"
+    },
+    {
+      "arxiv_id": "2504.11793v2",
+      "title": "Selective Attention Federated Learning: Improving Privacy and Efficiency for Clinical Text Classification",
+      "title_zh": "选择性注意力联邦学习：提升临床文本分类的隐私性和效率\n",
+      "authors": [
+        "Yue Li",
+        "Lihong Zhang"
+      ],
+      "abstract": "Federated Learning (FL) faces major challenges regarding communication\noverhead and model privacy when training large language models (LLMs),\nespecially in healthcare applications. To address these, we introduce Selective\nAttention Federated Learning (SAFL), a novel approach that dynamically\nfine-tunes only those transformer layers identified as attention-critical. By\nemploying attention patterns to determine layer importance, SAFL significantly\nreduces communication bandwidth and enhances differential privacy resilience.\nEvaluations on clinical NLP benchmarks (i2b2 Clinical Concept Extraction and\nMIMIC-III discharge summaries) demonstrate that SAFL achieves competitive\nperformance with centralized models while substantially improving communication\nefficiency and privacy preservation.",
+      "tldr_zh": "该论文提出了选择性注意力联邦学习(SAFL)方法，旨在解决联邦学习(FL)在训练大型语言模型(LLMs)时面临的通信开销和模型隐私问题，尤其是在医疗保健应用中。SAFL通过动态微调transformer中被识别为注意力关键的层，显著降低了通信带宽，并增强了差分隐私的弹性。通过使用注意力模式来确定层的重要性，SAFL在临床NLP基准测试(i2b2临床概念提取和MIMIC-III出院总结)上实现了与集中式模型相当的性能，同时显著提高了通信效率和隐私保护。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11793v2",
+      "published_date": "2025-04-16 05:59:29 UTC",
+      "updated_date": "2025-04-17 06:24:14 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:12:10.830389"
+    },
+    {
+      "arxiv_id": "2504.11792v1",
+      "title": "Large Language Models for Drug Overdose Prediction from Longitudinal Medical Records",
+      "title_zh": "基于大型语言模型，利用纵向医疗记录预测药物过量\n",
+      "authors": [
+        "Md Sultan Al Nahian",
+        "Chris Delcher",
+        "Daniel Harris",
+        "Peter Akpunonu",
+        "Ramakanth Kavuluru"
+      ],
+      "abstract": "The ability to predict drug overdose risk from a patient's medical records is\ncrucial for timely intervention and prevention. Traditional machine learning\nmodels have shown promise in analyzing longitudinal medical records for this\ntask. However, recent advancements in large language models (LLMs) offer an\nopportunity to enhance prediction performance by leveraging their ability to\nprocess long textual data and their inherent prior knowledge across diverse\ntasks. In this study, we assess the effectiveness of Open AI's GPT-4o LLM in\npredicting drug overdose events using patients' longitudinal insurance claims\nrecords. We evaluate its performance in both fine-tuned and zero-shot settings,\ncomparing them to strong traditional machine learning methods as baselines. Our\nresults show that LLMs not only outperform traditional models in certain\nsettings but can also predict overdose risk in a zero-shot setting without\ntask-specific training. These findings highlight the potential of LLMs in\nclinical decision support, particularly for drug overdose risk prediction.",
+      "tldr_zh": "该研究评估了大型语言模型(LLMs)，特别是Open AI的GPT-4o，在利用纵向医疗保险理赔记录预测药物过量风险方面的有效性。通过与传统机器学习方法进行比较，分别在微调(fine-tuned)和零样本(zero-shot)设置下评估了GPT-4o的性能。结果表明，LLMs在某些设置下优于传统模型，并且能够在零样本设置下预测过量风险，无需特定于任务的训练。这项研究强调了LLMs在临床决策支持方面的潜力，尤其是在药物过量风险预测方面。\n",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11792v1",
+      "published_date": "2025-04-16 05:52:22 UTC",
+      "updated_date": "2025-04-16 05:52:22 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:12:22.732101"
+    },
+    {
+      "arxiv_id": "2504.11788v1",
+      "title": "Enhancing Web Agents with Explicit Rollback Mechanisms",
+      "title_zh": "利用显式回滚机制增强 Web 代理\n",
+      "authors": [
+        "Zhisong Zhang",
+        "Tianqing Fang",
+        "Kaixin Ma",
+        "Wenhao Yu",
+        "Hongming Zhang",
+        "Haitao Mi",
+        "Dong Yu"
+      ],
+      "abstract": "With recent advancements in large language models, web agents have been\ngreatly improved. However, dealing with complex and dynamic web environments\nrequires more advanced planning and search abilities. Previous studies usually\nadopt a greedy one-way search strategy, which may struggle to recover from\nerroneous states. In this work, we enhance web agents with an explicit rollback\nmechanism, enabling the agent to revert back to a previous state in its\nnavigation trajectory. This mechanism gives the model the flexibility to\ndirectly control the search process, leading to an effective and efficient web\nnavigation method. We conduct experiments on two live web navigation benchmarks\nwith zero-shot and fine-tuning settings. The results demonstrate the\neffectiveness of our proposed approach.",
+      "tldr_zh": "该研究提出了一种增强Web Agent的方法，通过引入显式的回滚机制，使其能够从错误状态恢复，从而应对复杂和动态的Web环境。与以往的贪婪单向搜索策略不同，该机制允许Agent灵活地控制搜索过程，回退到之前的导航状态。在两个真实Web导航基准上的实验表明，无论是在零样本还是微调设置下，该方法都显著提高了Web Agent的有效性和效率。\n",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CL",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11788v1",
+      "published_date": "2025-04-16 05:41:20 UTC",
+      "updated_date": "2025-04-16 05:41:20 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:12:34.621347"
+    },
+    {
+      "arxiv_id": "2504.11781v1",
+      "title": "ACMamba: Fast Unsupervised Anomaly Detection via An Asymmetrical Consensus State Space Model",
+      "title_zh": "ACMamba：通过非对称共识状态空间模型实现快速无监督异常检测\n",
+      "authors": [
+        "Guanchun Wang",
+        "Xiangrong Zhang",
+        "Yifei Zhang",
+        "Zelin Peng",
+        "Tianyang Zhang",
+        "Xu Tang",
+        "Licheng Jiao"
+      ],
+      "abstract": "Unsupervised anomaly detection in hyperspectral images (HSI), aiming to\ndetect unknown targets from backgrounds, is challenging for earth surface\nmonitoring. However, current studies are hindered by steep computational costs\ndue to the high-dimensional property of HSI and dense sampling-based training\nparadigm, constraining their rapid deployment. Our key observation is that,\nduring training, not all samples within the same homogeneous area are\nindispensable, whereas ingenious sampling can provide a powerful substitute for\nreducing costs. Motivated by this, we propose an Asymmetrical Consensus State\nSpace Model (ACMamba) to significantly reduce computational costs without\ncompromising accuracy. Specifically, we design an asymmetrical anomaly\ndetection paradigm that utilizes region-level instances as an efficient\nalternative to dense pixel-level samples. In this paradigm, a low-cost\nMamba-based module is introduced to discover global contextual attributes of\nregions that are essential for HSI reconstruction. Additionally, we develop a\nconsensus learning strategy from the optimization perspective to simultaneously\nfacilitate background reconstruction and anomaly compression, further\nalleviating the negative impact of anomaly reconstruction. Theoretical analysis\nand extensive experiments across eight benchmarks verify the superiority of\nACMamba, demonstrating a faster speed and stronger performance over the\nstate-of-the-art.",
+      "tldr_zh": "本文提出了一种名为ACMamba的非对称共识状态空间模型，用于加速高光谱图像(HSI)中的无监督异常检测。该方法旨在解决传统方法因HSI高维特性和密集采样训练范式导致计算成本过高的问题。ACMamba采用一种非对称异常检测范式，利用区域级实例代替密集的像素级样本，显著降低计算成本。同时，引入基于Mamba的低成本模块来发现对HSI重建至关重要的区域全局上下文属性，并从优化角度开发了一种共识学习策略，以促进背景重建和异常压缩。在八个基准数据集上的实验表明，ACMamba在速度和性能上均优于现有技术。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "15 pages, 9 figures",
+      "pdf_url": "http://arxiv.org/pdf/2504.11781v1",
+      "published_date": "2025-04-16 05:33:42 UTC",
+      "updated_date": "2025-04-16 05:33:42 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:12:46.967729"
+    },
+    {
+      "arxiv_id": "2504.11780v1",
+      "title": "Agile Retrospectives: What went well? What didn't go well? What should we do?",
+      "title_zh": "敏捷回顾会议：哪些做得好？哪些做得不好？我们应该怎么做？\n",
+      "authors": [
+        "Maria Spichkova",
+        "Hina Lee",
+        "Kevin Iwan",
+        "Madeleine Zwart",
+        "Yuwon Yoon",
+        "Xiaohan Qin"
+      ],
+      "abstract": "In Agile/Scrum software development, the idea of retrospective meetings\n(retros) is one of the core elements of the project process. In this paper, we\npresent our work in progress focusing on two aspects: analysis of potential\nusage of generative AI for information interaction within retrospective\nmeetings, and visualisation of retros' information to software development\nteams. We also present our prototype tool RetroAI++, focusing on retros-related\nfunctionalities.",
+      "tldr_zh": "本文探讨了在敏捷/Scrum软件开发中，回顾会议(retros)中生成式AI的潜在应用以及回顾信息的可视化。作者提出了RetroAI++原型工具，专注于与回顾会议相关的功能。该工具旨在改进回顾会议中的信息交互，并为软件开发团队提供更直观的回顾信息呈现方式。\n",
+      "categories": [
+        "cs.SE",
+        "cs.AI"
+      ],
+      "primary_category": "cs.SE",
+      "comment": "Preprint. Accepted to the 20th International Conference on Evaluation\n  of Novel Approaches to Software Engineering (ENASE 2025). Final version to be\n  published by SCITEPRESS, http://www.scitepress.org",
+      "pdf_url": "http://arxiv.org/pdf/2504.11780v1",
+      "published_date": "2025-04-16 05:33:35 UTC",
+      "updated_date": "2025-04-16 05:33:35 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:12:58.537409"
+    },
+    {
+      "arxiv_id": "2504.11774v1",
+      "title": "PCDiff: Proactive Control for Ownership Protection in Diffusion Models with Watermark Compatibility",
+      "title_zh": "PCDiff：具有水印兼容性的扩散模型中用于所有权保护的主动控制\n",
+      "authors": [
+        "Keke Gai",
+        "Ziyue Shen",
+        "Jing Yu",
+        "Liehuang Zhu",
+        "Qi Wu"
+      ],
+      "abstract": "With the growing demand for protecting the intellectual property (IP) of\ntext-to-image diffusion models, we propose PCDiff -- a proactive access control\nframework that redefines model authorization by regulating generation quality.\nAt its core, PCDIFF integrates a trainable fuser module and hierarchical\nauthentication layers into the decoder architecture, ensuring that only users\nwith valid encrypted credentials can generate high-fidelity images. In the\nabsence of valid keys, the system deliberately degrades output quality,\neffectively preventing unauthorized exploitation.Importantly, while the primary\nmechanism enforces active access control through architectural intervention,\nits decoupled design retains compatibility with existing watermarking\ntechniques. This satisfies the need of model owners to actively control model\nownership while preserving the traceability capabilities provided by\ntraditional watermarking approaches.Extensive experimental evaluations confirm\na strong dependency between credential verification and image quality across\nvarious attack scenarios. Moreover, when combined with typical post-processing\noperations, PCDIFF demonstrates powerful performance alongside conventional\nwatermarking methods. This work shifts the paradigm from passive detection to\nproactive enforcement of authorization, laying the groundwork for IP management\nof diffusion models.",
+      "tldr_zh": "为了保护文本到图像扩散模型的知识产权，该论文提出了PCDiff，一种主动访问控制框架，通过调节生成质量来重新定义模型授权。PCDiff将可训练的fuser模块和分层认证层集成到解码器架构中，确保只有具有有效加密凭证的用户才能生成高质量图像。在缺少有效密钥的情况下，系统会主动降低输出质量，从而有效防止未经授权的利用。此外，PCDiff的设计与现有的水印技术兼容，在主动控制模型所有权的同时，保留了传统水印方法提供的可追溯性。实验结果表明，凭证验证和图像质量之间存在很强的依赖关系，并且PCDiff与传统水印方法结合使用时表现出强大的性能。这项工作将范式从被动检测转变为主动执行授权，为扩散模型的IP管理奠定了基础。\n",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CR",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11774v1",
+      "published_date": "2025-04-16 05:28:50 UTC",
+      "updated_date": "2025-04-16 05:28:50 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:13:11.138605"
+    },
+    {
+      "arxiv_id": "2504.11765v1",
+      "title": "Shared Disk KV Cache Management for Efficient Multi-Instance Inference in RAG-Powered LLMs",
+      "title_zh": "用于 RAG 驱动的 LLM 中高效多实例推理的共享磁盘 KV 缓存管理\n",
+      "authors": [
+        "Hyungwoo Lee",
+        "Kihyun Kim",
+        "Jinwoo Kim",
+        "Jungmin So",
+        "Myung-Hoon Cha",
+        "Hong-Yeon Kim",
+        "James J. Kim",
+        "Youngjae Kim"
+      ],
+      "abstract": "Recent large language models (LLMs) face increasing inference latency as\ninput context length and model size continue to grow. In particular, the\nretrieval-augmented generation (RAG) technique, which enhances LLM responses by\nincorporating external knowledge, exacerbates this issue by significantly\nincreasing the number of input tokens. This expansion in token length leads to\na substantial rise in computational overhead, particularly during the prefill\nstage, resulting in prolonged time-to-first-token (TTFT). To address this\nissue, this paper proposes a method to reduce TTFT by leveraging a disk-based\nkey-value (KV) cache to lessen the computational burden during the prefill\nstage. We also introduce a disk-based shared KV cache management system, called\nShared RAG-DCache, for multi-instance LLM RAG service environments. This\nsystem, together with an optimal system configuration, improves both throughput\nand latency under given resource constraints. Shared RAG-DCache exploits the\nlocality of documents related to user queries in RAG, as well as the queueing\ndelay in LLM inference services. It proactively generates and stores disk KV\ncaches for query-related documents and shares them across multiple LLM\ninstances to enhance inference performance. In experiments on a single host\nequipped with 2 GPUs and 1 CPU, Shared RAG-DCache achieved a 15~71% increase in\nthroughput and up to a 12~65% reduction in latency, depending on the resource\nconfiguration.",
+      "tldr_zh": "该论文提出了一种基于共享磁盘KV缓存管理系统Shared RAG-DCache，用于提升RAG驱动的LLM多实例推理效率，旨在解决RAG技术因引入外部知识导致LLM推理延迟增加的问题。Shared RAG-DCache通过利用RAG中用户查询相关文档的局部性以及LLM推理服务的排队延迟，主动生成并存储查询相关文档的磁盘KV缓存，并在多个LLM实例之间共享，从而减少prefill阶段的计算负担。实验结果表明，在配备2个GPU和1个CPU的单主机上，Shared RAG-DCache实现了15%~71%的吞吐量提升和高达12%~65%的延迟降低。\n",
+      "categories": [
+        "cs.AI"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11765v1",
+      "published_date": "2025-04-16 04:59:18 UTC",
+      "updated_date": "2025-04-16 04:59:18 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:13:22.942332"
+    },
+    {
+      "arxiv_id": "2504.11754v1",
+      "title": "GrabS: Generative Embodied Agent for 3D Object Segmentation without Scene Supervision",
+      "title_zh": "GrabS：无需场景监督的 3D 对象分割生成式具身智能体\n",
+      "authors": [
+        "Zihui Zhang",
+        "Yafei Yang",
+        "Hongtao Wen",
+        "Bo Yang"
+      ],
+      "abstract": "We study the hard problem of 3D object segmentation in complex point clouds\nwithout requiring human labels of 3D scenes for supervision. By relying on the\nsimilarity of pretrained 2D features or external signals such as motion to\ngroup 3D points as objects, existing unsupervised methods are usually limited\nto identifying simple objects like cars or their segmented objects are often\ninferior due to the lack of objectness in pretrained features. In this paper,\nwe propose a new two-stage pipeline called GrabS. The core concept of our\nmethod is to learn generative and discriminative object-centric priors as a\nfoundation from object datasets in the first stage, and then design an embodied\nagent to learn to discover multiple objects by querying against the pretrained\ngenerative priors in the second stage. We extensively evaluate our method on\ntwo real-world datasets and a newly created synthetic dataset, demonstrating\nremarkable segmentation performance, clearly surpassing all existing\nunsupervised methods.",
+      "tldr_zh": "该论文提出了一种名为GrabS的两阶段流程，用于在复杂点云中进行3D物体分割，且无需人工标注的3D场景进行监督。GrabS的核心思想是首先从物体数据集中学习生成式和判别式的以物体为中心的先验知识，然后设计一个具身智能体，通过查询预训练的生成式先验知识来学习发现多个物体。在两个真实世界数据集和一个新创建的合成数据集上的大量实验表明，GrabS的分割性能显著优于所有现有的无监督方法。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "cs.RO"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "ICLR 2025 Spotlight. Code and data are available at:\n  https://github.com/vLAR-group/GrabS",
+      "pdf_url": "http://arxiv.org/pdf/2504.11754v1",
+      "published_date": "2025-04-16 04:13:53 UTC",
+      "updated_date": "2025-04-16 04:13:53 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:13:34.759692"
+    },
+    {
+      "arxiv_id": "2504.11750v1",
+      "title": "Characterizing and Optimizing LLM Inference Workloads on CPU-GPU Coupled Architectures",
+      "title_zh": "CPU-GPU 耦合架构上 LLM 推理工作负载的特性分析与优化\n",
+      "authors": [
+        "Prabhu Vellaisamy",
+        "Thomas Labonte",
+        "Sourav Chakraborty",
+        "Matt Turner",
+        "Samantika Sury",
+        "John Paul Shen"
+      ],
+      "abstract": "Large language model (LLM)-based inference workloads increasingly dominate\ndata center costs and resource utilization. Therefore, understanding the\ninference workload characteristics on evolving CPU-GPU coupled architectures is\ncrucial for optimization. This paper presents an in-depth analysis of LLM\ninference behavior on loosely-coupled (PCIe A100/H100) and closely-coupled\n(GH200) systems. We analyze performance dynamics using fine-grained\noperator-to-kernel trace analysis, facilitated by our novel profiler SKIP and\nmetrics like Total Kernel Launch and Queuing Time (TKLQT). Results show that\nclosely-coupled (CC) GH200 significantly outperforms loosely-coupled (LC)\nsystems at large batch sizes, achieving 1.9x-2.7x faster prefill latency for\nLlama 3.2-1B. However, our analysis also reveals that GH200 remains CPU-bound\nup to 4x larger batch sizes than LC systems. In this extended CPU-bound region,\nwe identify the performance characteristics of the Grace CPU as a key factor\ncontributing to higher inference latency at low batch sizes on GH200. We\ndemonstrate that TKLQT accurately identifies this CPU/GPU-bound transition\npoint. Based on this analysis, we further show that kernel fusion offers\nsignificant potential to mitigate GH200's low-batch latency bottleneck by\nreducing kernel launch overhead. This detailed kernel-level characterization\nprovides critical insights for optimizing diverse CPU-GPU coupling strategies.\nThis work is an initial effort, and we plan to explore other major AI/DL\nworkloads that demand different degrees of CPU-GPU heterogeneous architectures.",
+      "tldr_zh": "该论文深入分析了在CPU-GPU耦合架构上LLM推理工作负载的特性，比较了松耦合(PCIe A100/H100)和紧耦合(GH200)系统上的性能表现。通过名为SKIP的profiler和Total Kernel Launch and Queuing Time (TKLQT)等指标，研究发现GH200在大batch size下显著优于松耦合系统，例如在Llama 3.2-1B的prefill阶段，速度提升了1.9x-2.7x。然而，GH200在更大的batch size范围内仍然受CPU限制。研究进一步表明，kernel fusion可以通过减少kernel launch开销来缓解GH200在低batch size下的延迟瓶颈。该研究为优化不同的CPU-GPU耦合策略提供了关键见解。\n",
+      "categories": [
+        "cs.DC",
+        "cs.AI",
+        "cs.AR",
+        "cs.PF"
+      ],
+      "primary_category": "cs.DC",
+      "comment": "Accepted for ISPASS 2025",
+      "pdf_url": "http://arxiv.org/pdf/2504.11750v1",
+      "published_date": "2025-04-16 04:02:39 UTC",
+      "updated_date": "2025-04-16 04:02:39 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:13:47.036198"
+    },
+    {
+      "arxiv_id": "2504.11741v1",
+      "title": "Climbing the Ladder of Reasoning: What LLMs Can-and Still Can't-Solve after SFT?",
+      "title_zh": "攀登推理阶梯：SFT 之后，LLM 能解决什么，又有哪些仍然无法解决？\n",
+      "authors": [
+        "Yiyou Sun",
+        "Georgia Zhou",
+        "Hao Wang",
+        "Dacheng Li",
+        "Nouha Dziri",
+        "Dawn Song"
+      ],
+      "abstract": "Recent supervised fine-tuning (SFT) approaches have significantly improved\nlanguage models' performance on mathematical reasoning tasks, even when models\nare trained at a small scale. However, the specific capabilities enhanced\nthrough such fine-tuning remain poorly understood. In this paper, we conduct a\ndetailed analysis of model performance on the AIME24 dataset to understand how\nreasoning capabilities evolve. We discover a ladder-like structure in problem\ndifficulty, categorize questions into four tiers (Easy, Medium, Hard, and\nExtremely Hard (Exh)), and identify the specific requirements for advancing\nbetween tiers. We find that progression from Easy to Medium tier requires\nadopting an R1 reasoning style with minimal SFT (500-1K instances), while\nHard-level questions suffer from frequent model's errors at each step of the\nreasoning chain, with accuracy plateauing at around 65% despite logarithmic\nscaling. Exh-level questions present a fundamentally different challenge; they\nrequire unconventional problem-solving skills that current models uniformly\nstruggle with. Additional findings reveal that carefully curated small-scale\ndatasets offer limited advantage-scaling dataset size proves far more\neffective. Our analysis provides a clearer roadmap for advancing language model\ncapabilities in mathematical reasoning.",
+      "tldr_zh": "该论文深入分析了经过监督微调(SFT)的语言模型在数学推理任务中的能力提升。通过对AIME24数据集的分析，研究者发现问题难度呈现阶梯状结构，并将其分为易、中、难、极难四个等级。研究表明，从易到中等级别需要采用R1推理风格，且只需少量SFT数据。然而，难度级别的问题在推理链的每个步骤都容易出错，准确率停滞在65%左右。极难级别的问题则需要非常规的解题技巧，这是当前模型普遍缺乏的。研究还发现，精心策划的小规模数据集的优势有限，扩大数据集规模更为有效。该研究为提升语言模型在数学推理方面的能力提供了清晰的路线图。\n",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11741v1",
+      "published_date": "2025-04-16 03:39:38 UTC",
+      "updated_date": "2025-04-16 03:39:38 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:13:59.153862"
+    },
+    {
+      "arxiv_id": "2504.11726v1",
+      "title": "Saga: Capturing Multi-granularity Semantics from Massive Unlabelled IMU Data for User Perception",
+      "title_zh": "Saga：从海量无标注 IMU 数据中捕获多粒度语义以实现用户感知\n",
+      "authors": [
+        "Yunzhe Li",
+        "Facheng Hu",
+        "Hongzi Zhu",
+        "Shifan Zhang",
+        "Liang Zhang",
+        "Shan Chang",
+        "Minyi Guo"
+      ],
+      "abstract": "Inertial measurement units (IMUs), have been prevalently used in a wide range\nof mobile perception applications such as activity recognition and user\nauthentication, where a large amount of labelled data are normally required to\ntrain a satisfactory model. However, it is difficult to label micro-activities\nin massive IMU data due to the hardness of understanding raw IMU data and the\nlack of ground truth. In this paper, we propose a novel fine-grained user\nperception approach, called Saga, which only needs a small amount of labelled\nIMU data to achieve stunning user perception accuracy. The core idea of Saga is\nto first pre-train a backbone feature extraction model, utilizing the rich\nsemantic information of different levels embedded in the massive unlabelled IMU\ndata. Meanwhile, for a specific downstream user perception application,\nBayesian Optimization is employed to determine the optimal weights for\npre-training tasks involving different semantic levels. We implement Saga on\nfive typical mobile phones and evaluate Saga on three typical tasks on three\nIMU datasets. Results show that when only using about 100 training samples per\nclass, Saga can achieve over 90% accuracy of the full-fledged model trained on\nover ten thousands training samples with no additional system overhead.",
+      "tldr_zh": "该论文提出了一种名为Saga的细粒度用户感知方法，旨在利用大量未标注的IMU数据，仅需少量标注数据即可实现高精度的用户感知。Saga的核心思想是首先预训练一个骨干特征提取模型，该模型能够捕捉嵌入在大量未标注IMU数据中不同层次的丰富语义信息。针对特定的下游用户感知应用，采用贝叶斯优化来确定涉及不同语义级别的预训练任务的最佳权重。在五个典型手机和三个IMU数据集上的三个典型任务的评估结果表明，Saga在每个类别仅使用约100个训练样本时，即可达到在超过1万个训练样本上训练的完整模型的90%以上的准确率，且没有额外的系统开销。\n",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "comment": "2025 IEEE 45th International Conference on Distributed Computing\n  Systems (ICDCS)",
+      "pdf_url": "http://arxiv.org/pdf/2504.11726v1",
+      "published_date": "2025-04-16 03:03:42 UTC",
+      "updated_date": "2025-04-16 03:03:42 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:14:10.967658"
+    },
+    {
+      "arxiv_id": "2504.11713v1",
+      "title": "Adjoint Sampling: Highly Scalable Diffusion Samplers via Adjoint Matching",
+      "title_zh": "伴随采样：通过伴随匹配实现高度可扩展的扩散采样器\n",
+      "authors": [
+        "Aaron Havens",
+        "Benjamin Kurt Miller",
+        "Bing Yan",
+        "Carles Domingo-Enrich",
+        "Anuroop Sriram",
+        "Brandon Wood",
+        "Daniel Levine",
+        "Bin Hu",
+        "Brandon Amos",
+        "Brian Karrer",
+        "Xiang Fu",
+        "Guan-Horng Liu",
+        "Ricky T. Q. Chen"
+      ],
+      "abstract": "We introduce Adjoint Sampling, a highly scalable and efficient algorithm for\nlearning diffusion processes that sample from unnormalized densities, or energy\nfunctions. It is the first on-policy approach that allows significantly more\ngradient updates than the number of energy evaluations and model samples,\nallowing us to scale to much larger problem settings than previously explored\nby similar methods. Our framework is theoretically grounded in stochastic\noptimal control and shares the same theoretical guarantees as Adjoint Matching,\nbeing able to train without the need for corrective measures that push samples\ntowards the target distribution. We show how to incorporate key symmetries, as\nwell as periodic boundary conditions, for modeling molecules in both cartesian\nand torsional coordinates. We demonstrate the effectiveness of our approach\nthrough extensive experiments on classical energy functions, and further scale\nup to neural network-based energy models where we perform amortized conformer\ngeneration across many molecular systems. To encourage further research in\ndeveloping highly scalable sampling methods, we plan to open source these\nchallenging benchmarks, where successful methods can directly impact progress\nin computational chemistry.",
+      "tldr_zh": "该论文提出了一种名为Adjoint Sampling的高扩展性和高效算法，用于学习从非归一化密度或能量函数中采样的扩散过程。这是第一个允许梯度更新次数远超能量评估和模型采样次数的on-policy方法，使其能够扩展到比以往方法更大的问题设置。该框架基于随机最优控制，并与Adjoint Matching具有相同的理论保证，无需将样本推向目标分布的纠正措施即可进行训练。论文展示了如何结合关键对称性和周期性边界条件，在笛卡尔坐标和扭转坐标中对分子进行建模。通过对经典能量函数的广泛实验，以及扩展到基于神经网络的能量模型，实现了跨多个分子系统的摊销构象异构体生成，验证了该方法的有效性。为了促进可扩展采样方法的研究，论文计划开源这些具有挑战性的基准测试。\n",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11713v1",
+      "published_date": "2025-04-16 02:20:06 UTC",
+      "updated_date": "2025-04-16 02:20:06 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:14:23.270338"
+    },
+    {
+      "arxiv_id": "2504.11711v2",
+      "title": "The Hitchhiker's Guide to Program Analysis, Part II: Deep Thoughts by LLMs",
+      "title_zh": "《程序分析搭车客指南》第二部分：大型语言模型的深度思考\n",
+      "authors": [
+        "Haonan Li",
+        "Hang Zhang",
+        "Kexin Pei",
+        "Zhiyun Qian"
+      ],
+      "abstract": "Static analysis is a cornerstone for software vulnerability detection, yet it\noften struggles with the classic precision-scalability trade-off. In practice,\nsuch tools often produce high false positive rates, particularly in large\ncodebases like the Linux kernel. This imprecision can arise from simplified\nvulnerability modeling and over-approximation of path and data constraints.\nWhile large language models (LLMs) show promise in code understanding, their\nnaive application to program analysis yields unreliable results due to inherent\nreasoning limitations. We introduce BugLens, a post-refinement framework that\nsignificantly improves static analysis precision. BugLens guides an LLM to\nfollow traditional analysis steps by assessing buggy code patterns for security\nimpact and validating the constraints associated with static warnings.\nEvaluated on real-world Linux kernel bugs, BugLens raises precision from 0.10\n(raw) and 0.50 (semi-automated refinement) to 0.72, substantially reducing\nfalse positives and revealing four previously unreported vulnerabilities. Our\nresults suggest that a structured LLM-based workflow can meaningfully enhance\nthe effectiveness of static analysis tools.",
+      "tldr_zh": "该论文介绍了BugLens，一个后处理框架，旨在显著提高静态程序分析的精度。BugLens利用大型语言模型(LLMs)，通过评估有漏洞的代码模式的安全影响并验证与静态警告相关的约束，引导LLM遵循传统的分析步骤。在真实Linux内核漏洞上的评估表明，BugLens将精度从0.10（原始）和0.50（半自动改进）提高到0.72，从而大幅减少了误报，并揭示了四个以前未报告的漏洞。研究结果表明，基于结构化LLM的工作流程可以有效地提高静态分析工具的有效性。\n",
+      "categories": [
+        "cs.SE",
+        "cs.AI"
+      ],
+      "primary_category": "cs.SE",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11711v2",
+      "published_date": "2025-04-16 02:17:06 UTC",
+      "updated_date": "2025-04-17 02:28:35 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:14:34.820480"
+    },
+    {
+      "arxiv_id": "2504.11707v1",
+      "title": "Towards Safe Synthetic Image Generation On the Web: A Multimodal Robust NSFW Defense and Million Scale Dataset",
+      "title_zh": "迈向安全的 Web 合成图像生成：一种多模态鲁棒的 NSFW 防御及百万级数据集\n",
+      "authors": [
+        "Muhammad Shahid Muneer",
+        "Simon S. Woo"
+      ],
+      "abstract": "In the past years, we have witnessed the remarkable success of Text-to-Image\n(T2I) models and their widespread use on the web. Extensive research in making\nT2I models produce hyper-realistic images has led to new concerns, such as\ngenerating Not-Safe-For-Work (NSFW) web content and polluting the web society.\nTo help prevent misuse of T2I models and create a safer web environment for\nusers features like NSFW filters and post-hoc security checks are used in these\nmodels. However, recent work unveiled how these methods can easily fail to\nprevent misuse. In particular, adversarial attacks on text and image modalities\ncan easily outplay defensive measures. %Exploiting such leads to the growing\nconcern of preventing adversarial attacks on text and image modalities.\nMoreover, there is currently no robust multimodal NSFW dataset that includes\nboth prompt and image pairs and adversarial examples. This work proposes a\nmillion-scale prompt and image dataset generated using open-source diffusion\nmodels. Second, we develop a multimodal defense to distinguish safe and NSFW\ntext and images, which is robust against adversarial attacks and directly\nalleviates current challenges. Our extensive experiments show that our model\nperforms well against existing SOTA NSFW detection methods in terms of accuracy\nand recall, drastically reducing the Attack Success Rate (ASR) in multimodal\nadversarial attack scenarios. Code:\nhttps://github.com/shahidmuneer/multimodal-nsfw-defense.",
+      "tldr_zh": "为了应对文本到图像(T2I)模型在网络上生成不适宜内容(NSFW)的问题，该研究提出了一种多模态的鲁棒NSFW防御机制，并构建了一个百万级别的提示-图像数据集。该数据集包含由开源扩散模型生成的提示和图像对，以及对抗性样本，旨在填补当前缺乏鲁棒多模态NSFW数据集的空白。研究进一步开发了一种能够区分安全和NSFW内容的多模态防御方法，该方法对对抗性攻击具有鲁棒性。实验结果表明，该模型在准确率和召回率方面优于现有的NSFW检测方法，并显著降低了多模态对抗性攻击场景中的攻击成功率(ASR)。代码已开源。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "Short Paper The Web Conference",
+      "pdf_url": "http://arxiv.org/pdf/2504.11707v1",
+      "published_date": "2025-04-16 02:10:42 UTC",
+      "updated_date": "2025-04-16 02:10:42 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:14:47.119554"
+    },
+    {
+      "arxiv_id": "2504.11704v1",
+      "title": "A Library of LLM Intrinsics for Retrieval-Augmented Generation",
+      "title_zh": "用于检索增强生成的大语言模型内联函数库\n",
+      "authors": [
+        "Marina Danilevsky",
+        "Kristjan Greenewald",
+        "Chulaka Gunasekara",
+        "Maeda Hanafi",
+        "Lihong He",
+        "Yannis Katsis",
+        "Krishnateja Killamsetty",
+        "Yatin Nandwani",
+        "Lucian Popa",
+        "Dinesh Raghu",
+        "Frederick Reiss",
+        "Vraj Shah",
+        "Khoi-Nguyen Tran",
+        "Huaiyu Zhu",
+        "Luis Lastras"
+      ],
+      "abstract": "In the developer community for large language models (LLMs), there is not yet\na clean pattern analogous to a software library, to support very large scale\ncollaboration. Even for the commonplace use case of Retrieval-Augmented\nGeneration (RAG), it is not currently possible to write a RAG application\nagainst a well-defined set of APIs that are agreed upon by different LLM\nproviders. Inspired by the idea of compiler intrinsics, we propose some\nelements of such a concept through introducing a library of LLM Intrinsics for\nRAG. An LLM intrinsic is defined as a capability that can be invoked through a\nwell-defined API that is reasonably stable and independent of how the LLM\nintrinsic itself is implemented. The intrinsics in our library are released as\nLoRA adapters on HuggingFace, and through a software interface with clear\nstructured input/output characteristics on top of vLLM as an inference\nplatform, accompanied in both places with documentation and code. This article\ndescribes the intended usage, training details, and evaluations for each\nintrinsic, as well as compositions of multiple intrinsics.",
+      "tldr_zh": "该论文提出了一种LLM内联函数库(Library of LLM Intrinsics)的概念，旨在为检索增强生成(RAG)应用提供一套标准化的API，类似于软件库。这些LLM内联函数通过定义良好的API调用各种能力，并具有相对稳定性和独立于底层LLM实现的特点。该库以LoRA适配器的形式发布在HuggingFace上，并通过vLLM推理平台提供软件接口，包含详细的文档和代码。论文详细介绍了每个内联函数的预期用途、训练细节和评估结果，以及多个内联函数的组合使用方法。\n",
+      "categories": [
+        "cs.AI",
+        "I.2.7"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11704v1",
+      "published_date": "2025-04-16 02:02:22 UTC",
+      "updated_date": "2025-04-16 02:02:22 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:14:59.047767"
+    },
+    {
+      "arxiv_id": "2504.11703v1",
+      "title": "Progent: Programmable Privilege Control for LLM Agents",
+      "title_zh": "Progent：LLM Agent 的可编程权限控制",
+      "authors": [
+        "Tianneng Shi",
+        "Jingxuan He",
+        "Zhun Wang",
+        "Linyu Wu",
+        "Hongwei Li",
+        "Wenbo Guo",
+        "Dawn Song"
+      ],
+      "abstract": "LLM agents are an emerging form of AI systems where large language models\n(LLMs) serve as the central component, utilizing a diverse set of tools to\ncomplete user-assigned tasks. Despite their great potential, LLM agents pose\nsignificant security risks. When interacting with the external world, they may\nencounter malicious commands from attackers, leading to the execution of\ndangerous actions. A promising way to address this is by enforcing the\nprinciple of least privilege: allowing only essential actions for task\ncompletion while blocking unnecessary ones. However, achieving this is\nchallenging, as it requires covering diverse agent scenarios while preserving\nboth security and utility.\n  We introduce Progent, the first privilege control mechanism for LLM agents.\nAt its core is a domain-specific language for flexibly expressing privilege\ncontrol policies applied during agent execution. These policies provide\nfine-grained constraints over tool calls, deciding when tool calls are\npermissible and specifying fallbacks if they are not. This enables agent\ndevelopers and users to craft suitable policies for their specific use cases\nand enforce them deterministically to guarantee security. Thanks to its modular\ndesign, integrating Progent does not alter agent internals and requires only\nminimal changes to agent implementation, enhancing its practicality and\npotential for widespread adoption. To automate policy writing, we leverage LLMs\nto generate policies based on user queries, which are then updated dynamically\nfor improved security and utility. Our extensive evaluation shows that it\nenables strong security while preserving high utility across three distinct\nscenarios or benchmarks: AgentDojo, ASB, and AgentPoison. Furthermore, we\nperform an in-depth analysis, showcasing the effectiveness of its core\ncomponents and the resilience of its automated policy generation against\nadaptive attacks.",
+      "tldr_zh": "Progent是首个为LLM Agent设计的权限控制机制，旨在解决LLM Agent在与外部世界交互时可能执行恶意命令的安全风险。Progent的核心是一种领域特定语言，用于灵活表达权限控制策略，对工具调用进行细粒度的约束，从而强制执行最小权限原则。该机制允许Agent开发者和用户根据特定用例制定合适的策略，并确定性地执行以保证安全性。实验表明，Progent在AgentDojo、ASB和AgentPoison三个基准测试中实现了强大的安全性，同时保持了较高的实用性，并且Progent的模块化设计使其易于集成，只需对Agent实现进行少量更改。此外，Progent还利用LLM自动生成策略，并动态更新以提高安全性和实用性。\n",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CR",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11703v1",
+      "published_date": "2025-04-16 01:58:40 UTC",
+      "updated_date": "2025-04-16 01:58:40 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:15:11.091281"
+    },
+    {
+      "arxiv_id": "2504.11686v1",
+      "title": "Can GPT tell us why these images are synthesized? Empowering Multimodal Large Language Models for Forensics",
+      "title_zh": "GPT 能告诉我们这些图像为什么是合成的吗？ 赋能多模态大型语言模型进行取证\n",
+      "authors": [
+        "Yiran He",
+        "Yun Cao",
+        "Bowen Yang",
+        "Zeyu Zhang"
+      ],
+      "abstract": "The rapid development of generative AI facilitates content creation and makes\nimage manipulation easier and more difficult to detect. While multimodal Large\nLanguage Models (LLMs) have encoded rich world knowledge, they are not\ninherently tailored for combating AI-generated Content (AIGC) and struggle to\ncomprehend local forgery details. In this work, we investigate the application\nof multimodal LLMs in forgery detection. We propose a framework capable of\nevaluating image authenticity, localizing tampered regions, providing evidence,\nand tracing generation methods based on semantic tampering clues. Our method\ndemonstrates that the potential of LLMs in forgery analysis can be effectively\nunlocked through meticulous prompt engineering and the application of few-shot\nlearning techniques. We conduct qualitative and quantitative experiments and\nshow that GPT4V can achieve an accuracy of 92.1% in Autosplice and 86.3% in\nLaMa, which is competitive with state-of-the-art AIGC detection methods. We\nfurther discuss the limitations of multimodal LLMs in such tasks and propose\npotential improvements.",
+      "tldr_zh": "该研究探索了多模态大型语言模型(LLMs)在伪造图像检测中的应用。提出了一个框架，该框架能够评估图像的真实性，定位篡改区域，提供证据，并基于语义篡改线索追踪生成方法。通过精心的提示工程和少量样本学习技术，有效释放了LLMs在伪造分析中的潜力。实验表明，GPT4V在Autosplice和LaMa数据集上分别达到了92.1%和86.3%的准确率，与最先进的AIGC检测方法具有竞争力。论文还讨论了多模态LLMs在此类任务中的局限性，并提出了潜在的改进方向。\n",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "comment": "12 pages, 11 figures, 13IHMMSec2025",
+      "pdf_url": "http://arxiv.org/pdf/2504.11686v1",
+      "published_date": "2025-04-16 01:02:46 UTC",
+      "updated_date": "2025-04-16 01:02:46 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:15:23.035900"
+    },
+    {
+      "arxiv_id": "2504.11671v1",
+      "title": "Steering Prosocial AI Agents: Computational Basis of LLM's Decision Making in Social Simulation",
+      "title_zh": "引导亲社会 AI 智能体：LLM 在社会模拟中进行决策的计算基础\n",
+      "authors": [
+        "Ji Ma"
+      ],
+      "abstract": "Large language models (LLMs) increasingly serve as human-like decision-making\nagents in social science and applied settings. These LLM-agents are typically\nassigned human-like characters and placed in real-life contexts. However, how\nthese characters and contexts shape an LLM's behavior remains underexplored.\nThis study proposes and tests methods for probing, quantifying, and modifying\nan LLM's internal representations in a Dictator Game -- a classic behavioral\nexperiment on fairness and prosocial behavior. We extract ``vectors of variable\nvariations'' (e.g., ``male'' to ``female'') from the LLM's internal state.\nManipulating these vectors during the model's inference can substantially alter\nhow those variables relate to the model's decision-making. This approach offers\na principled way to study and regulate how social concepts can be encoded and\nengineered within transformer-based models, with implications for alignment,\ndebiasing, and designing AI agents for social simulations in both academic and\ncommercial applications.",
+      "tldr_zh": "该研究旨在探索和调控大型语言模型(LLMs)在社会模拟中作为类人决策智能体的亲社会行为。通过在“独裁者博弈”中对LLM的内部表征进行探测、量化和修改，研究人员提取了“变量变异向量”（例如，从“男性”到“女性”）。通过在模型推理过程中操纵这些向量，可以显著改变这些变量与模型决策的关系。该研究提供了一种原则性的方法来研究和设计基于Transformer模型的社会概念编码，对LLM的对齐、去偏见以及在学术和商业应用中设计用于社会模拟的AI智能体具有重要意义。\n",
+      "categories": [
+        "cs.AI",
+        "cs.CY",
+        "cs.LG",
+        "econ.GN",
+        "q-fin.EC"
+      ],
+      "primary_category": "cs.AI",
+      "comment": "",
+      "pdf_url": "http://arxiv.org/pdf/2504.11671v1",
+      "published_date": "2025-04-16 00:02:28 UTC",
+      "updated_date": "2025-04-16 00:02:28 UTC",
+      "processing_status": "completed",
+      "attempts": 0,
+      "max_attempts": 3,
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
+      "last_update": "2025-04-18T02:15:35.041303"
+    }
+  ],
+  "raw_papers_fetched": true,
+  "papers_count": 64,
+  "processed_papers_count": 64,
+  "failed_papers_count": 0,
+  "summary_generated": true,
+  "daily_data_saved": true,
+  "last_update": "2025-04-18T02:17:08.241822"
+}
