@@ -10,16 +10,34 @@ on:
         description: 'Date to process (YYYY-MM-DD format)'
         required: false
         type: string
+      start-date:
+        description: 'Start date for date range (YYYY-MM-DD format)'
+        required: false
+        type: string
+      end-date:
+        description: 'End date for date range (YYYY-MM-DD format, inclusive)'
+        required: false
+        type: string
       category:
         description: 'arXiv category to process'
         required: false
         default: 'cs.AI'
+        type: string
+      max-results:
+        description: 'Maximum number of papers to fetch'
+        required: false
+        default: '1000' # Default value from script
         type: string
       force:
         description: 'Force refresh existing data'
         required: false
         default: false
         type: boolean
+      log-level:
+        description: 'Set logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)'
+        required: false
+        default: 'INFO' # Default value from script
+        type: string
 
 jobs:
   update:
@@ -53,10 +71,28 @@ jobs:
         id: date
         run: echo "current_date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       
-      - name: Run fetch_arxiv script (with specified date)
-        if: ${{ inputs.date != '' }}
+      - name: Run fetch_arxiv script (with specified date or date range)
+        if: ${{ inputs.date != '' || (inputs.start-date != '' && inputs.end-date != '') }}
         run: |
-          uv run fetch_arxiv.py --date ${{ inputs.date }} --category ${{ inputs.category }} ${{ inputs.force && '--force' || '' }}
+          ARGS=""
+          if [[ "${{ inputs.date }}" != "" ]]; then
+            ARGS="$ARGS --date ${{ inputs.date }}"
+          elif [[ "${{ inputs.start-date }}" != "" && "${{ inputs.end-date }}" != "" ]]; then
+            ARGS="$ARGS --start-date ${{ inputs.start-date }} --end-date ${{ inputs.end-date }}"
+          fi
+          if [[ "${{ inputs.category }}" != "" ]]; then
+            ARGS="$ARGS --category ${{ inputs.category }}"
+          fi
+          if [[ "${{ inputs.max-results }}" != "" ]]; then
+            ARGS="$ARGS --max-results ${{ inputs.max-results }}"
+          fi
+          if [[ "${{ inputs.force }}" == "true" ]]; then
+            ARGS="$ARGS --force"
+          fi
+          if [[ "${{ inputs.log-level }}" != "" ]]; then
+            ARGS="$ARGS --log-level ${{ inputs.log-level }}"
+          fi
+          uv run fetch_arxiv.py $ARGS
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
@@ -71,10 +107,33 @@ jobs:
           LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
           LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
       
-      - name: Run fetch_arxiv script (with current date)
-        if: ${{ inputs.date == '' }}
+      - name: Run fetch_arxiv script (with current date if no date/range specified)
+        if: ${{ inputs.date == '' && inputs.start-date == '' }}
         run: |
-          uv run fetch_arxiv.py --category ${{ inputs.category || 'cs.AI' }} ${{ inputs.force && '--force' || '' }}
+          ARGS=""
+          # Default category if not provided through inputs, otherwise use input
+          if [[ "${{ inputs.category }}" != "" ]]; then
+            ARGS="$ARGS --category ${{ inputs.category }}"
+          else
+            ARGS="$ARGS --category cs.AI" # Default from previous logic
+          fi
+          # Default max-results if not provided
+          if [[ "${{ inputs.max-results }}" != "" ]]; then
+            ARGS="$ARGS --max-results ${{ inputs.max-results }}"
+          else
+            ARGS="$ARGS --max-results 1000" # Default from script
+          fi
+          # Default log-level if not provided
+          if [[ "${{ inputs.log-level }}" != "" ]]; then
+            ARGS="$ARGS --log-level ${{ inputs.log-level }}"
+          else
+            ARGS="$ARGS --log-level INFO" # Default from script
+          fi
+          if [[ "${{ inputs.force }}" == "true" ]]; then
+            ARGS="$ARGS --force"
+          fi
+          # For cron runs or manual runs without date, fetch_arxiv.py defaults to yesterday
+          uv run fetch_arxiv.py $ARGS
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
