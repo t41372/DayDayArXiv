@@ -107,32 +107,43 @@ jobs:
           LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
           LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
       
-      - name: Run fetch_arxiv script (with current date if no date/range specified)
+      - name: Run fetch_arxiv script (for scheduled runs or manual runs without specified dates)
         if: ${{ inputs.date == '' && inputs.start-date == '' }}
         run: |
           ARGS=""
-          # Default category if not provided through inputs, otherwise use input
+          
+          # For scheduled runs or manual runs without date inputs, process the last 7 days (today UTC + past 6 days)
+          END_DATE_UTC=$(date -u +'%Y-%m-%d')
+          START_DATE_UTC=$(date -u -d '6 days ago' +'%Y-%m-%d')
+          ARGS="$ARGS --start-date $START_DATE_UTC --end-date $END_DATE_UTC"
+
+          # Category
           if [[ "${{ inputs.category }}" != "" ]]; then
             ARGS="$ARGS --category ${{ inputs.category }}"
           else
-            ARGS="$ARGS --category cs.AI" # Default from previous logic
+            ARGS="$ARGS --category cs.AI" # Default category
           fi
-          # Default max-results if not provided
+          
+          # Max results
           if [[ "${{ inputs.max-results }}" != "" ]]; then
             ARGS="$ARGS --max-results ${{ inputs.max-results }}"
           else
             ARGS="$ARGS --max-results 1000" # Default from script
           fi
-          # Default log-level if not provided
+          
+          # Log level
           if [[ "${{ inputs.log-level }}" != "" ]]; then
             ARGS="$ARGS --log-level ${{ inputs.log-level }}"
           else
             ARGS="$ARGS --log-level INFO" # Default from script
           fi
+          
+          # Force
           if [[ "${{ inputs.force }}" == "true" ]]; then
             ARGS="$ARGS --force"
           fi
-          # For cron runs or manual runs without date, fetch_arxiv.py defaults to yesterday
+          
+          echo "Running fetch_arxiv.py with ARGS: $ARGS"
           uv run fetch_arxiv.py $ARGS
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
