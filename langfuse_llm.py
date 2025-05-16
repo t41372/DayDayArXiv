@@ -277,7 +277,6 @@ class AsyncLLM:
         return await self._create_chat_completion_with_retry(
             model=self.model,
             temperature=0.5,
-            max_tokens=500,
             messages=messages,
             use_strong_model=False,
         )

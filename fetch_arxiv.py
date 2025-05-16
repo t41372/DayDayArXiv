@@ -25,6 +25,11 @@ from task_manager import TaskManager, TaskStatus
 from paper_type import RawPaper, Paper, DailyData
 
 
+class LLMEmptyResponseError(ValueError):
+    """Custom exception for when LLM returns an empty response for critical fields."""
+    pass
+
+
 def setup_logger(log_level: str = "INFO") -> None:
     """Configure the logger
 
@@ -233,27 +238,38 @@ async def process_single_paper(llm: AsyncLLM, paper: RawPaper, task_manager: Tas
         tldr_zh_task = llm.tldr(paper.title, paper.abstract)
 
         # Wait for both tasks to complete
-        title_zh, tldr_zh = await asyncio.gather(title_zh_task, tldr_zh_task)
+        title_zh_raw, tldr_zh_raw = await asyncio.gather(title_zh_task, tldr_zh_task)
 
-        logger.success(f"Completed paper [{arxiv_id}]: {paper.title}")
+        # Check for empty results from LLM
+        if not title_zh_raw or not tldr_zh_raw:
+            empty_fields = []
+            if not title_zh_raw:
+                empty_fields.append("title_zh")
+                logger.warning(f"LLM returned empty translation for title of paper [{arxiv_id}]. Marked for retry.")
+            if not tldr_zh_raw:
+                empty_fields.append("tldr_zh")
+                logger.warning(f"LLM returned empty TLDR for paper [{arxiv_id}]. Marked for retry.")
+            raise LLMEmptyResponseError(f"LLM returned empty response for fields: {', '.join(empty_fields)} for paper [{arxiv_id}].")
+
+        logger.success(f"Successfully processed paper [{arxiv_id}] with LLM: {paper.title}")
 
         # Create processed Paper object with task status
         processed_paper = Paper(
             arxiv_id=arxiv_id,
             title=paper.title,
-            title_zh=title_zh if title_zh else "翻译失败",
+            title_zh=title_zh_raw, # Use the raw, non-empty results
             authors=paper.authors,
             abstract=paper.abstract,
-            tldr_zh=tldr_zh if tldr_zh else "tldr 生成失败",
+            tldr_zh=tldr_zh_raw, # Use the raw, non-empty results
             categories=paper.categories,
             primary_category=paper.primary_category,
             comment=paper.comment,
             pdf_url=paper.pdf_url if paper.pdf_url else f"https://arxiv.org/pdf/{arxiv_id}",
             published_date=paper.published_date,
             updated_date=paper.updated_date,
-            processing_status=TaskStatus.COMPLETED,
+            processing_status=TaskStatus.COMPLETED, # Mark as completed
             attempts=0,  # Will be updated by task_manager
-            completed_steps=["translation", "tldr"],
+            completed_steps=["translation", "tldr"], # Both steps are now truly completed
             last_update=datetime.now()
         )
 
@@ -266,6 +282,11 @@ async def process_single_paper(llm: AsyncLLM, paper: RawPaper, task_manager: Tas
 
         return processed_paper
 
+    except LLMEmptyResponseError as lere:
+        error_msg = f"LLM content processing error for paper [{arxiv_id}]: {str(lere)}"
+        logger.warning(error_msg) # Log as warning, as it's a content issue that might be retried
+        task_manager.update_paper_task(arxiv_id=arxiv_id, status=TaskStatus.FAILED, error=error_msg)
+        return None
     except Exception as e:
         error_msg = f"Error processing paper [{arxiv_id}]: {str(e)}"
         logger.error(error_msg)
