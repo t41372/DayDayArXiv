@@ -158,8 +158,8 @@ class AsyncLLM:
 
         Args:
             use_strong_model: Whether to use the strong model client
-            **kwargs: Arguments to pass to the chat completion API
-
+            **kwargs: Arguments to pass to the chat completion API.
+                      Must include 'model' and 'messages'.
         Returns:
             The generated text
         """
@@ -170,38 +170,65 @@ class AsyncLLM:
         rate_limiter = self.rate_limiter_strong if use_strong_model else self.rate_limiter
         model_type = "strong" if use_strong_model else "weak"
 
+        last_exception: Optional[Exception] = None
         for attempt in range(self.max_retries + 1):
             try:
                 # Wait for rate limiter before making the request
                 await rate_limiter.wait_for_capacity()
 
                 # Make the API call
-                logger.debug(f"Making API call with {model_type} model")
+                logger.debug(f"Making API call with {model_type} model (attempt {attempt + 1}/{self.max_retries + 1})")
                 response: ChatCompletion = await client.chat.completions.create(**kwargs)
-                return response.choices[0].message.content
+                
+                content: Optional[str] = None
+                if response.choices and response.choices[0].message:
+                    content = response.choices[0].message.content
+                
+                if content and content.strip():
+                    return content # Successfully got content
+                
+                # Content is None or malformed response from LLM
+                last_exception = ValueError(f"LLM ({model_type} model) returned empty content or malformed response.")
+                logger.warning(f"{str(last_exception)} Attempt {attempt + 1}/{self.max_retries + 1}.")
+                # Fall through to common retry delay logic if not last attempt
 
             except RateLimitError as e:
-                if attempt < self.max_retries:
-                    wait_time = self.retry_delay * (2**attempt)  # Exponential backoff
-                    logger.warning(
-                        f"Rate limit exceeded for {model_type} model (attempt {attempt + 1}/{self.max_retries + 1}): "
-                        f"{str(e)}. Retrying in {wait_time} seconds..."
-                    )
-                    await asyncio.sleep(wait_time)
-                else:
-                    logger.error(f"Rate limit exceeded for {model_type} model after {self.max_retries + 1} attempts: {str(e)}")
-                    raise
-
+                last_exception = e
+                logger.warning(
+                    f"Rate limit exceeded for {model_type} model (attempt {attempt + 1}/{self.max_retries + 1}): "
+                    f"{str(e)}. Retrying if attempts remain..."
+                )
             except Exception as e:
-                if attempt < self.max_retries:
-                    logger.warning(
-                        f"API call failed for {model_type} model (attempt {attempt + 1}/{self.max_retries + 1}): "
-                        f"{str(e)}. Retrying in {self.retry_delay} seconds..."
-                    )
-                    await asyncio.sleep(self.retry_delay)
-                else:
-                    logger.error(f"API call failed for {model_type} model after {self.max_retries + 1} attempts: {str(e)}")
-                    raise
+                last_exception = e
+                logger.warning(
+                    f"API call failed for {model_type} model (attempt {attempt + 1}/{self.max_retries + 1}): "
+                    f"{str(e)}. Retrying if attempts remain..."
+                )
+
+            # If this is the last attempt, break and handle failure outside loop
+            if attempt >= self.max_retries:
+                break 
+            
+            # Common retry delay logic
+            # Exponential backoff, first retry waits self.retry_delay seconds
+            wait_time = self.retry_delay * (2**attempt if attempt > 0 else 1) 
+            logger.info(f"Retrying API call for {model_type} model in {wait_time:.2f} seconds...")
+            await asyncio.sleep(wait_time)
+
+        # After all attempts, if we are here, it means all attempts failed.
+        logger.error(
+            f"API call for {model_type} model failed after {self.max_retries + 1} attempts. Last error: {str(last_exception)}"
+        )
+        
+        # If the loop finished due to exhausting retries for None content
+        if isinstance(last_exception, ValueError) and "LLM returned None content" in str(last_exception):
+            return None # Return None as the final outcome for None content after retries
+        
+        # If an API/network exception occurred and was the last error
+        if isinstance(last_exception, (RateLimitError, Exception)): # Catches other OpenAI errors or general exceptions
+             raise last_exception 
+        
+        return None # Fallback if last_exception was somehow None (should not happen with this logic)
 
     @observe()
     async def tldr(self, title: str, abstract: str) -> str | None:

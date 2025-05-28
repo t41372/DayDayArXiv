@@ -240,16 +240,37 @@ async def process_single_paper(llm: AsyncLLM, paper: RawPaper, task_manager: Tas
         # Wait for both tasks to complete
         title_zh_raw, tldr_zh_raw = await asyncio.gather(title_zh_task, tldr_zh_task)
 
-        # Check for empty results from LLM
-        if not title_zh_raw or not tldr_zh_raw:
-            empty_fields = []
-            if not title_zh_raw:
-                empty_fields.append("title_zh")
-                logger.warning(f"LLM returned empty translation for title of paper [{arxiv_id}]. Marked for retry.")
-            if not tldr_zh_raw:
-                empty_fields.append("tldr_zh")
-                logger.warning(f"LLM returned empty TLDR for paper [{arxiv_id}]. Marked for retry.")
-            raise LLMEmptyResponseError(f"LLM returned empty response for fields: {', '.join(empty_fields)} for paper [{arxiv_id}].")
+        # Define patterns that indicate an LLM failure, even if not empty
+        failure_patterns = [
+            "翻译失败"
+        ]
+
+        def check_llm_output(output_string: Optional[str], field_name: str, paper_id: str) -> bool:
+            if not output_string: # Handles None or empty string
+                logger.warning(f"LLM returned empty {field_name} for paper [{paper_id}].")
+                return False
+            for pattern in failure_patterns:
+                if pattern.lower() in output_string.lower():
+                    logger.warning(
+                        f"LLM returned failure pattern '{pattern}' in {field_name} for paper [{paper_id}]: "
+                        f"'{output_string[:100]}{'...' if len(output_string) > 100 else ''}'. " # Log a snippet
+                    )
+                    return False
+            return True
+
+        is_title_valid = check_llm_output(title_zh_raw, "title_zh", arxiv_id)
+        is_tldr_valid = check_llm_output(tldr_zh_raw, "tldr_zh", arxiv_id)
+
+        if not is_title_valid or not is_tldr_valid:
+            invalid_fields = []
+            if not is_title_valid:
+                invalid_fields.append("title_zh")
+            if not is_tldr_valid:
+                invalid_fields.append("tldr_zh")
+            # Detailed logging already done in check_llm_output
+            raise LLMEmptyResponseError(
+                f"LLM returned invalid or empty response for fields: {', '.join(invalid_fields)} for paper [{arxiv_id}]."
+            )
 
         logger.success(f"Successfully processed paper [{arxiv_id}] with LLM: {paper.title}")
 
@@ -257,10 +278,10 @@ async def process_single_paper(llm: AsyncLLM, paper: RawPaper, task_manager: Tas
         processed_paper = Paper(
             arxiv_id=arxiv_id,
             title=paper.title,
-            title_zh=title_zh_raw, # Use the raw, non-empty results
+            title_zh=title_zh_raw, # Use the validated, non-empty results
             authors=paper.authors,
             abstract=paper.abstract,
-            tldr_zh=tldr_zh_raw, # Use the raw, non-empty results
+            tldr_zh=tldr_zh_raw, # Use the validated, non-empty results
             categories=paper.categories,
             primary_category=paper.primary_category,
             comment=paper.comment,
@@ -674,13 +695,16 @@ async def run_day_pipeline(
 
         # Retry failed papers if not in completed/processed
         if failed_papers and not force_refresh:
-            logger.info(f"Retrying {len(failed_papers)} failed papers with increased timeout")
+            logger.info(f"Retrying {len(failed_papers)} failed papers with increased timeout and different strategy")
+            
+            llm_max_retries_for_retry_phase = int(os.getenv("LLM_MAX_RETRIES_FOR_RETRY_PHASE", os.getenv("LLM_MAX_RETRIES", 19)))
+
             # Create a new LLM client with longer timeouts for retries
             retry_llm = AsyncLLM(
                 model=llm.model,
                 model_strong=llm.model_strong,
-                rpm=llm.rate_limiter.rpm // 2,  # Lower RPM
-                max_retries=5,  # More retries
+                rpm=llm.rate_limiter.rpm // 2 if llm.rate_limiter.rpm > 1 else 1,  # Lower RPM, ensure it's at least 1
+                max_retries=llm_max_retries_for_retry_phase, # Potentially same high number of retries
                 retry_delay=5,  # Longer delay
             )
 
@@ -850,7 +874,7 @@ async def main() -> int:
     parser.add_argument(
         "--rpm",
         type=int,
-        default=os.getenv("RPM", 10),
+        default=int(os.getenv("LLM_RPM_STRONG", 10)),
         help="Maximum API requests per minute (default: 10)",
     )
     parser.add_argument(
@@ -869,6 +893,14 @@ async def main() -> int:
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         default="INFO",
         help="Set logging level (default: INFO)",
+    )
+    # Add an argument for LLM max retries if you want it to be CLI configurable
+    # Otherwise, it will rely on the environment variable LLM_MAX_RETRIES
+    parser.add_argument(
+        "--llm-max-retries",
+        type=int,
+        default=None, # Default to None, so we can prioritize env var or a hardcoded default
+        help="Maximum LLM retries for API calls (e.g., 19 for 20 total attempts). Overrides LLM_MAX_RETRIES env var.",
     )
 
     # Parse arguments
@@ -939,12 +971,22 @@ async def main() -> int:
         dates_to_process = [default_date.strftime("%Y-%m-%d")]
 
     logger.info(f"Dates to process: {', '.join(dates_to_process)}")
+
+    # Determine LLM max_retries: CLI arg > Env Var > Default
+    if args.llm_max_retries is not None:
+        llm_base_max_retries = args.llm_max_retries
+        logger.info(f"Using LLM max_retries from CLI: {llm_base_max_retries}")
+    else:
+        llm_base_max_retries = int(os.getenv("LLM_MAX_RETRIES", 19)) # Default to 19 (for 20 attempts)
+        logger.info(f"Using LLM max_retries from ENV/Default: {llm_base_max_retries}")
+
     # Initialize LLM client with rate limiting
     llm = AsyncLLM(
         rpm=args.rpm,
         # Use environment variables for both models' configs,
         # we can override RPM from command line for the weak model
         rpm_strong=int(os.getenv("LLM_RPM_STRONG", 10)),
+        max_retries=llm_base_max_retries,
     )
 
     # Initialize task manager

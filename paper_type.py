@@ -56,7 +56,7 @@ class Paper(BaseModel):
     # Task tracking fields
     processing_status: TaskStatus = TaskStatus.PENDING
     attempts: int = 0
-    max_attempts: int = 3
+    max_attempts: int = 10
     error: Optional[str] = None
     completed_steps: List[str] = Field(default_factory=list)
     last_update: Optional[datetime] = None
