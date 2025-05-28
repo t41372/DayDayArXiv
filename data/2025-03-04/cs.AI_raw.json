@@ -1,7 +1,7 @@
 [
   {
-    "arxiv_id": "2503.03062v2",
-    "title": "Scaling Laws for Many-Shot In-Context Learning with Self-Generated Annotations",
+    "arxiv_id": "2503.03062v1",
+    "title": "Semi-Supervised In-Context Learning: A Baseline Study",
     "authors": [
       "Zhengyao Gu",
       "Henry Peng Zou",
@@ -10,7 +10,7 @@
       "Weizhi Zhang",
       "Philip S. Yu"
     ],
-    "abstract": "The high cost of obtaining high-quality annotated data for in-context\nlearning (ICL) has motivated the development of methods that use self-generated\nannotations in place of ground-truth labels. While these approaches have shown\npromising results in few-shot settings, they generally do not scale to\nmany-shot scenarios. In this work, we study ICL with self-generated examples\nusing a framework analogous to traditional semi-supervised learning, consisting\nof annotation generation, demonstration selection, and in-context inference.\nWithin this framework, we propose a simple baseline that outperforms\nground-truth ICL in zero-shot, few-shot, and many-shot settings. Notably, we\nobserve a scaling law with this baseline, where optimal performance is achieved\nwith more than 1,000 demonstrations. To fully exploit the many-shot\ncapabilities of semi-supervised ICL, we introduce IterPSD, an iterative\nannotation approach that integrates iterative refinement and curriculum\npseudo-labeling techniques from semi-supervised learning, yielding up to 6.8%\nadditional gains on classification tasks.",
+    "abstract": "Most existing work in data selection for In-Context Learning (ICL) has\nfocused on constructing demonstrations from ground truth annotations, with\nlimited attention given to selecting reliable self-generated annotations. In\nthis work, we propose a three-step semi-supervised ICL framework: annotation\ngeneration, demonstration selection, and semi-supervised inference. Our\nbaseline, Naive-SemiICL, which prompts select high-confidence self-generated\ndemonstrations for ICL prompting, outperforms a 16-shot baseline by an average\nof 9.94% across 16 datasets. We further introduce IterPSD, an annotation\napproach that refines pseudo-demonstrations iteratively, achieving up to 6.8%\nadditional gains in classification tasks. Lastly, we reveal a scaling law for\nsemi-supervised ICL, where models achieve optimal performance with over 1,000\ndemonstrations.",
     "categories": [
       "cs.CL",
       "cs.AI",
@@ -19,9 +19,9 @@
     ],
     "primary_category": "cs.CL",
     "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.03062v2",
+    "pdf_url": "http://arxiv.org/pdf/2503.03062v1",
     "published_date": "2025-03-04 23:52:49 UTC",
-    "updated_date": "2025-05-20 22:36:09 UTC"
+    "updated_date": "2025-03-04 23:52:49 UTC"
   },
   {
     "arxiv_id": "2503.03783v3",
@@ -61,7 +61,7 @@
     "updated_date": "2025-03-21 20:09:40 UTC"
   },
   {
-    "arxiv_id": "2503.03045v2",
+    "arxiv_id": "2503.03045v1",
     "title": "ArticuBot: Learning Universal Articulated Object Manipulation Policy via Large Scale Simulation",
     "authors": [
       "Yufei Wang",
@@ -80,10 +80,10 @@
       "cs.LG"
     ],
     "primary_category": "cs.RO",
-    "comment": "Accepted at RSS 2025",
-    "pdf_url": "http://arxiv.org/pdf/2503.03045v2",
+    "comment": "",
+    "pdf_url": "http://arxiv.org/pdf/2503.03045v1",
     "published_date": "2025-03-04 22:51:50 UTC",
-    "updated_date": "2025-05-01 21:26:22 UTC"
+    "updated_date": "2025-03-04 22:51:50 UTC"
   },
   {
     "arxiv_id": "2503.03040v1",
@@ -163,15 +163,15 @@
     "updated_date": "2025-03-04 21:09:12 UTC"
   },
   {
-    "arxiv_id": "2503.03008v2",
-    "title": "MoSE: Hierarchical Self-Distillation Enhances Early Layer Embeddings",
+    "arxiv_id": "2503.03008v1",
+    "title": "One Model to Train them All: Hierarchical Self-Distillation for Enhanced Early Layer Embeddings",
     "authors": [
       "Andrea Gurioli",
       "Federico Pennino",
       "João Monteiro",
       "Maurizio Gabbrielli"
     ],
-    "abstract": "Deploying language models often requires navigating accuracy vs. performance\ntrade-offs to meet latency constraints while preserving utility. Traditional\nmodel distillation reduces size but incurs substantial costs through training\nseparate models. We introduce ModularStarEncoder (MoSE), a 1-billion-parameter\nmulti-exit encoder for code retrieval and classification that employs a novel\nSelf-Distillation mechanism. This approach significantly enhances lower-layer\nrepresentations, enabling flexible deployment of different model portions with\nfavorable performance trade-offs. Our architecture improves text-to-code and\ncode-to-code search by targeting specific encoder layers as exit heads, where\nhigher layers guide earlier ones during training-improving intermediate\nrepresentations at minimal additional cost. We further enhance MoSE with a\nrepository-level contextual loss that maximizes training context window\nutilization. Additionally, we release a new dataset created through code\ntranslation that extends text-to-code benchmarks with cross-language\ncode-to-code pairs. Evaluations demonstrate the effectiveness of\nSelf-Distillation as a principled approach to trading inference cost for\naccuracy across various code understanding tasks.",
+    "abstract": "Deploying language models often requires handling model size vs. performance\ntrade-offs to satisfy downstream latency constraints while preserving the\nmodel's usefulness. Model distillation is commonly employed to reduce model\nsize while maintaining acceptable performance. However, distillation can be\ninefficient since it involves multiple training steps. In this work, we\nintroduce MODULARSTARENCODER, a modular multi-exit encoder with 1B parameters,\nuseful for multiple tasks within the scope of code retrieval.\nMODULARSTARENCODER is trained with a novel self-distillation mechanism that\nsignificantly improves lower-layer representations-allowing different portions\nof the model to be used while still maintaining a good trade-off in terms of\nperformance. Our architecture focuses on enhancing text-to-code and\ncode-to-code search by systematically capturing syntactic and semantic\nstructures across multiple levels of representation. Specific encoder layers\nare targeted as exit heads, allowing higher layers to guide earlier layers\nduring training. This self-distillation effect improves intermediate\nrepresentations, increasing retrieval recall at no extra training cost. In\naddition to the multi-exit scheme, our approach integrates a repository-level\ncontextual loss that maximally utilizes the training context window, further\nenhancing the learned representations. We also release a new dataset\nconstructed via code translation, seamlessly expanding traditional text-to-code\nbenchmarks with code-to-code pairs across diverse programming languages.\nExperimental results highlight the benefits of self-distillation through\nmulti-exit supervision.",
     "categories": [
       "cs.CL",
       "cs.AI",
@@ -180,9 +180,9 @@
     ],
     "primary_category": "cs.CL",
     "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.03008v2",
+    "pdf_url": "http://arxiv.org/pdf/2503.03008v1",
     "published_date": "2025-03-04 21:08:17 UTC",
-    "updated_date": "2025-05-19 13:39:47 UTC"
+    "updated_date": "2025-03-04 21:08:17 UTC"
   },
   {
     "arxiv_id": "2503.03779v1",
@@ -420,7 +420,7 @@
     "updated_date": "2025-03-04 19:17:36 UTC"
   },
   {
-    "arxiv_id": "2503.02950v2",
+    "arxiv_id": "2503.02950v1",
     "title": "LiteWebAgent: The Open-Source Suite for VLM-Based Web-Agent Applications",
     "authors": [
       "Danqing Zhang",
@@ -440,9 +440,9 @@
     ],
     "primary_category": "cs.AI",
     "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.02950v2",
+    "pdf_url": "http://arxiv.org/pdf/2503.02950v1",
     "published_date": "2025-03-04 19:13:10 UTC",
-    "updated_date": "2025-05-06 06:42:34 UTC"
+    "updated_date": "2025-03-04 19:13:10 UTC"
   },
   {
     "arxiv_id": "2503.02924v1",
@@ -483,7 +483,7 @@
     "updated_date": "2025-03-04 18:58:42 UTC"
   },
   {
-    "arxiv_id": "2503.02881v3",
+    "arxiv_id": "2503.02881v1",
     "title": "Reactive Diffusion Policy: Slow-Fast Visual-Tactile Policy Learning for Contact-Rich Manipulation",
     "authors": [
       "Han Xue",
@@ -495,17 +495,17 @@
       "Huazhe Xu",
       "Cewu Lu"
     ],
-    "abstract": "Humans can accomplish complex contact-rich tasks using vision and touch, with\nhighly reactive capabilities such as fast response to external changes and\nadaptive control of contact forces; however, this remains challenging for\nrobots. Existing visual imitation learning (IL) approaches rely on action\nchunking to model complex behaviors, which lacks the ability to respond\ninstantly to real-time tactile feedback during the chunk execution.\nFurthermore, most teleoperation systems struggle to provide fine-grained\ntactile / force feedback, which limits the range of tasks that can be\nperformed. To address these challenges, we introduce TactAR, a low-cost\nteleoperation system that provides real-time tactile feedback through Augmented\nReality (AR), along with Reactive Diffusion Policy (RDP), a novel slow-fast\nvisual-tactile imitation learning algorithm for learning contact-rich\nmanipulation skills. RDP employs a two-level hierarchy: (1) a slow latent\ndiffusion policy for predicting high-level action chunks in latent space at low\nfrequency, (2) a fast asymmetric tokenizer for closed-loop tactile feedback\ncontrol at high frequency. This design enables both complex trajectory modeling\nand quick reactive behavior within a unified framework. Through extensive\nevaluation across three challenging contact-rich tasks, RDP significantly\nimproves performance compared to state-of-the-art visual IL baselines.\nFurthermore, experiments show that RDP is applicable across different tactile /\nforce sensors. Code and videos are available on\nhttps://reactive-diffusion-policy.github.io.",
+    "abstract": "Humans can accomplish complex contact-rich tasks using vision and touch, with\nhighly reactive capabilities such as quick adjustments to environmental changes\nand adaptive control of contact forces; however, this remains challenging for\nrobots. Existing visual imitation learning (IL) approaches rely on action\nchunking to model complex behaviors, which lacks the ability to respond\ninstantly to real-time tactile feedback during the chunk execution.\nFurthermore, most teleoperation systems struggle to provide fine-grained\ntactile / force feedback, which limits the range of tasks that can be\nperformed. To address these challenges, we introduce TactAR, a low-cost\nteleoperation system that provides real-time tactile feedback through Augmented\nReality (AR), along with Reactive Diffusion Policy (RDP), a novel slow-fast\nvisual-tactile imitation learning algorithm for learning contact-rich\nmanipulation skills. RDP employs a two-level hierarchy: (1) a slow latent\ndiffusion policy for predicting high-level action chunks in latent space at low\nfrequency, (2) a fast asymmetric tokenizer for closed-loop tactile feedback\ncontrol at high frequency. This design enables both complex trajectory modeling\nand quick reactive behavior within a unified framework. Through extensive\nevaluation across three challenging contact-rich tasks, RDP significantly\nimproves performance compared to state-of-the-art visual IL baselines through\nrapid response to tactile / force feedback. Furthermore, experiments show that\nRDP is applicable across different tactile / force sensors. Code and videos are\navailable on https://reactive-diffusion-policy.github.io/.",
     "categories": [
       "cs.RO",
       "cs.AI",
       "cs.LG"
     ],
     "primary_category": "cs.RO",
-    "comment": "Accepted to RSS 2025. Project page:\n  https://reactive-diffusion-policy.github.io",
-    "pdf_url": "http://arxiv.org/pdf/2503.02881v3",
+    "comment": "",
+    "pdf_url": "http://arxiv.org/pdf/2503.02881v1",
     "published_date": "2025-03-04 18:58:21 UTC",
-    "updated_date": "2025-04-23 10:45:38 UTC"
+    "updated_date": "2025-03-04 18:58:21 UTC"
   },
   {
     "arxiv_id": "2503.02879v1",
@@ -1229,7 +1229,7 @@
     "updated_date": "2025-03-05 19:36:48 UTC"
   },
   {
-    "arxiv_id": "2503.02650v2",
+    "arxiv_id": "2503.02650v1",
     "title": "The Effectiveness of Large Language Models in Transforming Unstructured Text to Standardized Formats",
     "authors": [
       "William Brach",
@@ -1243,28 +1243,28 @@
     ],
     "primary_category": "cs.AI",
     "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.02650v2",
+    "pdf_url": "http://arxiv.org/pdf/2503.02650v1",
     "published_date": "2025-03-04 14:14:28 UTC",
-    "updated_date": "2025-05-05 12:25:44 UTC"
+    "updated_date": "2025-03-04 14:14:28 UTC"
   },
   {
-    "arxiv_id": "2503.02636v3",
+    "arxiv_id": "2503.02636v1",
     "title": "YARE-GAN: Yet Another Resting State EEG-GAN",
     "authors": [
       "Yeganeh Farahzadi",
       "Morteza Ansarinia",
       "Zoltan Kekecs"
     ],
-    "abstract": "In this study, we implement a Wasserstein GAN with Gradient Penalty (WGAN-GP)\nto generate multi-channel resting-state EEG data and assess the quality of the\nsynthesized signals through both visual and feature-based evaluations. Our\nresults indicate that the model effectively captures the statistical and\nspectral characteristics of real EEG data, although challenges remain in\nreplicating high-frequency oscillations in the frontal region. Additionally, we\ndemonstrate that the Critic's learned representations can be reused for gender\nclassification task, achieving an out-of-sample accuracy, significantly better\nthan a shuffled-label baseline and a model trained directly on EEG data. These\nfindings suggest that generative models can serve not only as EEG data\ngenerators but also as unsupervised feature extractors, reducing the need for\nmanual feature engineering. This study highlights the potential of GAN-based\nunsupervised learning for EEG analysis, suggesting avenues for more\ndata-efficient deep learning applications in neuroscience.",
+    "abstract": "Generative Adversarial Networks (GANs) have shown promise in synthesising\nrealistic neural data, yet their potential for unsupervised representation\nlearning in resting-state EEG remains under explored. In this study, we\nimplement a Wasserstein GAN with Gradient Penalty (WGAN-GP) to generate\nmulti-channel resting-state EEG data and assess the quality of the synthesised\nsignals through both visual and feature-based evaluations. Our results indicate\nthat the model effectively captures the statistical and spectral\ncharacteristics of real EEG data, although challenges remain in replicating\nhigh-frequency oscillations in the frontal region. Additionally, we demonstrate\nthat the Critic's learned representations can be fine-tuned for age group\nclassification, achieving an out-of-sample accuracy, significantly better than\na shuffled-label baseline. These findings suggest that generative models can\nserve not only as EEG data generators but also as unsupervised feature\nextractors, reducing the need for manual feature engineering. This study\nhighlights the potential of GAN-based unsupervised learning for EEG analysis,\nsuggesting avenues for more data-efficient deep learning applications in\nneuroscience.",
     "categories": [
       "q-bio.NC",
       "cs.AI"
     ],
     "primary_category": "q-bio.NC",
     "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.02636v3",
+    "pdf_url": "http://arxiv.org/pdf/2503.02636v1",
     "published_date": "2025-03-04 14:01:10 UTC",
-    "updated_date": "2025-05-05 15:16:31 UTC"
+    "updated_date": "2025-03-04 14:01:10 UTC"
   },
   {
     "arxiv_id": "2503.02631v1",
@@ -1355,7 +1355,7 @@
     "updated_date": "2025-03-04 13:39:31 UTC"
   },
   {
-    "arxiv_id": "2503.02612v2",
+    "arxiv_id": "2503.02612v1",
     "title": "Reinforcement Learning-based Threat Assessment",
     "authors": [
       "Wuzhou Sun",
@@ -1369,10 +1369,10 @@
       "cs.AI"
     ],
     "primary_category": "cs.LG",
-    "comment": "The research content is not yet complete and requires further\n  supplementation and improvement",
-    "pdf_url": "http://arxiv.org/pdf/2503.02612v2",
+    "comment": "10 pages,9 figures",
+    "pdf_url": "http://arxiv.org/pdf/2503.02612v1",
     "published_date": "2025-03-04 13:32:40 UTC",
-    "updated_date": "2025-04-25 16:48:19 UTC"
+    "updated_date": "2025-03-04 13:32:40 UTC"
   },
   {
     "arxiv_id": "2503.02918v1",
@@ -1693,18 +1693,17 @@
     "updated_date": "2025-03-04 11:16:46 UTC"
   },
   {
-    "arxiv_id": "2503.02497v2",
+    "arxiv_id": "2503.02497v1",
     "title": "PennyLang: Pioneering LLM-Based Quantum Code Generation with a Novel PennyLane-Centric Dataset",
     "authors": [
+      "Haider Asif",
       "Abdul Basit",
       "Nouhaila Innan",
-      "Haider Asif",
-      "Minghao Shao",
       "Muhammad Kashif",
       "Alberto Marchisio",
       "Muhammad Shafique"
     ],
-    "abstract": "Large Language Models (LLMs) offer remarkable capabilities in code\ngeneration, natural language processing, and domain-specific reasoning.\nHowever, their application in quantum software development remains\nunderexplored, particularly for PennyLane-a leading framework for hybrid\nquantum-classical computing. To address this gap, we introduce a novel,\nhigh-quality dataset comprising 3,347 PennyLane-specific quantum code samples\nand contextual descriptions, specifically curated to support LLM training and\nfine-tuning for quantum code assistance. Our contributions are threefold: (1)\nthe automatic construction and open-source release of a comprehensive PennyLane\ndataset derived from textbooks, official documentation, and open-source\nrepositories; (2) a structured methodology for data curation, annotation, and\nformatting to enhance LLM usability and relevance; and (3) a rigorous\nevaluation of code generation capabilities using both baseline\nRetrieval-Augmented Generation (RAG) and a GraphRAG-enhanced pipeline. Using\nthe PennyLang framework, we demonstrate that GraphRAG, when applied to a GPT-4o\nMini model, substantially outperforms standard prompting and baseline RAG.\nAccuracy improves from 20.5% (without RAG) to 58.2% with GraphRAG, showcasing\nits effectiveness in reducing hallucinations and improving code correctness in\nquantum programming tasks. Compared to prior efforts focused largely on Qiskit,\nour work expands LLM-based assistance to the PennyLane ecosystem, contributing\npractical tools and reproducible methodologies for advancing AI-assisted\nquantum software development.",
+    "abstract": "Large Language Models (LLMs) offer remarkable capabilities in code\ngeneration, natural language processing, and domain-specific reasoning. Their\npotential in aiding quantum software development remains underexplored,\nparticularly for the PennyLane framework-a leading platform for hybrid\nquantum-classical computing. To address this gap, we introduce a novel,\nhigh-quality dataset comprising 3,347 PennyLane-specific code samples of\nquantum circuits and their contextual descriptions, specifically curated to\ntrain/fine-tune LLM-based quantum code assistance. Our key contributions are\nthreefold: (1) the automatic creation and open-source release of a\ncomprehensive PennyLane dataset leveraging quantum computing textbooks,\nofficial documentation, and open-source repositories; (2) the development of a\nsystematic methodology for data refinement, annotation, and formatting to\noptimize LLM training efficiency; and (3) a thorough evaluation, based on a\nRetrieval-Augmented Generation (RAG) framework, demonstrating the effectiveness\nof our dataset in streamlining PennyLane code generation and improving quantum\ndevelopment workflows. Compared to existing efforts that predominantly focus on\nQiskit, our dataset significantly broadens the spectrum of quantum frameworks\ncovered in AI-driven code assistance. By bridging this gap and providing\nreproducible dataset-creation methodologies, we aim to advance the field of\nAI-assisted quantum programming, making quantum computing more accessible to\nboth newcomers and experienced developers.",
     "categories": [
       "cs.SE",
       "cs.AI",
@@ -1713,10 +1712,10 @@
       "I.2.7"
     ],
     "primary_category": "cs.SE",
-    "comment": "10 pages, 7 figures, 7 tables, submitted for review under QCE 2025",
-    "pdf_url": "http://arxiv.org/pdf/2503.02497v2",
+    "comment": "10 pages, 8 figures, 6 tables, submitted for review under IJCNN 2025",
+    "pdf_url": "http://arxiv.org/pdf/2503.02497v1",
     "published_date": "2025-03-04 11:04:35 UTC",
-    "updated_date": "2025-04-18 07:46:25 UTC"
+    "updated_date": "2025-03-04 11:04:35 UTC"
   },
   {
     "arxiv_id": "2503.02495v2",
@@ -2195,7 +2194,7 @@
     "updated_date": "2025-03-04 07:29:03 UTC"
   },
   {
-    "arxiv_id": "2503.02354v2",
+    "arxiv_id": "2503.02354v1",
     "title": "CoServe: Efficient Collaboration-of-Experts (CoE) Model Inference with Limited Memory",
     "authors": [
       "Jiashun Suo",
@@ -2213,10 +2212,10 @@
       "cs.PF"
     ],
     "primary_category": "cs.DC",
-    "comment": "In Proceedings of the 30th ACM International Conference on\n  Architectural Support for Programming Languages and Operating Systems (ASPLOS\n  '25)",
-    "pdf_url": "http://arxiv.org/pdf/2503.02354v2",
+    "comment": "Accepted to ASPLOS '25",
+    "pdf_url": "http://arxiv.org/pdf/2503.02354v1",
     "published_date": "2025-03-04 07:25:05 UTC",
-    "updated_date": "2025-04-10 04:58:15 UTC"
+    "updated_date": "2025-03-04 07:25:05 UTC"
   },
   {
     "arxiv_id": "2503.02351v1",
@@ -2262,27 +2261,6 @@
     "pdf_url": "http://arxiv.org/pdf/2503.02911v1",
     "published_date": "2025-03-04 07:20:25 UTC",
     "updated_date": "2025-03-04 07:20:25 UTC"
-  },
-  {
-    "arxiv_id": "2504.03654v1",
-    "title": "PointSplit: Towards On-device 3D Object Detection with Heterogeneous Low-power Accelerators",
-    "authors": [
-      "Keondo Park",
-      "You Rim Choi",
-      "Inhoe Lee",
-      "Hyung-Sin Kim"
-    ],
-    "abstract": "Running deep learning models on resource-constrained edge devices has drawn\nsignificant attention due to its fast response, privacy preservation, and\nrobust operation regardless of Internet connectivity. While these devices\nalready cope with various intelligent tasks, the latest edge devices that are\nequipped with multiple types of low-power accelerators (i.e., both mobile GPU\nand NPU) can bring another opportunity; a task that used to be too heavy for an\nedge device in the single-accelerator world might become viable in the upcoming\nheterogeneous-accelerator world.To realize the potential in the context of 3D\nobject detection, we identify several technical challenges and propose\nPointSplit, a novel 3D object detection framework for multi-accelerator edge\ndevices that addresses the problems. Specifically, our PointSplit design\nincludes (1) 2D semantics-aware biased point sampling, (2) parallelized 3D\nfeature extraction, and (3) role-based group-wise quantization. We implement\nPointSplit on TensorFlow Lite and evaluate it on a customized hardware platform\ncomprising both mobile GPU and EdgeTPU. Experimental results on representative\nRGB-D datasets, SUN RGB-D and Scannet V2, demonstrate that PointSplit on a\nmulti-accelerator device is 24.7 times faster with similar accuracy compared to\nthe full-precision, 2D-3D fusion-based 3D detector on a GPU-only device.",
-    "categories": [
-      "cs.DC",
-      "cs.AI",
-      "cs.CV"
-    ],
-    "primary_category": "cs.DC",
-    "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2504.03654v1",
-    "published_date": "2025-03-04 07:17:04 UTC",
-    "updated_date": "2025-03-04 07:17:04 UTC"
   },
   {
     "arxiv_id": "2503.02345v1",
@@ -2477,25 +2455,6 @@
     "updated_date": "2025-03-04 06:18:34 UTC"
   },
   {
-    "arxiv_id": "2503.02910v3",
-    "title": "LangGas: Introducing Language in Selective Zero-Shot Background Subtraction for Semi-Transparent Gas Leak Detection with a New Dataset",
-    "authors": [
-      "Wenqi Guo",
-      "Yiyang Du",
-      "Shan Du"
-    ],
-    "abstract": "Gas leakage poses a significant hazard that requires prevention.\nTraditionally, human inspection has been used for detection, a slow and\nlabour-intensive process. Recent research has applied machine learning\ntechniques to this problem, yet there remains a shortage of high-quality,\npublicly available datasets. This paper introduces a synthetic dataset, SimGas,\nfeaturing diverse backgrounds, interfering foreground objects, diverse leak\nlocations, and precise segmentation ground truth. We propose a zero-shot method\nthat combines background subtraction, zero-shot object detection, filtering,\nand segmentation to leverage this dataset. Experimental results indicate that\nour approach significantly outperforms baseline methods based solely on\nbackground subtraction and zero-shot object detection with segmentation,\nreaching an IoU of 69%. We also present an analysis of various prompt\nconfigurations and threshold settings to provide deeper insights into the\nperformance of our method. Finally, we qualitatively (because of the lack of\nground truth) tested our performance on GasVid and reached decent results on\nthe real-world dataset. The dataset, code, and full qualitative results are\navailable at https://github.com/weathon/Lang-Gas.",
-    "categories": [
-      "cs.CV",
-      "cs.AI"
-    ],
-    "primary_category": "cs.CV",
-    "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.02910v3",
-    "published_date": "2025-03-04 06:17:17 UTC",
-    "updated_date": "2025-04-15 01:35:57 UTC"
-  },
-  {
     "arxiv_id": "2503.05808v1",
     "title": "DriveGen: Towards Infinite Diverse Traffic Scenarios with Large Models",
     "authors": [
@@ -2538,7 +2497,7 @@
     "updated_date": "2025-03-04 06:13:53 UTC"
   },
   {
-    "arxiv_id": "2503.02303v2",
+    "arxiv_id": "2503.02303v1",
     "title": "Flexible Prefrontal Control over Hippocampal Episodic Memory for Goal-Directed Generalization",
     "authors": [
       "Yicong Zheng",
@@ -2555,9 +2514,9 @@
     ],
     "primary_category": "cs.NE",
     "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.02303v2",
+    "pdf_url": "http://arxiv.org/pdf/2503.02303v1",
     "published_date": "2025-03-04 06:04:54 UTC",
-    "updated_date": "2025-05-18 17:37:58 UTC"
+    "updated_date": "2025-03-04 06:04:54 UTC"
   },
   {
     "arxiv_id": "2503.02296v1",
@@ -2616,14 +2575,13 @@
     "updated_date": "2025-03-04 04:37:22 UTC"
   },
   {
-    "arxiv_id": "2503.02268v3",
+    "arxiv_id": "2503.02268v1",
     "title": "AppAgentX: Evolving GUI Agents as Proficient Smartphone Users",
     "authors": [
       "Wenjia Jiang",
       "Yangyang Zhuang",
       "Chenxi Song",
       "Xu Yang",
-      "Joey Tianyi Zhou",
       "Chi Zhang"
     ],
     "abstract": "Recent advancements in Large Language Models (LLMs) have led to the\ndevelopment of intelligent LLM-based agents capable of interacting with\ngraphical user interfaces (GUIs). These agents demonstrate strong reasoning and\nadaptability, enabling them to perform complex tasks that traditionally\nrequired predefined rules. However, the reliance on step-by-step reasoning in\nLLM-based agents often results in inefficiencies, particularly for routine\ntasks. In contrast, traditional rule-based systems excel in efficiency but lack\nthe intelligence and flexibility to adapt to novel scenarios. To address this\nchallenge, we propose a novel evolutionary framework for GUI agents that\nenhances operational efficiency while retaining intelligence and flexibility.\nOur approach incorporates a memory mechanism that records the agent's task\nexecution history. By analyzing this history, the agent identifies repetitive\naction sequences and evolves high-level actions that act as shortcuts,\nreplacing these low-level operations and improving efficiency. This allows the\nagent to focus on tasks requiring more complex reasoning, while simplifying\nroutine actions. Experimental results on multiple benchmark tasks demonstrate\nthat our approach significantly outperforms existing methods in both efficiency\nand accuracy. The code will be open-sourced to support further research.",
@@ -2632,9 +2590,9 @@
     ],
     "primary_category": "cs.AI",
     "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.02268v3",
+    "pdf_url": "http://arxiv.org/pdf/2503.02268v1",
     "published_date": "2025-03-04 04:34:09 UTC",
-    "updated_date": "2025-04-15 02:32:21 UTC"
+    "updated_date": "2025-03-04 04:34:09 UTC"
   },
   {
     "arxiv_id": "2503.02267v1",
@@ -2861,7 +2819,7 @@
     "updated_date": "2025-03-04 02:14:55 UTC"
   },
   {
-    "arxiv_id": "2503.05805v3",
+    "arxiv_id": "2503.05805v1",
     "title": "Multi-agent Auto-Bidding with Latent Graph Diffusion Models",
     "authors": [
       "Dom Huh",
@@ -2875,12 +2833,12 @@
     ],
     "primary_category": "cs.LG",
     "comment": "",
-    "pdf_url": "http://arxiv.org/pdf/2503.05805v3",
+    "pdf_url": "http://arxiv.org/pdf/2503.05805v1",
     "published_date": "2025-03-04 02:07:24 UTC",
-    "updated_date": "2025-04-19 04:14:16 UTC"
+    "updated_date": "2025-03-04 02:07:24 UTC"
   },
   {
-    "arxiv_id": "2503.04807v3",
+    "arxiv_id": "2503.04807v2",
     "title": "Call for Rigor in Reporting Quality of Instruction Tuning Data",
     "authors": [
       "Hyeonseok Moon",
@@ -2893,10 +2851,10 @@
       "cs.AI"
     ],
     "primary_category": "cs.CL",
-    "comment": "Accepted to the ACL2025-main",
-    "pdf_url": "http://arxiv.org/pdf/2503.04807v3",
+    "comment": "10 pages",
+    "pdf_url": "http://arxiv.org/pdf/2503.04807v2",
     "published_date": "2025-03-04 02:04:58 UTC",
-    "updated_date": "2025-05-16 02:19:00 UTC"
+    "updated_date": "2025-03-11 07:10:07 UTC"
   },
   {
     "arxiv_id": "2503.10649v1",
@@ -2938,7 +2896,7 @@
     "updated_date": "2025-03-04 01:40:24 UTC"
   },
   {
-    "arxiv_id": "2503.02175v2",
+    "arxiv_id": "2503.02175v1",
     "title": "DivPrune: Diversity-based Visual Token Pruning for Large Multimodal Models",
     "authors": [
       "Saeed Ranjbar Alvar",
@@ -2953,10 +2911,10 @@
       "cs.LG"
     ],
     "primary_category": "cs.CV",
-    "comment": "Accepted to CVPR 2025",
-    "pdf_url": "http://arxiv.org/pdf/2503.02175v2",
+    "comment": "",
+    "pdf_url": "http://arxiv.org/pdf/2503.02175v1",
     "published_date": "2025-03-04 01:33:14 UTC",
-    "updated_date": "2025-04-01 19:02:04 UTC"
+    "updated_date": "2025-03-04 01:33:14 UTC"
   },
   {
     "arxiv_id": "2503.02174v1",
