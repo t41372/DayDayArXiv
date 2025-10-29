@@ -33,18 +33,34 @@ from prompts.daily_summary_prompt import (
 
 
 class RateLimiter:
-    """Rate limiter for API calls"""
+    """
+    Rate limiter for API calls implementing traffic shaping (smooth request distribution)
+    
+    This class ensures that API requests are evenly distributed over time rather than sent
+    in bursts, which is more respectful to API providers and helps avoid rate limit triggers.
+    
+    The mechanism works as follows:
+    1. Each request must wait at least `interval` seconds since the last request
+    2. Multiple concurrent tasks coordinate through a shared lock
+    3. This creates a "smooth" request pattern rather than "burst" patterns
+    
+    Example: With rpm=300, interval=0.2s, so requests are spaced 0.2s apart regardless
+    of how many concurrent tasks are waiting.
+    """
 
     def __init__(self, rpm: int = 20):
         """
         Initialize the rate limiter
 
         Args:
-            rpm: Requests per minute
+            rpm: Requests per minute (will be smoothly distributed)
         """
         self.rpm = rpm
-        self.interval = 60.0 / rpm  # seconds per request
+        self.interval = 60.0 / rpm  # seconds per request - this creates the smooth spacing
         self.last_request_time = 0.0
+        # Critical: This lock ensures only one task can "reserve" a time slot at once
+        # Without this lock, multiple tasks arriving simultaneously would all see the
+        # same last_request_time and proceed together, violating the rate limit
         self.lock = asyncio.Lock()
 
     async def wait_for_capacity(self) -> None:

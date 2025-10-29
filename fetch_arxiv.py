@@ -275,13 +275,15 @@ async def process_single_paper(llm: AsyncLLM, paper: RawPaper, task_manager: Tas
         logger.success(f"Successfully processed paper [{arxiv_id}] with LLM: {paper.title}")
 
         # Create processed Paper object with task status
+        # At this point, both title_zh_raw and tldr_zh_raw are guaranteed to be non-None strings
+        # because we've validated them above and would have raised an exception if they were None or empty
         processed_paper = Paper(
             arxiv_id=arxiv_id,
             title=paper.title,
-            title_zh=title_zh_raw, # Use the validated, non-empty results
+            title_zh=title_zh_raw or "",  # Fallback to empty string (though this shouldn't happen after validation)
             authors=paper.authors,
             abstract=paper.abstract,
-            tldr_zh=tldr_zh_raw, # Use the validated, non-empty results
+            tldr_zh=tldr_zh_raw or "",  # Fallback to empty string (though this shouldn't happen after validation) 
             categories=paper.categories,
             primary_category=paper.primary_category,
             comment=paper.comment,
@@ -326,14 +328,32 @@ async def process_papers_batch(
     concurrency_limit: int = 3,
 ) -> Tuple[List[Paper], List[RawPaper]]:
     """
-    Process papers in batches with concurrency control
+    Process papers in batches with concurrency control and rate limiting
+    
+    This function implements a two-tier concurrency control system:
+    
+    1. **Batch Processing**: Papers are processed in groups of `batch_size` to provide
+       progress feedback and allow for memory management in large datasets.
+       
+    2. **Concurrency Control**: Within each batch, at most `concurrency_limit` papers
+       are processed simultaneously using asyncio.Semaphore. This prevents resource
+       exhaustion and overwhelming downstream services.
+       
+    3. **Rate Limiting**: Each concurrent task respects the global RateLimiter in the
+       AsyncLLM client, which ensures the total API request rate across all concurrent
+       tasks doesn't exceed the configured RPM.
+       
+    The interaction works as follows:
+    - Semaphore controls "how many workers" (max concurrent tasks)
+    - RateLimiter controls "how fast the assembly line moves" (request spacing)
+    - This creates smooth, controlled load on the API while maintaining parallelism
 
     Args:
-        llm: The LLM client
+        llm: The LLM client with built-in rate limiting
         papers: Dict of RawPaper objects keyed by arxiv_id
         task_manager: Task manager for state tracking
-        batch_size: Number of papers to process per batch
-        concurrency_limit: Maximum number of concurrent processing tasks
+        batch_size: Number of papers to process per batch (for progress reporting)
+        concurrency_limit: Maximum number of concurrent processing tasks within a batch
 
     Returns:
         Tuple of (processed papers, failed papers)
@@ -363,10 +383,17 @@ async def process_papers_batch(
             f"({len(batch_ids)} papers) - Overall progress: {progress:.1f}%"
         )
 
-        # Create semaphore for concurrency limit
+        # Create semaphore for concurrency limit within this batch
+        # This acts as a "worker pool" - only `concurrency_limit` tasks can be active simultaneously
         semaphore = asyncio.Semaphore(concurrency_limit)
 
         async def process_with_semaphore(paper_id: str) -> Optional[Paper]:
+            """
+            Wrapper function that combines semaphore-based concurrency control
+            with the paper processing logic. Each task must acquire the semaphore
+            before proceeding, and the RateLimiter inside process_single_paper
+            will further control the actual API request timing.
+            """
             async with semaphore:
                 return await process_single_paper(llm, papers[paper_id], task_manager)
 
@@ -577,9 +604,17 @@ async def run_day_pipeline(
                 completion_status = verify_pipeline_completion(state)
                 if completion_status["is_complete"]:
                     logger.info(f"Pipeline for {date_str} was already completed successfully. Use --force to rerun.")
+                    if "stats" in completion_status:
+                        stats = completion_status["stats"]
+                        logger.info(f"  Status: {stats['completed']} completed, {stats['failed_permanently']} permanently failed")
                     return True
                 else:
-                    logger.warning(f"Pipeline marked as complete but has issues: {completion_status['issues']}")
+                    logger.warning("Pipeline marked as complete but has issues:")
+                    for issue in completion_status['issues']:
+                        logger.warning(f"  - {issue}")
+                    if "stats" in completion_status:
+                        stats = completion_status["stats"]
+                        logger.info(f"  Current status: {stats['completed']} completed, {stats['pending']} pending, {stats['in_progress']} in progress")
                     if not force_refresh:
                         logger.info("Continuing with processing to resolve issues...")
             else:
@@ -595,17 +630,23 @@ async def run_day_pipeline(
         if not state.raw_papers_fetched or force_refresh:
             raw_papers = await get_arxiv_papers(category, date_str, max_results)
             if not raw_papers:
-                logger.warning(f"No papers found for {category} on {date_str}")
-                # Clean up any created directories or files
-                cleanup_empty_data_dir(date_str, category)
-                # Mark pipeline as completed to avoid repeated processing
-                task_manager.update_pipeline_status(
-                    raw_papers_fetched=True,
-                    summary_generated=True,
-                    daily_data_saved=True,
-                )
+                logger.warning(f"No papers found for {category} on {date_str}. This date is now marked as complete with no data.")
+                
+                # Create a proper "no papers" state instead of marking as completed ambiguously
+                state.raw_papers_fetched = True
+                state.papers_count = 0
+                state.processed_papers_count = 0
+                state.failed_papers_count = 0
+                state.summary = f"在 {date_str} 没有发现 {category} 分类下的新论文。"
+                state.summary_generated = True  # Summary is generated (content is "no papers")
+                state.papers = []
+                state.daily_data_saved = True  # We will save this "empty" state file
+                
+                # Save this explicit "no data" state
+                save_daily_data(state)
+                
                 print(f"\nNo papers were found for category '{category}' on {date_str}.")
-                print("No data files will be created for this date.")
+                print("A data file indicating no papers has been created to prevent future retries.")
                 return True
 
             # Save raw papers
@@ -623,10 +664,20 @@ async def run_day_pipeline(
 
                 # Check for empty file (no papers)
                 if not raw_data:
-                    logger.info(f"Empty raw file found for {category} on {date_str}, cleaning up")
-                    cleanup_empty_data_dir(date_str, category)
+                    logger.info(f"Empty raw file found for {category} on {date_str}")
+                    # Create proper "no papers" state instead of cleaning up
+                    state.raw_papers_fetched = True
+                    state.papers_count = 0
+                    state.processed_papers_count = 0
+                    state.failed_papers_count = 0
+                    state.summary = f"在 {date_str} 没有发现 {category} 分类下的新论文。"
+                    state.summary_generated = True
+                    state.papers = []
+                    state.daily_data_saved = True
+                    
+                    save_daily_data(state)
                     print(f"\nNo papers were found for category '{category}' on {date_str}.")
-                    print("Cleaning up any empty files.")
+                    print("Existing data indicates no papers for this date.")
                     return True
 
                 raw_papers = [RawPaper.model_validate(p) for p in raw_data]
@@ -641,15 +692,20 @@ async def run_day_pipeline(
                 raw_papers = await get_arxiv_papers(category, date_str, max_results)
                 if not raw_papers:
                     logger.warning(f"No papers found for {category} on {date_str}")
-                    # Make sure we don't leave any empty directories
-                    cleanup_empty_data_dir(date_str, category)
-                    task_manager.update_pipeline_status(
-                        raw_papers_fetched=True,
-                        summary_generated=True,
-                        daily_data_saved=True,
-                    )
+                    
+                    # Create proper "no papers" state
+                    state.raw_papers_fetched = True
+                    state.papers_count = 0
+                    state.processed_papers_count = 0
+                    state.failed_papers_count = 0
+                    state.summary = f"在 {date_str} 没有发现 {category} 分类下的新论文。"
+                    state.summary_generated = True
+                    state.papers = []
+                    state.daily_data_saved = True
+                    
+                    save_daily_data(state)
                     print(f"\nNo papers were found for category '{category}' on {date_str}.")
-                    print("No data files will be created for this date.")
+                    print("A data file indicating no papers has been created to prevent future retries.")
                     return True
                 export_raw_papers(raw_papers, category, date_str)
                 task_manager.register_raw_papers([paper.model_dump() for paper in raw_papers])
@@ -804,40 +860,114 @@ def verify_pipeline_completion(state: DailyData) -> dict:
     """
     Verify that a pipeline is truly complete by checking detailed status
     
+    This function provides semantic verification beyond just checking boolean flags.
+    It ensures that the pipeline state is internally consistent and all work is
+    actually complete, not just marked as complete.
+    
     Args:
         state: The DailyData object to verify
         
     Returns:
-        Dict with 'is_complete' boolean and 'issues' list
+        Dict with 'is_complete' boolean and 'issues' list describing any problems
     """
     issues = []
     
-    # Check for papers that should be processed but aren't
+    # Handle the "no papers" case - this is a valid completion state
+    if state.papers_count == 0:
+        if not state.papers:  # Should be empty list
+            # This is a valid "no papers found" state
+            if state.summary and "没有发现" in state.summary:
+                return {"is_complete": True, "issues": []}
+            else:
+                issues.append("No papers found but summary doesn't reflect this state")
+        else:
+            issues.append("Papers count is 0 but papers list is not empty")
+        return {"is_complete": len(issues) == 0, "issues": issues}
+    
+    # For states with papers, verify consistency
     total_papers = state.papers_count
-    processed_count = sum(1 for p in state.papers if p.processing_status == TaskStatus.COMPLETED)
-    failed_count = sum(1 for p in state.papers if p.processing_status == TaskStatus.FAILED)
+    actual_papers_count = len(state.papers)
     
-    # Check if processed + failed count matches the expected count
-    if processed_count + failed_count != total_papers:
-        issues.append(f"Paper count mismatch: {processed_count} processed + {failed_count} failed != {total_papers} total")
+    if actual_papers_count != total_papers:
+        issues.append(f"Paper count mismatch: expected {total_papers}, got {actual_papers_count} papers in list")
     
-    # Check for papers with missing required fields
+    # Count papers by status
+    completed_count = sum(1 for p in state.papers if p.processing_status == TaskStatus.COMPLETED)
+    failed_permanently_count = sum(
+        1 for p in state.papers 
+        if p.processing_status == TaskStatus.FAILED and p.attempts >= p.max_attempts
+    )
+    in_progress_count = sum(1 for p in state.papers if p.processing_status == TaskStatus.IN_PROGRESS)
+    pending_count = sum(1 for p in state.papers if p.processing_status == TaskStatus.PENDING)
+    retrying_count = sum(1 for p in state.papers if p.processing_status == TaskStatus.RETRYING)
+    
+    # Check if there are any unfinished papers
+    unfinished_count = in_progress_count + pending_count + retrying_count
+    potentially_retriable_failed = sum(
+        1 for p in state.papers 
+        if p.processing_status == TaskStatus.FAILED and p.attempts < p.max_attempts
+    )
+    
+    if unfinished_count > 0:
+        issues.append(f"Pipeline marked complete but {unfinished_count} papers are still unfinished")
+    
+    if potentially_retriable_failed > 0:
+        issues.append(f"{potentially_retriable_failed} papers failed but haven't reached max retry limit")
+    
+    # Check for papers marked as completed but missing required fields
     for paper in state.papers:
         if paper.processing_status == TaskStatus.COMPLETED:
-            # Check if all required fields are populated
+            # Check if all required fields are populated for completed papers
             if not paper.title_zh:
-                issues.append(f"Paper {paper.arxiv_id} marked as completed but missing title_zh")
-            if not paper.tldr_zh and "tldr" in paper.completed_steps:
-                issues.append(f"Paper {paper.arxiv_id} marked as completed but missing tldr_zh")
+                issues.append(f"Paper {paper.arxiv_id} marked as completed but missing Chinese title")
+            if not paper.tldr_zh:
+                issues.append(f"Paper {paper.arxiv_id} marked as completed but missing Chinese summary")
     
-    # Check for missing summary if we have papers
-    if processed_count > 0 and state.summary_generated and not state.summary:
-        issues.append("Summary marked as generated but is empty")
+    # Verify summary generation for non-empty datasets
+    if completed_count > 0:
+        if not state.summary_generated:
+            issues.append("Has completed papers but summary not marked as generated")
+        elif not state.summary or state.summary.strip() == "":
+            issues.append("Summary marked as generated but content is empty")
+        elif "快报生成失败" in state.summary:
+            issues.append("Summary generation failed (contains failure message)")
     
-    # Result is complete if no issues found
+    # Check consistency between processed_papers_count and actual completed papers
+    if state.processed_papers_count != completed_count:
+        issues.append(f"Processed papers count mismatch: state says {state.processed_papers_count}, actual completed: {completed_count}")
+    
+    # Check consistency between failed_papers_count and actual failed papers  
+    if state.failed_papers_count != failed_permanently_count:
+        issues.append(f"Failed papers count mismatch: state says {state.failed_papers_count}, actual permanently failed: {failed_permanently_count}")
+    
+    # Final assessment
+    completion_rate = completed_count / total_papers if total_papers > 0 else 1.0
+    
+    # A pipeline is considered complete if:
+    # 1. No unfinished papers remain
+    # 2. No retriable failed papers remain  
+    # 3. Summary is properly generated (for non-empty datasets)
+    # 4. All completed papers have required fields
+    is_truly_complete = (
+        len(issues) == 0 and 
+        unfinished_count == 0 and 
+        potentially_retriable_failed == 0
+    )
+    
+    if not is_truly_complete and completion_rate > 0:
+        logger.info(f"Pipeline completion rate: {completion_rate:.1%} ({completed_count}/{total_papers})")
+    
     return {
-        "is_complete": len(issues) == 0,
-        "issues": issues
+        "is_complete": is_truly_complete,
+        "issues": issues,
+        "completion_rate": completion_rate,
+        "stats": {
+            "completed": completed_count,
+            "failed_permanently": failed_permanently_count,
+            "in_progress": in_progress_count,
+            "pending": pending_count,
+            "retrying": retrying_count,
+        }
     }
 
 async def main() -> int:
@@ -905,6 +1035,45 @@ async def main() -> int:
 
     # Parse arguments
     args = parser.parse_args()
+
+    # Handle environment variables for CI/CD environments
+    # This allows GitHub Actions YAML to be much cleaner
+    if not args.date and os.getenv("DAYDAYARXIV_DATE"):
+        args.date = os.getenv("DAYDAYARXIV_DATE")
+        logger.info(f"Using date from environment variable: {args.date}")
+    
+    if not args.start_date and os.getenv("DAYDAYARXIV_START_DATE"):
+        args.start_date = os.getenv("DAYDAYARXIV_START_DATE")
+        logger.info(f"Using start-date from environment variable: {args.start_date}")
+    
+    if not args.end_date and os.getenv("DAYDAYARXIV_END_DATE"):
+        args.end_date = os.getenv("DAYDAYARXIV_END_DATE")
+        logger.info(f"Using end-date from environment variable: {args.end_date}")
+    
+    if args.category == "cs.AI" and os.getenv("DAYDAYARXIV_CATEGORY"):  # Only override default
+        args.category = os.getenv("DAYDAYARXIV_CATEGORY")
+        logger.info(f"Using category from environment variable: {args.category}")
+    
+    if args.max_results == 1000 and os.getenv("DAYDAYARXIV_MAX_RESULTS"):  # Only override default
+        try:
+            env_max_results = os.getenv("DAYDAYARXIV_MAX_RESULTS")
+            if env_max_results:
+                args.max_results = int(env_max_results)
+                logger.info(f"Using max-results from environment variable: {args.max_results}")
+        except ValueError:
+            logger.warning(f"Invalid DAYDAYARXIV_MAX_RESULTS value: {os.getenv('DAYDAYARXIV_MAX_RESULTS')}")
+    
+    if not args.force and os.getenv("DAYDAYARXIV_FORCE", "").lower() in ("true", "1", "yes"):
+        args.force = True
+        logger.info("Using force flag from environment variable")
+    
+    if args.log_level == "INFO" and os.getenv("DAYDAYARXIV_LOG_LEVEL"):  # Only override default
+        env_log_level = os.getenv("DAYDAYARXIV_LOG_LEVEL")
+        if env_log_level and env_log_level.upper() in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+            args.log_level = env_log_level.upper()
+            logger.info(f"Using log-level from environment variable: {args.log_level}")
+        else:
+            logger.warning(f"Invalid DAYDAYARXIV_LOG_LEVEL value: {os.getenv('DAYDAYARXIV_LOG_LEVEL')}")
 
     # Configure logger
     setup_logger(args.log_level)
@@ -1001,7 +1170,7 @@ async def main() -> int:
                 llm=llm,
                 task_manager=task_manager,
                 date_str=date_str,
-                category=args.category,
+                category=args.category or "cs.AI",  # Ensure category is never None
                 max_results=args.max_results,
                 force_refresh=args.force,
             )
@@ -1010,8 +1179,8 @@ async def main() -> int:
 
             # Small delay between dates
             if len(dates_to_process) > 1 and date_str != dates_to_process[-1]:
-                logger.info("Waiting 5 seconds before processing next date...")
-                await asyncio.sleep(5)
+                logger.info("Waiting 1 second before processing next date...")
+                await asyncio.sleep(1)
 
         except Exception as e:
             logger.error(f"Error processing date {date_str}: {str(e)}", exc_info=True)

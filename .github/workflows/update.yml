@@ -69,31 +69,23 @@ jobs:
       
       - name: Set current date
         id: date
-        run: echo "current_date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        run: |
+          echo "current_date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "start_date_7_days=$(date -d '6 days ago' +'%Y-%m-%d')" >> $GITHUB_OUTPUT
       
       - name: Run fetch_arxiv script (with specified date or date range)
         if: ${{ inputs.date != '' || (inputs.start-date != '' && inputs.end-date != '') }}
-        run: |
-          ARGS=""
-          if [[ "${{ inputs.date }}" != "" ]]; then
-            ARGS="$ARGS --date ${{ inputs.date }}"
-          elif [[ "${{ inputs.start-date }}" != "" && "${{ inputs.end-date }}" != "" ]]; then
-            ARGS="$ARGS --start-date ${{ inputs.start-date }} --end-date ${{ inputs.end-date }}"
-          fi
-          if [[ "${{ inputs.category }}" != "" ]]; then
-            ARGS="$ARGS --category ${{ inputs.category }}"
-          fi
-          if [[ "${{ inputs.max-results }}" != "" ]]; then
-            ARGS="$ARGS --max-results ${{ inputs.max-results }}"
-          fi
-          if [[ "${{ inputs.force }}" == "true" ]]; then
-            ARGS="$ARGS --force"
-          fi
-          if [[ "${{ inputs.log-level }}" != "" ]]; then
-            ARGS="$ARGS --log-level ${{ inputs.log-level }}"
-          fi
-          uv run fetch_arxiv.py $ARGS
+        run: uv run fetch_arxiv.py
         env:
+          # Pass all inputs as environment variables for cleaner YAML
+          DAYDAYARXIV_DATE: ${{ inputs.date }}
+          DAYDAYARXIV_START_DATE: ${{ inputs.start-date }}
+          DAYDAYARXIV_END_DATE: ${{ inputs.end-date }}
+          DAYDAYARXIV_CATEGORY: ${{ inputs.category }}
+          DAYDAYARXIV_MAX_RESULTS: ${{ inputs.max-results }}
+          DAYDAYARXIV_FORCE: ${{ inputs.force }}
+          DAYDAYARXIV_LOG_LEVEL: ${{ inputs.log-level }}
+          # LLM configuration
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
           LLM_MODEL: ${{ secrets.LLM_MODEL }}
@@ -109,43 +101,16 @@ jobs:
       
       - name: Run fetch_arxiv script (for scheduled runs or manual runs without specified dates)
         if: ${{ inputs.date == '' && inputs.start-date == '' }}
-        run: |
-          ARGS=""
-          
-          # For scheduled runs or manual runs without date inputs, process the last 7 days (today UTC + past 6 days)
-          END_DATE_UTC=$(date -u +'%Y-%m-%d')
-          START_DATE_UTC=$(date -u -d '6 days ago' +'%Y-%m-%d')
-          ARGS="$ARGS --start-date $START_DATE_UTC --end-date $END_DATE_UTC"
-
-          # Category
-          if [[ "${{ inputs.category }}" != "" ]]; then
-            ARGS="$ARGS --category ${{ inputs.category }}"
-          else
-            ARGS="$ARGS --category cs.AI" # Default category
-          fi
-          
-          # Max results
-          if [[ "${{ inputs.max-results }}" != "" ]]; then
-            ARGS="$ARGS --max-results ${{ inputs.max-results }}"
-          else
-            ARGS="$ARGS --max-results 1000" # Default from script
-          fi
-          
-          # Log level
-          if [[ "${{ inputs.log-level }}" != "" ]]; then
-            ARGS="$ARGS --log-level ${{ inputs.log-level }}"
-          else
-            ARGS="$ARGS --log-level INFO" # Default from script
-          fi
-          
-          # Force
-          if [[ "${{ inputs.force }}" == "true" ]]; then
-            ARGS="$ARGS --force"
-          fi
-          
-          echo "Running fetch_arxiv.py with ARGS: $ARGS"
-          uv run fetch_arxiv.py $ARGS
+        run: uv run fetch_arxiv.py
         env:
+          # For scheduled runs or manual runs without date inputs, process the last 7 days (today UTC + past 6 days)
+          DAYDAYARXIV_START_DATE: ${{ steps.date.outputs.start_date_7_days }}
+          DAYDAYARXIV_END_DATE: ${{ steps.date.outputs.current_date }}
+          DAYDAYARXIV_CATEGORY: ${{ inputs.category || 'cs.AI' }}
+          DAYDAYARXIV_MAX_RESULTS: ${{ inputs.max-results || '1000' }}
+          DAYDAYARXIV_FORCE: ${{ inputs.force }}
+          DAYDAYARXIV_LOG_LEVEL: ${{ inputs.log-level || 'INFO' }}
+          # LLM configuration
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
           LLM_MODEL: ${{ secrets.LLM_MODEL }}
