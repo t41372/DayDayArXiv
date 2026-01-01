@@ -1,4 +1,4 @@
-"""Backward-compatible entrypoint for the DayDayArXiv pipeline."""
+"""Module entrypoint for python -m daydayarxiv."""
 
 from daydayarxiv.cli import main
 
