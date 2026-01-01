@@ -24,6 +24,46 @@ GitHub action 会调用 python 脚本来生成每天的更新数据。更新数�
 - 前端页面，action 会不断往里面塞 json 文件
 - Python 脚本，被 action 调用来获取数据，处理数据，塞 json 之类的。
 
+## Quickstart（本地开发）
+
+1. 准备配置文件
+```bash
+cp daydayarxiv.toml.example daydayarxiv.toml
+```
+把 `daydayarxiv.toml` 里的三套 LLM（weak / strong / backup）配置补齐，**三者必须是不同供应商**（不同 base_url / api_key / model / rpm）。
+
+2. 安装依赖
+```bash
+uv sync
+```
+
+3. 运行（兼容旧入口）
+```bash
+uv run fetch_arxiv.py --date 2025-03-01
+```
+
+也可以用模块入口：
+```bash
+uv run python -m daydayarxiv --date 2025-03-01
+```
+
+### 配置说明（简版）
+
+- 默认会读取 `daydayarxiv.toml`；也可通过环境变量指定：
+  - `DAYDAYARXIV_CONFIG=/path/to/daydayarxiv.toml`
+- 环境变量会覆盖配置文件（例如 Actions 里直接注入）。
+- Langfuse 默认开启；若本地不需要可设置：
+  - `DAYDAYARXIV_LANGFUSE__ENABLED=false`
+
+### 常见问题 / 故障排查
+
+- 报错 “Langfuse is enabled but ... keys are missing”
+  - 说明开启了 Langfuse 但未配置 key；要么补齐 `LANGFUSE_PUBLIC_KEY/SECRET_KEY`，要么关闭 Langfuse。
+- 报错 “LLM providers must use different base_url...”
+  - 三个 LLM 必须是不同供应商，base_url 不能相同。
+- 生成失败后不再自动发布
+  - 这是预期行为：为了避免 silent fail，关键输出无效时流水线会直接失败并退出。
+
 # DayDayArXiv
 
 A tool to fetch and process arXiv papers with LLM-powered translation and summarization.
@@ -40,7 +80,6 @@ uv run fetch_arxiv.py [options]
 - `--start-date DATE`: Start date for processing a date range (YYYY-MM-DD format)
 - `--end-date DATE`: End date for processing a date range (YYYY-MM-DD format)
 - `--category CATEGORY`: arXiv category to fetch (default: cs.AI)
-- `--rpm N`: Maximum API requests per minute (default: 60)
 - `--max-results N`: Maximum number of papers to fetch (default: 1000)
 - `--force`: Force refresh data even if it exists
 - `--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}`: Set logging level (default: INFO)
@@ -67,9 +106,4 @@ Force refresh existing data:
 uv run fetch_arxiv.py --date 2025-03-01 --force
 ```
 
-Adjust rate limiting:
-```bash
-uv run fetch_arxiv.py --date 2025-03-01 --rpm 30
-```
-
-
+配置与限流建议在 `daydayarxiv.toml` 中完成（见上文 Quickstart）。
