@@ -129,8 +129,11 @@ class Pipeline:
     ) -> list[RawPaper]:
         raw_path = self.paths.raw_path(date_str, category)
         if raw_path.exists() and not force:
-            raw_data = read_json(raw_path)
-            return [RawPaper.model_validate(item) for item in raw_data]
+            try:
+                raw_data = read_json(raw_path)
+                return [RawPaper.model_validate(item) for item in raw_data]
+            except Exception as exc:
+                logger.warning(f"Failed to read cached raw data {raw_path}: {exc}. Refetching.")
 
         papers = await fetch_papers(
             category=category,
@@ -142,14 +145,17 @@ class Pipeline:
 
     async def _process_papers(self, paper_ids: list[str], papers: dict[str, RawPaper]) -> None:
         semaphore = asyncio.Semaphore(self.settings.concurrency)
+        batch_size = self.settings.batch_size if self.settings.batch_size > 0 else len(paper_ids) or 1
 
         async def handle_paper(arxiv_id: str) -> Paper | None:
             async with semaphore:
                 raw = papers[arxiv_id]
                 return await self._process_single_paper(raw)
 
-        tasks = [handle_paper(paper_id) for paper_id in paper_ids]
-        await asyncio.gather(*tasks, return_exceptions=False)
+        for start in range(0, len(paper_ids), batch_size):
+            batch = paper_ids[start : start + batch_size]
+            tasks = [handle_paper(paper_id) for paper_id in batch]
+            await asyncio.gather(*tasks, return_exceptions=False)
 
     async def _process_single_paper(self, paper: RawPaper) -> Paper | None:
         arxiv_id = paper.arxiv_id

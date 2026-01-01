@@ -185,6 +185,7 @@ class StateManager:
     def _recalculate_counts(self) -> None:
         if not self.current_state:
             return
+        self.current_state.papers_count = len(self.current_state.papers)
         completed = sum(1 for p in self.current_state.papers if p.processing_status == TaskStatus.COMPLETED)
         failed = sum(
             1

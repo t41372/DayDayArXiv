@@ -22,7 +22,7 @@ def validate_paper(paper: Paper, failure_patterns: Iterable[str]) -> list[str]:
 
 def validate_daily_data(data: DailyData, failure_patterns: Iterable[str]) -> list[str]:
     issues: list[str] = []
-    if data.papers_count == 0:
+    if not data.papers:
         if not is_valid_text(data.summary, failure_patterns):
             issues.append("Summary invalid for no-paper day")
         return issues

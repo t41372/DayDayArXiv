@@ -201,6 +201,35 @@ async def test_pipeline_loads_existing_raw(monkeypatch, tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_pipeline_refetch_on_bad_raw(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    output_paths = OutputPaths(settings.data_dir)
+    manager = StateManager(output_paths)
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    raw_path = output_paths.raw_path("2025-01-05", "cs.AI")
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("not-json", encoding="utf-8")
+
+    called = {"count": 0}
+
+    async def _fetch(*_args, **_kwargs):
+        called["count"] += 1
+        return [_raw_paper()]
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-05",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is True
+    assert called["count"] == 1
+
+
+@pytest.mark.asyncio
 async def test_pipeline_success(monkeypatch, tmp_path):
     settings = _settings(tmp_path)
     manager = StateManager(OutputPaths(settings.data_dir))

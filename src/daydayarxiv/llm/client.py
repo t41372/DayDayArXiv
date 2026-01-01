@@ -200,8 +200,6 @@ class LLMClient:
         temperature: float,
     ) -> str:
         langfuse_context.update_current_trace(session_id=self.session_id)
-        await provider.rate_limiter.wait()
-
         async for attempt in AsyncRetrying(
             stop=stop_after_attempt(provider.settings.max_retries + 1),
             wait=wait_exponential_jitter(initial=1, max=30),
@@ -209,6 +207,7 @@ class LLMClient:
             reraise=True,
         ):
             with attempt:
+                await provider.rate_limiter.wait()
                 try:
                     response = await provider.client.chat.completions.create(
                         model=model,
