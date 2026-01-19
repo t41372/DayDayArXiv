@@ -8,7 +8,7 @@ export interface Paper {
   categories: string[]
   primary_category: string
   comment: string
-  pdfUrl?: string
+  pdf_url?: string
   published_date: string
   updated_date: string
 }
@@ -20,3 +20,9 @@ export interface DailyData {
   papers: Paper[]
 }
 
+export interface DataIndex {
+  available_dates: string[]
+  categories: string[]
+  by_date: Record<string, string[]>
+  last_updated?: string
+}

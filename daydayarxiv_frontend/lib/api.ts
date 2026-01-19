@@ -1,10 +1,10 @@
-import type { DailyData } from "./types"
+import type { DailyData, DataIndex } from "./types"
 import { format } from "date-fns"
-import { 
+import {
   getCachedData, 
-  cacheData, 
-  getCachedAvailableDates, 
-  cacheAvailableDates,
+  cacheData,
+  getCachedIndex,
+  cacheIndex,
   initCache
 } from "./dataCache"
 
@@ -65,74 +65,68 @@ export async function fetchDailyData(date: Date, category: string): Promise<Dail
 }
 
 // Function to get available dates (would check which JSON files exist)
-export async function getAvailableDates(): Promise<Date[]> {
+export async function getAvailableIndex(): Promise<DataIndex | null> {
   try {
     // First check if we have this data in cache
     if (typeof window !== 'undefined') {
-      const cachedDates = await getCachedAvailableDates();
-      if (cachedDates) {
-        console.log('Using cached available dates');
-        return cachedDates;
+      const cachedIndex = await getCachedIndex();
+      if (cachedIndex) {
+        console.log('Using cached available index');
+        return cachedIndex;
       }
     }
     
-    // Not in cache, use the known static dates
-    // In a production environment, we would fetch this from an API endpoint
-    // or from a pre-generated index file
-    const dates = [
-      new Date("2025-03-13"),
-      new Date("2025-03-14")
-    ];
+    const response = await fetch(`/data/index.json`, { cache: 'no-store' });
+    if (!response.ok) {
+      console.error('No index.json available');
+      return null;
+    }
+    const index = (await response.json()) as DataIndex;
     
-    // Cache the dates
+    // Cache the index
     if (typeof window !== 'undefined') {
-      await cacheAvailableDates(dates)
-        .catch(err => console.error('Failed to cache available dates:', err));
+      await cacheIndex(index)
+        .catch(err => console.error('Failed to cache available index:', err));
     }
     
-    return dates;
+    return index;
   } catch (error) {
-    console.error("Error in getAvailableDates:", error);
-    
-    // Fallback to known dates
-    return [
-      new Date("2025-03-13"),
-      new Date("2025-03-14")
-    ];
+    console.error("Error in getAvailableIndex:", error);
+    return null;
   }
+}
+
+export async function getAvailableDates(category?: string): Promise<Date[]> {
+  const index = await getAvailableIndex();
+  if (!index) {
+    return [];
+  }
+  const availableDates = category
+    ? index.available_dates.filter((dateStr) => index.by_date[dateStr]?.includes(category))
+    : index.available_dates;
+  return availableDates.map((dateStr) => new Date(dateStr));
 }
 
 // Function to check if data exists for a specific date and category
 export async function dataExists(date: Date, category: string): Promise<boolean> {
   try {
-    // First check if we have this data in cache
     if (typeof window !== 'undefined') {
       const cachedData = await getCachedData(date, category);
       if (cachedData) {
         return true;
       }
     }
-    
-    // Not in cache, check if it exists on the server
+
     const dateStr = format(date, "yyyy-MM-dd");
-    const response = await fetch(`/data/${dateStr}/${category}.json`, { method: 'HEAD' });
-    
-    // If exists, cache that information
-    if (response.ok && typeof window !== 'undefined') {
-      // We don't cache the actual data here (just doing a HEAD request)
-      // The actual data will be cached when fetchDailyData is called
-      const availableDates = await getAvailableDates();
-      if (!availableDates.some(d => format(d, "yyyy-MM-dd") === dateStr)) {
-        availableDates.push(date);
-        await cacheAvailableDates(availableDates)
-          .catch(err => console.error('Failed to update available dates cache:', err));
-      }
+    const index = await getAvailableIndex();
+    if (index) {
+      return index.by_date[dateStr]?.includes(category) ?? false;
     }
-    
+
+    const response = await fetch(`/data/${dateStr}/${category}.json`, { method: 'GET' });
     return response.ok;
   } catch (error) {
     console.error("Error checking data existence:", error);
     return false;
   }
 }
-

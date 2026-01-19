@@ -40,7 +40,12 @@ def _parse_args() -> argparse.Namespace:
 
     parser.add_argument("--category", type=str, help="arXiv category (default from settings)")
     parser.add_argument("--max-results", type=int, help="Maximum number of papers to fetch")
-    parser.add_argument("--force", action="store_true", help="Force refresh existing data")
+    parser.add_argument(
+        "--force",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Force refresh existing data",
+    )
     parser.add_argument("--log-level", type=str, help="Override log level")
 
     return parser.parse_args()
@@ -70,8 +75,8 @@ def _resolve_dates(args: argparse.Namespace) -> list[str]:
 def _build_run_config(args: argparse.Namespace, settings: Settings) -> RunConfig:
     dates = ensure_unique_dates(_resolve_dates(args))
     category = args.category or settings.category
-    max_results = args.max_results or settings.max_results
-    force = args.force or settings.force
+    max_results = args.max_results if args.max_results is not None else settings.max_results
+    force = args.force if args.force is not None else settings.force
     return RunConfig(dates=dates, category=category, max_results=max_results, force=force)
 
 
@@ -81,10 +86,10 @@ def _apply_cli_overrides(args: argparse.Namespace, settings: Settings) -> Settin
         updates["log_level"] = args.log_level
     if args.category:
         updates["category"] = args.category
-    if args.max_results:
+    if args.max_results is not None:
         updates["max_results"] = args.max_results
-    if args.force:
-        updates["force"] = True
+    if args.force is not None:
+        updates["force"] = args.force
     if updates:
         return settings.model_copy(update=updates)
     return settings

@@ -13,7 +13,7 @@ from daydayarxiv.llm.client import LLMClient
 from daydayarxiv.models import Paper, RawPaper, TaskStatus
 from daydayarxiv.settings import Settings
 from daydayarxiv.state import StateManager
-from daydayarxiv.storage import read_json, write_json_atomic
+from daydayarxiv.storage import read_json, update_data_index, write_json_atomic
 from daydayarxiv.utils import normalize_date_format
 from daydayarxiv.validation import validate_daily_data
 
@@ -80,16 +80,18 @@ class Pipeline:
             state.failed_papers_count = 0
             state.papers = []
             self.state_manager.save()
+            try:
+                update_data_index(self.paths, date_str, category)
+            except Exception as exc:
+                logger.error(f"Failed to update data index: {exc}")
+                return False
             logger.info("No papers found; saved empty daily data.")
             return True
 
         self.state_manager.register_raw_papers(raw_papers, max_attempts=self.settings.paper_max_attempts)
         paper_lookup = {paper.arxiv_id: paper for paper in raw_papers}
 
-        pending_ids = self.state_manager.pending_paper_ids()
-        if pending_ids:
-            logger.info(f"Processing {len(pending_ids)} papers")
-            await self._process_papers(pending_ids, paper_lookup)
+        await self._process_papers(paper_lookup)
 
         completed_papers = self.state_manager.completed_papers()
         failed_papers = self.state_manager.failed_papers()
@@ -117,6 +119,11 @@ class Pipeline:
 
         state.daily_data_saved = True
         self.state_manager.save()
+        try:
+            update_data_index(self.paths, date_str, category)
+        except Exception as exc:
+            logger.error(f"Failed to update data index: {exc}")
+            return False
         logger.success(f"Pipeline completed for {date_str}")
         return True
 
@@ -143,19 +150,26 @@ class Pipeline:
         write_json_atomic(raw_path, [paper.model_dump() for paper in papers])
         return papers
 
-    async def _process_papers(self, paper_ids: list[str], papers: dict[str, RawPaper]) -> None:
+    async def _process_papers(self, papers: dict[str, RawPaper]) -> None:
         semaphore = asyncio.Semaphore(self.settings.concurrency)
-        batch_size = self.settings.batch_size if self.settings.batch_size > 0 else len(paper_ids) or 1
 
         async def handle_paper(arxiv_id: str) -> Paper | None:
             async with semaphore:
                 raw = papers[arxiv_id]
                 return await self._process_single_paper(raw)
 
-        for start in range(0, len(paper_ids), batch_size):
-            batch = paper_ids[start : start + batch_size]
-            tasks = [handle_paper(paper_id) for paper_id in batch]
-            await asyncio.gather(*tasks, return_exceptions=False)
+        while True:
+            pending_ids = self.state_manager.pending_paper_ids()
+            if not pending_ids:
+                return
+            batch_size = (
+                self.settings.batch_size if self.settings.batch_size > 0 else len(pending_ids) or 1
+            )
+            logger.info(f"Processing {len(pending_ids)} papers")
+            for start in range(0, len(pending_ids), batch_size):
+                batch = pending_ids[start : start + batch_size]
+                tasks = [handle_paper(paper_id) for paper_id in batch]
+                await asyncio.gather(*tasks, return_exceptions=False)
 
     async def _process_single_paper(self, paper: RawPaper) -> Paper | None:
         arxiv_id = paper.arxiv_id

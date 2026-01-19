@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
@@ -86,3 +86,21 @@ class DailyData(BaseModel):
     @field_serializer("last_update")
     def _serialize_last_update(self, value: datetime | None) -> str | None:
         return value.isoformat() if value else None
+
+
+class DataIndex(BaseModel):
+    """Index of available daily data files."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    available_dates: list[str] = Field(default_factory=list)
+    categories: list[str] = Field(default_factory=list)
+    by_date: dict[str, list[str]] = Field(default_factory=dict)
+    last_updated: datetime | None = None
+
+    @field_serializer("last_updated")
+    def _serialize_last_updated(self, value: datetime | None) -> str | None:
+        return value.isoformat() if value else None
+
+    def touch(self) -> None:
+        self.last_updated = datetime.now(UTC)

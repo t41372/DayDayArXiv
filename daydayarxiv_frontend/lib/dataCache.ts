@@ -1,6 +1,6 @@
 // IndexedDB caching system for arxiv data files
 import { format } from 'date-fns';
-import type { DailyData } from './types';
+import type { DailyData, DataIndex } from './types';
 
 const DB_NAME = 'daydayarxivCache';
 const DATA_STORE_NAME = 'dataCache';
@@ -16,8 +16,7 @@ interface CacheEntry {
 }
 
 interface MetaEntry {
-  availableDates: string[];
-  categories: string[];
+  index: DataIndex;
   lastUpdated: number;
 }
 
@@ -118,19 +117,17 @@ export async function getCachedData(date: Date, category: string): Promise<Daily
 }
 
 // Cache available dates metadata
-export async function cacheAvailableDates(dates: Date[], categories: string[] = ['cs.AI']): Promise<void> {
+export async function cacheIndex(index: DataIndex): Promise<void> {
   try {
     const db = await openDB();
     const transaction = db.transaction(META_STORE_NAME, 'readwrite');
     const store = transaction.objectStore(META_STORE_NAME);
-    
-    const dateStrings = dates.map(date => format(date, 'yyyy-MM-dd'));
+
     const entry: MetaEntry = {
-      availableDates: dateStrings,
-      categories,
+      index,
       lastUpdated: Date.now(),
     };
-    
+
     store.put(entry, 'metadata');
     
     return new Promise((resolve, reject) => {
@@ -143,8 +140,7 @@ export async function cacheAvailableDates(dates: Date[], categories: string[] = 
   }
 }
 
-// Get cached available dates
-export async function getCachedAvailableDates(): Promise<Date[] | null> {
+export async function getCachedIndex(): Promise<DataIndex | null> {
   try {
     const db = await openDB();
     const transaction = db.transaction(META_STORE_NAME, 'readonly');
@@ -167,8 +163,7 @@ export async function getCachedAvailableDates(): Promise<Date[] | null> {
           return;
         }
         
-        const dates = entry.availableDates.map(dateStr => new Date(dateStr));
-        resolve(dates);
+        resolve(entry.index);
       };
       
       request.onerror = () => reject(new Error('Error retrieving cached metadata'));
@@ -177,6 +172,30 @@ export async function getCachedAvailableDates(): Promise<Date[] | null> {
     console.error('Cache metadata retrieval error:', error);
     return null;
   }
+}
+
+// Cache available dates metadata (legacy helper)
+export async function cacheAvailableDates(dates: Date[], categories: string[] = ['cs.AI']): Promise<void> {
+  const dateStrings = dates.map(date => format(date, 'yyyy-MM-dd'));
+  const byDate: Record<string, string[]> = {};
+  for (const date of dateStrings) {
+    byDate[date] = [...categories];
+  }
+  await cacheIndex({
+    available_dates: dateStrings,
+    categories,
+    by_date: byDate,
+    last_updated: new Date().toISOString(),
+  });
+}
+
+// Get cached available dates (legacy helper)
+export async function getCachedAvailableDates(): Promise<Date[] | null> {
+  const index = await getCachedIndex();
+  if (!index) {
+    return null;
+  }
+  return index.available_dates.map(dateStr => new Date(dateStr));
 }
 
 // Clear expired cache entries

@@ -82,3 +82,15 @@ def test_state_register_skips_duplicates(tmp_path):
     manager.register_raw_papers([raw], max_attempts=1)
     assert manager.current_state is not None
     assert len(manager.current_state.papers) == 1
+
+
+def test_state_pending_converts_in_progress(tmp_path):
+    manager = StateManager(OutputPaths(tmp_path))
+    manager.load("2025-01-01", "cs.AI")
+    manager.register_raw_papers([_raw_paper("id1")], max_attempts=2)
+    manager.update_paper("id1", status=TaskStatus.IN_PROGRESS)
+
+    pending = manager.pending_paper_ids()
+    assert "id1" in pending
+    paper = next(p for p in manager.current_state.papers if p.arxiv_id == "id1")
+    assert paper.processing_status == TaskStatus.RETRYING

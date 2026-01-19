@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import {
   format,
@@ -16,11 +16,8 @@ import {
   endOfWeek,
   isAfter,
   startOfDay,
-  subDays,
-  isBefore,
 } from "date-fns"
 import { cn } from "@/lib/utils"
-import { dataExists } from "@/lib/api"
 
 interface CalendarProps {
   selectedDate: Date
@@ -35,38 +32,6 @@ export default function Calendar({ selectedDate, onDateChange, availableDates }:
   const today = startOfDay(new Date())
   const days = ["一", "二", "三", "四", "五", "六", "日"]
 
-  // Check for the latest available date on component mount
-  useEffect(() => {
-    async function findLatestAvailableDate() {
-      // Start from today and go backwards
-      let checkDate = startOfDay(new Date());
-      let daysChecked = 0;
-      const category = "cs.AI"; // Default category
-      
-      // Only try to find data if we're using today as the default date
-      if (isSameDay(selectedDate, today)) {
-        // Check up to 30 days back
-        while (daysChecked < 30) {
-          // Don't check future dates
-          if (!isAfter(checkDate, today)) {
-            const hasData = await dataExists(checkDate, category);
-            if (hasData) {
-              // Found the latest date with data
-              onDateChange(checkDate);
-              setCurrentMonth(checkDate);
-              break;
-            }
-          }
-          
-          // Move one day back
-          checkDate = subDays(checkDate, 1);
-          daysChecked++;
-        }
-      }
-    }
-    
-    findLatestAvailableDate();
-  }, []);
 
   const handlePreviousMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1))
@@ -194,4 +159,8 @@ export default function Calendar({ selectedDate, onDateChange, availableDates }:
     </div>
   )
 }
-
+  useEffect(() => {
+    if (!isSameMonth(selectedDate, currentMonth)) {
+      setCurrentMonth(selectedDate)
+    }
+  }, [currentMonth, selectedDate])

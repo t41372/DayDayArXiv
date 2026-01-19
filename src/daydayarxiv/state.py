@@ -159,7 +159,10 @@ class StateManager:
 
         pending: list[str] = []
         for paper in self.current_state.papers:
-            if paper.processing_status in {TaskStatus.PENDING, TaskStatus.IN_PROGRESS, TaskStatus.RETRYING}:
+            if paper.processing_status == TaskStatus.IN_PROGRESS:
+                paper.processing_status = TaskStatus.RETRYING
+                pending.append(paper.arxiv_id)
+            elif paper.processing_status in {TaskStatus.PENDING, TaskStatus.RETRYING}:
                 pending.append(paper.arxiv_id)
             elif paper.processing_status == TaskStatus.FAILED and paper.attempts < paper.max_attempts:
                 paper.processing_status = TaskStatus.RETRYING

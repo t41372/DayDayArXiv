@@ -28,6 +28,18 @@ class DummyLLM:
         return self.summary
 
 
+class FlakyLLM(DummyLLM):
+    def __init__(self) -> None:
+        super().__init__()
+        self._failed_once = False
+
+    async def translate_title(self, title: str, abstract: str) -> str:
+        if not self._failed_once:
+            self._failed_once = True
+            raise RuntimeError("LLM error")
+        return "标题"
+
+
 def _settings(tmp_path, *, paper_max_attempts: int = 2) -> Settings:
     base = {
         "base_url": "https://weak.local",
@@ -85,6 +97,31 @@ async def test_pipeline_no_papers(monkeypatch, tmp_path):
         force=False,
     )
     assert ok is True
+
+
+@pytest.mark.asyncio
+async def test_pipeline_no_papers_index_failure(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        return []
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    def _raise_index(*_args, **_kwargs):
+        raise RuntimeError("index error")
+
+    monkeypatch.setattr("daydayarxiv.pipeline.update_data_index", _raise_index)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-01",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is False
 
 
 def test_export_prompt_includes_fields():
@@ -173,6 +210,52 @@ async def test_pipeline_failed_papers(monkeypatch, tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_pipeline_incomplete_processing(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        return [_raw_paper()]
+
+    async def _noop(*_args, **_kwargs):
+        return None
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+    monkeypatch.setattr(Pipeline, "_process_papers", _noop)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-07",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is False
+
+
+@pytest.mark.asyncio
+async def test_pipeline_retries_within_run(monkeypatch, tmp_path):
+    settings = _settings(tmp_path, paper_max_attempts=2)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, FlakyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        return [_raw_paper()]
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-06",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is True
+    output = read_json(OutputPaths(settings.data_dir).daily_path("2025-01-06", "cs.AI"))
+    assert output["papers"][0]["attempts"] == 2
+
+
+@pytest.mark.asyncio
 async def test_pipeline_loads_existing_raw(monkeypatch, tmp_path):
     settings = _settings(tmp_path)
     output_paths = OutputPaths(settings.data_dir)
@@ -249,6 +332,30 @@ async def test_pipeline_success(monkeypatch, tmp_path):
     assert ok is True
     output = read_json(OutputPaths(settings.data_dir).daily_path("2025-01-01", "cs.AI"))
     assert output["papers"][0]["title_zh"] == "标题"
+
+
+@pytest.mark.asyncio
+async def test_pipeline_index_update_failure(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        return [_raw_paper()]
+
+    def _raise_index(*_args, **_kwargs):
+        raise RuntimeError("index error")
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+    monkeypatch.setattr("daydayarxiv.pipeline.update_data_index", _raise_index)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-08",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is False
 
 
 @pytest.mark.asyncio

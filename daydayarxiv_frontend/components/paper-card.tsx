@@ -45,7 +45,7 @@ export default function PaperCard({ paper }: PaperCardProps) {
           alphaXiv
         </a>
         <a
-          href={`https://arxiv.org/pdf/${paper.arxiv_id}.pdf`}
+          href={paper.pdf_url ?? `https://arxiv.org/pdf/${paper.arxiv_id}.pdf`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center text-blue-600 hover:underline"
@@ -57,4 +57,3 @@ export default function PaperCard({ paper }: PaperCardProps) {
     </div>
   )
 }
-
