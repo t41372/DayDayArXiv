@@ -30,7 +30,7 @@ GitHub action 会调用 python 脚本来生成每天的更新数据。更新数�
 ```bash
 cp daydayarxiv.toml.example daydayarxiv.toml
 ```
-把 `daydayarxiv.toml` 里的 LLM 配置补齐：`weak` / `strong` 必填，`backup` 可选（不配置则不走 fallback）。若配置了多个 provider，**默认要求不同供应商**（不同 base_url / api_key / model / rpm）。
+把 `daydayarxiv.toml` 里的 LLM 配置补齐：`weak` / `strong` 必填，`backup` 可选（不配置则不走 fallback）。**base_url 可以相同**，不会强制要求不同供应商。
 
 2. 安装依赖（会安装当前项目本体）
 ```bash

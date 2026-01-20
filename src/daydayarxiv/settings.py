@@ -96,25 +96,11 @@ class Settings(BaseSettings):
 
     failure_patterns: list[str] = Field(default_factory=lambda: ["翻译失败", "生成失败", "快报生成失败"])
 
-    allow_shared_providers: bool = False
-
     llm: LLMSettings
     langfuse: LangfuseSettings = LangfuseSettings()
 
     @model_validator(mode="after")
     def _validate_provider_uniqueness(self) -> Settings:
-        if not self.allow_shared_providers:
-            base_urls = {
-                "weak": self.llm.weak.base_url,
-                "strong": self.llm.strong.base_url,
-            }
-            if self.llm.backup:
-                base_urls["backup"] = self.llm.backup.base_url
-            unique_urls = set(base_urls.values())
-            if len(unique_urls) != len(base_urls):
-                raise ValueError(
-                    "LLM providers must use different base_url values (set allow_shared_providers=true to override)"
-                )
         if self.langfuse.enabled and not self.langfuse.is_configured():
             raise ValueError("Langfuse is enabled but LANGFUSE_PUBLIC_KEY/SECRET_KEY are missing")
         return self

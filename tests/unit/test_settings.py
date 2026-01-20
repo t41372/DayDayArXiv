@@ -65,13 +65,13 @@ def test_load_settings_success(monkeypatch, tmp_path):
     assert settings.llm.backup.base_url == "https://backup.local"
 
 
-def test_settings_requires_unique_base_urls(monkeypatch, tmp_path):
+def test_settings_allows_shared_base_urls(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
-    _set_required_env(monkeypatch)
+    _set_required_env(monkeypatch, include_backup=False)
     monkeypatch.setenv("DAYDAYARXIV_LLM__STRONG__BASE_URL", "https://weak.local")
     monkeypatch.setenv("DAYDAYARXIV_LANGFUSE__ENABLED", "false")
-    with pytest.raises(ValidationError):
-        Settings()
+    settings = Settings()
+    assert settings.llm.strong.base_url == "https://weak.local"
 
 
 def test_settings_legacy_env_mapping(monkeypatch, tmp_path):
@@ -100,7 +100,6 @@ def test_settings_toml_loading(monkeypatch, tmp_path):
         textwrap.dedent(
             """
             category = "cs.CL"
-            allow_shared_providers = true
             [llm.weak]
             base_url = "https://weak.local"
             api_key = "weak-key"
@@ -125,17 +124,16 @@ def test_settings_toml_loading(monkeypatch, tmp_path):
     monkeypatch.setenv("DAYDAYARXIV_CONFIG", str(config_path))
     settings = Settings()
     assert settings.category == "cs.CL"
-    assert settings.allow_shared_providers is True
     assert settings.llm.backup.base_url == "https://backup.local"
 
 
-def test_load_settings_invalid_config(monkeypatch, tmp_path):
+def test_load_settings_allows_shared_base_urls(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
-    _set_required_env(monkeypatch)
+    _set_required_env(monkeypatch, include_backup=False)
     monkeypatch.setenv("DAYDAYARXIV_LLM__STRONG__BASE_URL", "https://weak.local")
     monkeypatch.setenv("DAYDAYARXIV_LANGFUSE__ENABLED", "false")
-    with pytest.raises(SystemExit):
-        load_settings()
+    settings = load_settings()
+    assert settings.llm.strong.base_url == "https://weak.local"
 
 
 def test_coerce_helpers():
