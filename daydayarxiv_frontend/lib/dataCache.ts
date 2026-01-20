@@ -1,6 +1,7 @@
 // IndexedDB caching system for arxiv data files
 import { format } from 'date-fns';
 import type { DailyData, DataIndex } from './types';
+import { parseLocalDate } from './utils';
 
 const DB_NAME = 'daydayarxivCache';
 const DATA_STORE_NAME = 'dataCache';
@@ -195,7 +196,7 @@ export async function getCachedAvailableDates(): Promise<Date[] | null> {
   if (!index) {
     return null;
   }
-  return index.available_dates.map(dateStr => new Date(dateStr));
+  return index.available_dates.map(dateStr => parseLocalDate(dateStr));
 }
 
 // Clear expired cache entries

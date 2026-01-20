@@ -7,6 +7,7 @@ import {
   cacheIndex,
   initCache
 } from "./dataCache"
+import { parseLocalDate } from "./utils"
 
 // Initialize cache when this module is imported
 if (typeof window !== 'undefined') {
@@ -104,7 +105,7 @@ export async function getAvailableDates(category?: string): Promise<Date[]> {
   const availableDates = category
     ? index.available_dates.filter((dateStr) => index.by_date[dateStr]?.includes(category))
     : index.available_dates;
-  return availableDates.map((dateStr) => new Date(dateStr));
+  return availableDates.map((dateStr) => parseLocalDate(dateStr));
 }
 
 // Function to check if data exists for a specific date and category

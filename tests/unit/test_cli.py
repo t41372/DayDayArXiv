@@ -15,7 +15,7 @@ class DummyPipeline:
         return True
 
 
-def _settings(tmp_path) -> Settings:
+def _settings(tmp_path, *, fail_on_error: bool = False) -> Settings:
     base = {
         "base_url": "https://weak.local",
         "api_key": "key",
@@ -27,6 +27,7 @@ def _settings(tmp_path) -> Settings:
         "data_dir": tmp_path,
         "log_dir": tmp_path / "logs",
         "category": "cs.AI",
+        "fail_on_error": fail_on_error,
         "llm": {
             "weak": base,
             "strong": {**base, "base_url": "https://strong.local"},
@@ -82,7 +83,7 @@ def test_main_success(monkeypatch, tmp_path):
 
 
 def test_main_failure(monkeypatch, tmp_path):
-    settings = _settings(tmp_path)
+    settings = _settings(tmp_path, fail_on_error=True)
 
     class FailingPipeline(DummyPipeline):
         async def run_for_date(self, *args, **kwargs):
@@ -98,7 +99,7 @@ def test_main_failure(monkeypatch, tmp_path):
 
 
 def test_main_exception(monkeypatch, tmp_path):
-    settings = _settings(tmp_path)
+    settings = _settings(tmp_path, fail_on_error=True)
 
     class ErrorPipeline(DummyPipeline):
         async def run_for_date(self, *args, **kwargs):
@@ -114,7 +115,7 @@ def test_main_exception(monkeypatch, tmp_path):
 
 
 def test_main_partial_success(monkeypatch, tmp_path):
-    settings = _settings(tmp_path)
+    settings = _settings(tmp_path, fail_on_error=True)
     call_state = {"count": 0, "slept": 0}
 
     class PartialPipeline(DummyPipeline):
@@ -164,6 +165,7 @@ def test_apply_cli_overrides(tmp_path):
         category="cs.CL",
         max_results=5,
         force=True,
+        fail_on_error=True,
         date=None,
         start_date=None,
         end_date=None,
@@ -173,3 +175,4 @@ def test_apply_cli_overrides(tmp_path):
     assert updated.category == "cs.CL"
     assert updated.max_results == 5
     assert updated.force is True
+    assert updated.fail_on_error is True

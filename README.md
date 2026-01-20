@@ -54,6 +54,8 @@ uv run python -m daydayarxiv --date 2025-03-01
 - 环境变量会覆盖配置文件（例如 Actions 里直接注入）。
 - Langfuse 默认开启；若本地不需要可设置：
   - `DAYDAYARXIV_LANGFUSE__ENABLED=false`
+- 默认遇到失败会标记并等待下次重试；如需严格退出可设置：
+  - `DAYDAYARXIV_FAIL_ON_ERROR=true` 或配置 `fail_on_error = true`
 
 ### 常见问题 / 故障排查
 
@@ -61,8 +63,9 @@ uv run python -m daydayarxiv --date 2025-03-01
   - 说明开启了 Langfuse 但未配置 key；要么补齐 `LANGFUSE_PUBLIC_KEY/SECRET_KEY`，要么关闭 Langfuse。
 - 报错 “LLM providers must use different base_url...”
   - 三个 LLM 必须是不同供应商，base_url 不能相同。
-- 生成失败后不再自动发布
-  - 这是预期行为：为了避免 silent fail，关键输出无效时流水线会直接失败并退出。
+- 生成失败后是否退出
+  - 默认不会退出，会标记失败并等待下次运行自动重试。
+  - 如需严格失败（CI 直接退出），设置 `fail_on_error = true`。
 
 # DayDayArXiv
 

@@ -85,6 +85,7 @@ class Settings(BaseSettings):
     batch_size: int = 10
     force: bool = False
     paper_max_attempts: int = 3
+    fail_on_error: bool = False
 
     failure_patterns: list[str] = Field(default_factory=lambda: ["翻译失败", "生成失败", "快报生成失败"])
 

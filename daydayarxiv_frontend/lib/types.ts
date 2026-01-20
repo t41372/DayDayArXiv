@@ -18,6 +18,8 @@ export interface DailyData {
   category: string
   summary: string
   papers: Paper[]
+  processing_status?: string
+  error?: string
 }
 
 export interface DataIndex {

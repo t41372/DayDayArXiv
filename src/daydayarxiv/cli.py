@@ -46,6 +46,12 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help="Force refresh existing data",
     )
+    parser.add_argument(
+        "--fail-on-error",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Exit non-zero when any date fails",
+    )
     parser.add_argument("--log-level", type=str, help="Override log level")
 
     return parser.parse_args()
@@ -90,6 +96,8 @@ def _apply_cli_overrides(args: argparse.Namespace, settings: Settings) -> Settin
         updates["max_results"] = args.max_results
     if args.force is not None:
         updates["force"] = args.force
+    if args.fail_on_error is not None:
+        updates["fail_on_error"] = args.fail_on_error
     if updates:
         return settings.model_copy(update=updates)
     return settings
@@ -128,7 +136,7 @@ def main() -> int:
                 if ok:
                     success_count += 1
                 else:
-                    logger.error(f"Date {date_str} failed")
+                    logger.error(f"Date {date_str} failed; marked for retry")
             except Exception as exc:
                 logger.error(f"Error processing {date_str}: {exc}")
             if date_str != run_config.dates[-1]:
@@ -139,9 +147,9 @@ def main() -> int:
             return 0
         if success_count > 0:
             logger.warning(f"Completed {success_count}/{len(run_config.dates)} dates")
-            return 1
-        logger.error("All dates failed")
-        return 1
+        else:
+            logger.error("All dates failed")
+        return 1 if settings.fail_on_error else 0
 
     try:
         return asyncio.run(_run())

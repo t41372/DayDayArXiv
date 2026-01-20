@@ -8,7 +8,7 @@ from typing import Any
 
 from loguru import logger
 
-from daydayarxiv.models import DailyData, Paper, RawPaper, TaskStatus
+from daydayarxiv.models import DailyData, DailyStatus, Paper, RawPaper, TaskStatus
 from daydayarxiv.storage import OutputPaths, read_json, write_json_atomic
 
 
@@ -55,6 +55,27 @@ class StateManager:
         self.current_state = state
         self.save()
         return state
+
+    def reset_failed_papers(self) -> int:
+        """Reset papers that exhausted attempts so they can be retried on a new run."""
+        if not self.current_state:
+            logger.error("No current state")
+            return 0
+
+        reset_count = 0
+        for paper in self.current_state.papers:
+            if paper.processing_status == TaskStatus.FAILED and paper.attempts >= paper.max_attempts:
+                paper.processing_status = TaskStatus.RETRYING
+                paper.attempts = 0
+                paper.error = None
+                paper.last_update = datetime.now()
+                reset_count += 1
+
+        if reset_count:
+            self.current_state.processing_status = DailyStatus.IN_PROGRESS
+            self.current_state.error = None
+            self.save()
+        return reset_count
 
     def save(self) -> None:
         if not self.current_state:

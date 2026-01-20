@@ -62,6 +62,7 @@ def test_state_no_current_state(tmp_path):
     assert manager.pending_paper_ids() == []
     assert manager.completed_papers() == []
     assert manager.failed_papers() == []
+    assert manager.reset_failed_papers() == 0
     manager._recalculate_counts()
 
 
@@ -94,3 +95,20 @@ def test_state_pending_converts_in_progress(tmp_path):
     assert "id1" in pending
     paper = next(p for p in manager.current_state.papers if p.arxiv_id == "id1")
     assert paper.processing_status == TaskStatus.RETRYING
+
+
+def test_state_reset_failed_papers(tmp_path):
+    manager = StateManager(OutputPaths(tmp_path))
+    manager.load("2025-01-01", "cs.AI")
+    manager.register_raw_papers([_raw_paper("id1")], max_attempts=1)
+    manager.update_paper("id1", status=TaskStatus.IN_PROGRESS)
+    manager.update_paper("id1", status=TaskStatus.FAILED)
+
+    paper = next(p for p in manager.current_state.papers if p.arxiv_id == "id1")
+    assert paper.attempts == 1
+
+    reset_count = manager.reset_failed_papers()
+    assert reset_count == 1
+    paper = next(p for p in manager.current_state.papers if p.arxiv_id == "id1")
+    assert paper.processing_status == TaskStatus.RETRYING
+    assert paper.attempts == 0

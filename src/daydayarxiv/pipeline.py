@@ -8,9 +8,9 @@ from datetime import datetime
 
 from loguru import logger
 
-from daydayarxiv.arxiv_client import fetch_papers
+from daydayarxiv.arxiv_client import ArxivFetchError, fetch_papers
 from daydayarxiv.llm.client import LLMClient
-from daydayarxiv.models import Paper, RawPaper, TaskStatus
+from daydayarxiv.models import DailyData, DailyStatus, Paper, RawPaper, TaskStatus
 from daydayarxiv.settings import Settings
 from daydayarxiv.state import StateManager
 from daydayarxiv.storage import read_json, update_data_index, write_json_atomic
@@ -65,11 +65,39 @@ class Pipeline:
         if state.daily_data_saved and not force:
             issues = validate_daily_data(state, self.settings.failure_patterns)
             if not issues:
-                logger.info("Existing data is complete; skipping.")
+                if state.processing_status in {DailyStatus.COMPLETED, DailyStatus.NO_PAPERS}:
+                    logger.info("Existing data is complete; skipping.")
+                    return True
+                logger.warning("Existing data complete but not marked successful; retrying index update.")
+                try:
+                    update_data_index(self.paths, date_str, category)
+                except Exception as exc:
+                    self._mark_daily_failure(state, f"Failed to update data index: {exc}", retain_data=True)
+                    return False
+                state.processing_status = DailyStatus.COMPLETED
+                state.error = None
+                self.state_manager.save()
                 return True
             logger.warning(f"Existing data incomplete: {issues}")
 
-        raw_papers = await self._load_or_fetch_raw(date_str, category, max_results, force)
+        if not force and not state.daily_data_saved:
+            reset_count = self.state_manager.reset_failed_papers()
+            if reset_count:
+                logger.info(f"Reset {reset_count} failed papers for retry")
+
+        state.processing_status = DailyStatus.IN_PROGRESS
+        state.error = None
+        self.state_manager.save()
+
+        try:
+            raw_papers = await self._load_or_fetch_raw(date_str, category, max_results, force)
+        except ArxivFetchError as exc:
+            self._mark_daily_failure(state, f"arXiv fetch failed: {exc}")
+            return False
+        except Exception as exc:
+            self._mark_daily_failure(state, f"Failed to load raw papers: {exc}")
+            return False
+
         if not raw_papers:
             state.summary = _build_summary_for_no_papers(date_str, category)
             state.summary_generated = True
@@ -79,11 +107,13 @@ class Pipeline:
             state.processed_papers_count = 0
             state.failed_papers_count = 0
             state.papers = []
+            state.processing_status = DailyStatus.NO_PAPERS
+            state.error = None
             self.state_manager.save()
             try:
                 update_data_index(self.paths, date_str, category)
             except Exception as exc:
-                logger.error(f"Failed to update data index: {exc}")
+                self._mark_daily_failure(state, f"Failed to update data index: {exc}", retain_data=True)
                 return False
             logger.info("No papers found; saved empty daily data.")
             return True
@@ -91,22 +121,32 @@ class Pipeline:
         self.state_manager.register_raw_papers(raw_papers, max_attempts=self.settings.paper_max_attempts)
         paper_lookup = {paper.arxiv_id: paper for paper in raw_papers}
 
-        await self._process_papers(paper_lookup)
+        try:
+            await self._process_papers(paper_lookup)
+        except Exception as exc:
+            self._mark_daily_failure(state, f"Processing error: {exc}")
+            return False
 
         completed_papers = self.state_manager.completed_papers()
         failed_papers = self.state_manager.failed_papers()
 
         if failed_papers:
-            logger.error(f"{len(failed_papers)} papers failed; aborting summary generation")
+            self._mark_daily_failure(state, f"{len(failed_papers)} papers failed; summary skipped")
             return False
 
         if len(completed_papers) != len(raw_papers):
-            logger.error(
-                f"Incomplete processing: {len(completed_papers)}/{len(raw_papers)} completed"
+            self._mark_daily_failure(
+                state,
+                f"Incomplete processing: {len(completed_papers)}/{len(raw_papers)} completed",
             )
             return False
 
-        summary = await self._generate_summary(raw_papers, date_str)
+        try:
+            summary = await self._generate_summary(raw_papers, date_str)
+        except Exception as exc:
+            self._mark_daily_failure(state, f"Summary generation failed: {exc}")
+            return False
+
         state.summary = summary
         state.summary_generated = True
         state.papers = completed_papers
@@ -114,15 +154,17 @@ class Pipeline:
 
         issues = validate_daily_data(state, self.settings.failure_patterns)
         if issues:
-            logger.error(f"Validation failed: {issues}")
+            self._mark_daily_failure(state, f"Validation failed: {issues}")
             return False
 
         state.daily_data_saved = True
+        state.processing_status = DailyStatus.COMPLETED
+        state.error = None
         self.state_manager.save()
         try:
             update_data_index(self.paths, date_str, category)
         except Exception as exc:
-            logger.error(f"Failed to update data index: {exc}")
+            self._mark_daily_failure(state, f"Failed to update data index: {exc}", retain_data=True)
             return False
         logger.success(f"Pipeline completed for {date_str}")
         return True
@@ -206,3 +248,11 @@ class Pipeline:
     async def _generate_summary(self, raw_papers: list[RawPaper], date_str: str) -> str:
         prompt_text = _export_prompt(raw_papers)
         return await self.llm.daily_summary(prompt_text, date_str)
+
+    def _mark_daily_failure(self, state: DailyData, message: str, *, retain_data: bool = False) -> None:
+        state.processing_status = DailyStatus.FAILED
+        state.error = message
+        if not retain_data:
+            state.daily_data_saved = False
+            state.summary_generated = False
+        self.state_manager.save()

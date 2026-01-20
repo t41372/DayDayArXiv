@@ -11,7 +11,6 @@ import {
   isSameDay,
   addMonths,
   subMonths,
-  getDay,
   startOfWeek,
   endOfWeek,
   isAfter,
@@ -49,9 +48,6 @@ export default function Calendar({ selectedDate, onDateChange, availableDates }:
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(currentMonth)
   const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd })
-
-  // Get the start day of the month (0 = Sunday, 1 = Monday, etc.)
-  const startDay = getDay(monthStart)
 
   // Calculate days from previous month to fill the first row
   const prevMonthDays = eachDayOfInterval({
@@ -94,6 +90,12 @@ export default function Calendar({ selectedDate, onDateChange, availableDates }:
     startOfMonth(addMonths(currentMonth, 1)), 
     startOfMonth(today)
   )
+
+  useEffect(() => {
+    if (!isSameMonth(selectedDate, currentMonth)) {
+      setCurrentMonth(selectedDate)
+    }
+  }, [currentMonth, selectedDate])
 
   return (
     <div className="bg-white rounded-lg p-4 shadow-sm border border-black border-opacity-50">
@@ -159,8 +161,3 @@ export default function Calendar({ selectedDate, onDateChange, availableDates }:
     </div>
   )
 }
-  useEffect(() => {
-    if (!isSameMonth(selectedDate, currentMonth)) {
-      setCurrentMonth(selectedDate)
-    }
-  }, [currentMonth, selectedDate])

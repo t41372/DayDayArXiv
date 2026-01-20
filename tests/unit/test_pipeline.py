@@ -2,7 +2,8 @@ from datetime import datetime
 
 import pytest
 
-from daydayarxiv.models import DailyData, Paper, RawPaper, TaskStatus
+from daydayarxiv.arxiv_client import ArxivFetchError
+from daydayarxiv.models import DailyData, DailyStatus, Paper, RawPaper, TaskStatus
 from daydayarxiv.pipeline import Pipeline, _export_prompt
 from daydayarxiv.settings import Settings
 from daydayarxiv.state import StateManager
@@ -97,6 +98,29 @@ async def test_pipeline_no_papers(monkeypatch, tmp_path):
         force=False,
     )
     assert ok is True
+
+
+@pytest.mark.asyncio
+async def test_pipeline_fetch_failure_marks_failed(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        raise ArxivFetchError("boom")
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-01",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is False
+    output = read_json(OutputPaths(settings.data_dir).daily_path("2025-01-01", "cs.AI"))
+    assert output["processing_status"] == "failed"
+    assert output["daily_data_saved"] is False
 
 
 @pytest.mark.asyncio
@@ -426,6 +450,7 @@ async def test_pipeline_skip_existing(monkeypatch, tmp_path):
         papers_count=1,
         summary_generated=True,
         daily_data_saved=True,
+        processing_status=DailyStatus.COMPLETED,
         last_update=datetime.now(),
     )
     output_paths.ensure_dir("2025-01-01")
@@ -448,3 +473,237 @@ async def test_pipeline_skip_existing(monkeypatch, tmp_path):
         force=False,
     )
     assert ok is True
+
+
+@pytest.mark.asyncio
+async def test_pipeline_existing_complete_index_update_failure(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    output_paths = OutputPaths(settings.data_dir)
+    daily = DailyData(
+        date="2025-01-02",
+        category="cs.AI",
+        summary="Summary",
+        papers=[
+            Paper(
+                arxiv_id="id",
+                title="Title",
+                title_zh="标题",
+                authors=["Author"],
+                abstract="Abstract",
+                tldr_zh="摘要",
+                categories=["cs.AI"],
+                primary_category="cs.AI",
+                comment="",
+                pdf_url="https://example.com",
+                published_date="2025-01-02 00:00:00 UTC",
+                updated_date="2025-01-02 00:00:00 UTC",
+                processing_status=TaskStatus.COMPLETED,
+            )
+        ],
+        papers_count=1,
+        summary_generated=True,
+        daily_data_saved=True,
+        last_update=datetime.now(),
+    )
+    output_paths.ensure_dir("2025-01-02")
+    from daydayarxiv.storage import write_json_atomic
+
+    write_json_atomic(output_paths.daily_path("2025-01-02", "cs.AI"), daily.model_dump(mode="json"))
+
+    manager = StateManager(output_paths)
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        raise AssertionError("fetch_papers should not be called")
+
+    def _raise_index(*_args, **_kwargs):
+        raise RuntimeError("index error")
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+    monkeypatch.setattr("daydayarxiv.pipeline.update_data_index", _raise_index)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-02",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is False
+    output = read_json(output_paths.daily_path("2025-01-02", "cs.AI"))
+    assert output["processing_status"] == "failed"
+
+
+@pytest.mark.asyncio
+async def test_pipeline_existing_complete_marks_success(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    output_paths = OutputPaths(settings.data_dir)
+    daily = DailyData(
+        date="2025-01-02",
+        category="cs.AI",
+        summary="Summary",
+        papers=[
+            Paper(
+                arxiv_id="id",
+                title="Title",
+                title_zh="标题",
+                authors=["Author"],
+                abstract="Abstract",
+                tldr_zh="摘要",
+                categories=["cs.AI"],
+                primary_category="cs.AI",
+                comment="",
+                pdf_url="https://example.com",
+                published_date="2025-01-02 00:00:00 UTC",
+                updated_date="2025-01-02 00:00:00 UTC",
+                processing_status=TaskStatus.COMPLETED,
+            )
+        ],
+        papers_count=1,
+        summary_generated=True,
+        daily_data_saved=True,
+        last_update=datetime.now(),
+    )
+    output_paths.ensure_dir("2025-01-02")
+    from daydayarxiv.storage import write_json_atomic
+
+    write_json_atomic(output_paths.daily_path("2025-01-02", "cs.AI"), daily.model_dump(mode="json"))
+
+    manager = StateManager(output_paths)
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        raise AssertionError("fetch_papers should not be called")
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-02",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is True
+    output = read_json(output_paths.daily_path("2025-01-02", "cs.AI"))
+    assert output["processing_status"] == "completed"
+
+
+@pytest.mark.asyncio
+async def test_pipeline_resets_failed_papers(monkeypatch, tmp_path):
+    settings = _settings(tmp_path, paper_max_attempts=1)
+    output_paths = OutputPaths(settings.data_dir)
+    daily = DailyData(
+        date="2025-01-03",
+        category="cs.AI",
+        summary="",
+        papers=[
+            Paper(
+                arxiv_id="id",
+                title="Title",
+                title_zh="",
+                authors=["Author"],
+                abstract="Abstract",
+                tldr_zh="",
+                categories=["cs.AI"],
+                primary_category="cs.AI",
+                comment="",
+                pdf_url="https://example.com",
+                published_date="2025-01-03 00:00:00 UTC",
+                updated_date="2025-01-03 00:00:00 UTC",
+                processing_status=TaskStatus.FAILED,
+                attempts=1,
+                max_attempts=1,
+            )
+        ],
+        papers_count=1,
+        summary_generated=False,
+        daily_data_saved=False,
+        last_update=datetime.now(),
+    )
+    output_paths.ensure_dir("2025-01-03")
+    from daydayarxiv.storage import write_json_atomic
+
+    write_json_atomic(output_paths.daily_path("2025-01-03", "cs.AI"), daily.model_dump(mode="json"))
+
+    manager = StateManager(output_paths)
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        return []
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-03",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is True
+
+
+@pytest.mark.asyncio
+async def test_pipeline_load_raw_exception(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _raise(*_args, **_kwargs):
+        raise ValueError("boom")
+
+    monkeypatch.setattr(Pipeline, "_load_or_fetch_raw", _raise)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-04",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is False
+
+
+@pytest.mark.asyncio
+async def test_pipeline_process_exception(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        return [_raw_paper()]
+
+    async def _raise(*_args, **_kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+    monkeypatch.setattr(Pipeline, "_process_papers", _raise)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-05",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is False
+
+
+@pytest.mark.asyncio
+async def test_pipeline_summary_exception(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+
+    async def _fetch(*_args, **_kwargs):
+        return [_raw_paper()]
+
+    async def _raise(*_args, **_kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+    monkeypatch.setattr(Pipeline, "_generate_summary", _raise)
+
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-06",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is False

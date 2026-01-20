@@ -12,6 +12,10 @@ from loguru import logger
 from daydayarxiv.models import RawPaper
 
 
+class ArxivFetchError(RuntimeError):
+    """Raised when arXiv fetch fails after retries."""
+
+
 async def fetch_papers(
     *,
     category: str,
@@ -47,8 +51,9 @@ async def fetch_papers(
             break
         except Exception as exc:  # pragma: no cover - exercised in tests with mocks
             if attempt >= len(retry_delays):
-                logger.error(f"Query error after retries: {exc}")
-                return []
+                message = f"Query error after retries: {exc}"
+                logger.error(message)
+                raise ArxivFetchError(message) from exc
             delay = retry_delays[attempt]
             attempt += 1
             logger.warning(f"Query error: {exc}. Retrying in {delay}s (attempt {attempt}/{len(retry_delays)})")

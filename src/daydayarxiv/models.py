@@ -18,6 +18,16 @@ class TaskStatus(str, Enum):
     RETRYING = "retrying"
 
 
+class DailyStatus(str, Enum):
+    """Possible statuses for a daily pipeline run."""
+
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    NO_PAPERS = "no_papers"
+
+
 class RawPaper(BaseModel):
     """Raw paper metadata fetched from arXiv."""
 
@@ -74,6 +84,9 @@ class DailyData(BaseModel):
     category: str
     summary: str
     papers: list[Paper]
+
+    processing_status: DailyStatus = DailyStatus.PENDING
+    error: str | None = None
 
     raw_papers_fetched: bool = False
     papers_count: int = 0
