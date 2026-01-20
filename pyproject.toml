@@ -24,6 +24,16 @@ dependencies = [
 [project.scripts]
 daydayarxiv = "daydayarxiv.cli:main"
 
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/daydayarxiv"]
+
+[tool.uv]
+package = true
+
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 addopts = "-q --cov=daydayarxiv --cov-report=term-missing --cov-fail-under=100"
