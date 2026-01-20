@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import tomllib
 from pathlib import Path
 from typing import Any, cast
 
@@ -12,7 +11,7 @@ from dotenv import dotenv_values
 from pydantic import BaseModel, Field, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
-ENV_PREFIX = "ARXIV_"
+ENV_PREFIX = "DDARXIV_"
 
 
 def _coerce_bool(value: str | None) -> bool | None:
@@ -37,13 +36,6 @@ def _coerce_float(value: str | None) -> float | None:
         return float(value)
     except ValueError:
         return None
-
-
-def _load_toml(path: Path) -> dict[str, Any]:
-    if not path.exists():
-        return {}
-    with path.open("rb") as handle:
-        return tomllib.load(handle)
 
 
 def _load_env_file(path: Path) -> dict[str, str]:
@@ -115,7 +107,7 @@ class Settings(BaseSettings):
     def _validate_provider_uniqueness(self) -> Settings:
         if self.langfuse.enabled and not self.langfuse.is_configured():
             raise ValueError(
-                "Langfuse is enabled but ARXIV_LANGFUSE_PUBLIC_KEY/ARXIV_LANGFUSE_SECRET_KEY are missing"
+                "Langfuse is enabled but DDARXIV_LANGFUSE_PUBLIC_KEY/DDARXIV_LANGFUSE_SECRET_KEY are missing"
             )
         return self
 
@@ -131,20 +123,8 @@ class Settings(BaseSettings):
         return (
             init_settings,
             cast(PydanticBaseSettingsSource, _simple_env_settings),
-            cast(PydanticBaseSettingsSource, _toml_settings),
             file_secret_settings,
         )
-
-
-def _toml_settings() -> dict[str, Any]:
-    env = {**_load_env_file(Path(".env")), **os.environ}
-    config_path = env.get(f"{ENV_PREFIX}CONFIG")
-    if not config_path:
-        default = Path("daydayarxiv.toml")
-        if default.exists():
-            return _load_toml(default)
-        return {}
-    return _load_toml(Path(config_path))
 
 
 def _simple_env_settings() -> dict[str, Any]:

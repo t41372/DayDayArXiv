@@ -61,9 +61,9 @@ def _parse_args() -> argparse.Namespace:
 def _resolve_dates(args: argparse.Namespace) -> list[str]:
     env_file = {key: value for key, value in dotenv_values(".env").items() if key and value is not None}
     env = {**env_file, **os.environ}
-    env_date = env.get("ARXIV_DATE")
-    env_start = env.get("ARXIV_START_DATE")
-    env_end = env.get("ARXIV_END_DATE")
+    env_date = env.get("DDARXIV_DATE")
+    env_start = env.get("DDARXIV_START_DATE")
+    env_end = env.get("DDARXIV_END_DATE")
 
     if not args.date and env_date:
         args.date = env_date

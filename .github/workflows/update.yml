@@ -78,61 +78,61 @@ jobs:
         run: uv run fetch_arxiv.py
         env:
           # Pass all inputs as environment variables for cleaner YAML
-          ARXIV_DATE: ${{ inputs.date }}
-          ARXIV_START_DATE: ${{ inputs.start-date }}
-          ARXIV_END_DATE: ${{ inputs.end-date }}
-          ARXIV_CATEGORY: ${{ inputs.category }}
-          ARXIV_MAX_RESULTS: ${{ inputs.max-results }}
-          ARXIV_FORCE: ${{ inputs.force }}
-          ARXIV_LOG_LEVEL: ${{ inputs.log-level }}
+          DDARXIV_DATE: ${{ inputs.date }}
+          DDARXIV_START_DATE: ${{ inputs.start-date }}
+          DDARXIV_END_DATE: ${{ inputs.end-date }}
+          DDARXIV_CATEGORY: ${{ inputs.category }}
+          DDARXIV_MAX_RESULTS: ${{ inputs.max-results }}
+          DDARXIV_FORCE: ${{ inputs.force }}
+          DDARXIV_LOG_LEVEL: ${{ inputs.log-level }}
           # LLM configuration (OpenAI-compatible providers)
-          ARXIV_LLM_WEAK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ARXIV_LLM_WEAK_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
-          ARXIV_LLM_WEAK_MODEL: ${{ secrets.LLM_MODEL }}
-          ARXIV_LLM_WEAK_RPM: ${{ secrets.LLM_RPM || secrets.RPM || '20' }}
-          ARXIV_LLM_STRONG_API_KEY: ${{ secrets.OPENAI_API_KEY_STRONG }}
-          ARXIV_LLM_STRONG_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_STRONG }}
-          ARXIV_LLM_STRONG_MODEL: ${{ secrets.LLM_MODEL_STRONG }}
-          ARXIV_LLM_STRONG_RPM: ${{ secrets.LLM_RPM_STRONG || '10' }}
-          ARXIV_LLM_BACKUP_API_KEY: ${{ secrets.OPENAI_API_KEY_BACKUP }}
-          ARXIV_LLM_BACKUP_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_BACKUP }}
-          ARXIV_LLM_BACKUP_MODEL: ${{ secrets.LLM_MODEL_BACKUP }}
-          ARXIV_LLM_BACKUP_RPM: ${{ secrets.LLM_RPM_BACKUP || '10' }}
-          ARXIV_LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
-          ARXIV_LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          ARXIV_LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
-          ARXIV_LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
-          ARXIV_LANGFUSE_ENABLED: "true"
+          DDARXIV_LLM_WEAK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DDARXIV_LLM_WEAK_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
+          DDARXIV_LLM_WEAK_MODEL: ${{ secrets.LLM_MODEL }}
+          DDARXIV_LLM_WEAK_RPM: ${{ secrets.LLM_RPM || secrets.RPM || '20' }}
+          DDARXIV_LLM_STRONG_API_KEY: ${{ secrets.OPENAI_API_KEY_STRONG }}
+          DDARXIV_LLM_STRONG_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_STRONG }}
+          DDARXIV_LLM_STRONG_MODEL: ${{ secrets.LLM_MODEL_STRONG }}
+          DDARXIV_LLM_STRONG_RPM: ${{ secrets.LLM_RPM_STRONG || '10' }}
+          DDARXIV_LLM_BACKUP_API_KEY: ${{ secrets.OPENAI_API_KEY_BACKUP }}
+          DDARXIV_LLM_BACKUP_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_BACKUP }}
+          DDARXIV_LLM_BACKUP_MODEL: ${{ secrets.LLM_MODEL_BACKUP }}
+          DDARXIV_LLM_BACKUP_RPM: ${{ secrets.LLM_RPM_BACKUP || '10' }}
+          DDARXIV_LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          DDARXIV_LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          DDARXIV_LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+          DDARXIV_LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
+          DDARXIV_LANGFUSE_ENABLED: "true"
       
       - name: Run fetch_arxiv script (for scheduled runs or manual runs without specified dates)
         if: ${{ inputs.date == '' && inputs.start-date == '' }}
         run: uv run fetch_arxiv.py
         env:
           # For scheduled runs or manual runs without date inputs, process the last 7 days (today UTC + past 6 days)
-          ARXIV_START_DATE: ${{ steps.date.outputs.start_date_7_days }}
-          ARXIV_END_DATE: ${{ steps.date.outputs.current_date }}
-          ARXIV_CATEGORY: ${{ inputs.category || 'cs.AI' }}
-          ARXIV_MAX_RESULTS: ${{ inputs.max-results || '1000' }}
-          ARXIV_FORCE: ${{ inputs.force }}
-          ARXIV_LOG_LEVEL: ${{ inputs.log-level || 'INFO' }}
+          DDARXIV_START_DATE: ${{ steps.date.outputs.start_date_7_days }}
+          DDARXIV_END_DATE: ${{ steps.date.outputs.current_date }}
+          DDARXIV_CATEGORY: ${{ inputs.category || 'cs.AI' }}
+          DDARXIV_MAX_RESULTS: ${{ inputs.max-results || '1000' }}
+          DDARXIV_FORCE: ${{ inputs.force }}
+          DDARXIV_LOG_LEVEL: ${{ inputs.log-level || 'INFO' }}
           # LLM configuration (OpenAI-compatible providers)
-          ARXIV_LLM_WEAK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ARXIV_LLM_WEAK_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
-          ARXIV_LLM_WEAK_MODEL: ${{ secrets.LLM_MODEL }}
-          ARXIV_LLM_WEAK_RPM: ${{ secrets.LLM_RPM || secrets.RPM || '20' }}
-          ARXIV_LLM_STRONG_API_KEY: ${{ secrets.OPENAI_API_KEY_STRONG }}
-          ARXIV_LLM_STRONG_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_STRONG }}
-          ARXIV_LLM_STRONG_MODEL: ${{ secrets.LLM_MODEL_STRONG }}
-          ARXIV_LLM_STRONG_RPM: ${{ secrets.LLM_RPM_STRONG || '10' }}
-          ARXIV_LLM_BACKUP_API_KEY: ${{ secrets.OPENAI_API_KEY_BACKUP }}
-          ARXIV_LLM_BACKUP_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_BACKUP }}
-          ARXIV_LLM_BACKUP_MODEL: ${{ secrets.LLM_MODEL_BACKUP }}
-          ARXIV_LLM_BACKUP_RPM: ${{ secrets.LLM_RPM_BACKUP || '10' }}
-          ARXIV_LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
-          ARXIV_LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          ARXIV_LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
-          ARXIV_LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
-          ARXIV_LANGFUSE_ENABLED: "true"
+          DDARXIV_LLM_WEAK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DDARXIV_LLM_WEAK_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
+          DDARXIV_LLM_WEAK_MODEL: ${{ secrets.LLM_MODEL }}
+          DDARXIV_LLM_WEAK_RPM: ${{ secrets.LLM_RPM || secrets.RPM || '20' }}
+          DDARXIV_LLM_STRONG_API_KEY: ${{ secrets.OPENAI_API_KEY_STRONG }}
+          DDARXIV_LLM_STRONG_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_STRONG }}
+          DDARXIV_LLM_STRONG_MODEL: ${{ secrets.LLM_MODEL_STRONG }}
+          DDARXIV_LLM_STRONG_RPM: ${{ secrets.LLM_RPM_STRONG || '10' }}
+          DDARXIV_LLM_BACKUP_API_KEY: ${{ secrets.OPENAI_API_KEY_BACKUP }}
+          DDARXIV_LLM_BACKUP_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_BACKUP }}
+          DDARXIV_LLM_BACKUP_MODEL: ${{ secrets.LLM_MODEL_BACKUP }}
+          DDARXIV_LLM_BACKUP_RPM: ${{ secrets.LLM_RPM_BACKUP || '10' }}
+          DDARXIV_LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          DDARXIV_LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          DDARXIV_LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+          DDARXIV_LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
+          DDARXIV_LANGFUSE_ENABLED: "true"
 
       - name: Check for changes
         id: check_changes

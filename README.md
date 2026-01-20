@@ -26,19 +26,13 @@ GitHub action 会调用 python 脚本来生成每天的更新数据。更新数�
 
 ## Quickstart（本地开发）
 
-1. 准备配置文件
-```bash
-cp daydayarxiv.toml.example daydayarxiv.toml
-```
-把 `daydayarxiv.toml` 里的 LLM 配置补齐：`weak` / `strong` 必填，`backup` 可选（不配置则不走 fallback）。**base_url 可以相同**，不会强制要求不同供应商。
-
-2. 安装依赖（会安装当前项目本体）
+1. 安装依赖（会安装当前项目本体）
 ```bash
 uv sync
 ```
 如果你刚拉取了更新（例如新增 CLI），请重新执行一次 `uv sync` 让入口脚本生效。
 
-3. 运行（推荐 CLI）
+2. 运行（推荐 CLI）
 ```bash
 uv run daydayarxiv --date 2025-03-01
 ```
@@ -53,7 +47,7 @@ uv run python -m daydayarxiv --date 2025-03-01
 uv run fetch_arxiv.py --date 2025-03-01
 ```
 
-4. （可选）前端本地开发
+3. （可选）前端本地开发
 ```bash
 cd daydayarxiv_frontend
 npm install
@@ -62,17 +56,15 @@ npm run dev
 
 ### 配置说明（简版）
 
-- 默认会读取 `daydayarxiv.toml`；也可通过环境变量指定：
-  - `ARXIV_CONFIG=/path/to/daydayarxiv.toml`
-- 环境变量会覆盖配置文件（例如 Actions 里直接注入）。
-- 如果想走环境变量配置，可复制 `.env.sample` 为 `.env` 并补齐；`.env` 会被自动读取。
+- 配置只通过环境变量读取（`.env` 会被自动读取）。
+- 如果想走环境变量配置，可复制 `.env.sample` 为 `.env` 并补齐。
 - `backup` provider 可选；未配置时不会使用 fallback。
 - Langfuse 默认开启；若本地不需要可设置：
-  - `ARXIV_LANGFUSE_ENABLED=false`
+  - `DDARXIV_LANGFUSE_ENABLED=false`
 - 默认遇到失败会标记并等待下次重试；如需严格退出可设置：
-  - `ARXIV_FAIL_ON_ERROR=true` 或配置 `fail_on_error = true`
+  - `DDARXIV_FAIL_ON_ERROR=true` 或配置 `fail_on_error = true`
 - 状态写入频率（减少频繁磁盘写入，可根据需要调小或设为 0 关闭节流）：
-  - `ARXIV_STATE_SAVE_INTERVAL_S=1.0` 或配置 `state_save_interval_s = 1.0`
+  - `DDARXIV_STATE_SAVE_INTERVAL_S=1.0` 或配置 `state_save_interval_s = 1.0`
 
 ### 常见问题 / 故障排查
 
@@ -82,7 +74,7 @@ npm run dev
 - 报错 “Failed to spawn: daydayarxiv”
   - 说明 CLI 脚本尚未安装到环境中；请重新执行 `uv sync` 或 `uv sync --reinstall`。
 - 报错 “Langfuse is enabled but ... keys are missing”
-  - 说明开启了 Langfuse 但未配置 key；要么补齐 `ARXIV_LANGFUSE_PUBLIC_KEY/ARXIV_LANGFUSE_SECRET_KEY`，要么关闭 Langfuse。
+  - 说明开启了 Langfuse 但未配置 key；要么补齐 `DDARXIV_LANGFUSE_PUBLIC_KEY/DDARXIV_LANGFUSE_SECRET_KEY`，要么关闭 Langfuse。
 - 生成失败后是否退出
   - 默认不会退出，会标记失败并等待下次运行自动重试。
   - 如需严格失败（CI 直接退出），设置 `fail_on_error = true`。
@@ -129,4 +121,4 @@ Force refresh existing data:
 uv run daydayarxiv --date 2025-03-01 --force
 ```
 
-配置与限流建议在 `daydayarxiv.toml` 中完成（见上文 Quickstart）。
+配置与限流建议通过 `.env` 或环境变量完成（见上文 Quickstart）。

@@ -47,8 +47,7 @@ fetch_arxiv.py         # 兼容旧入口的薄封装
 ## 配置设计
 - `Settings`（pydantic-settings v2）支持：
   - `.env`
-  - `ARXIV_CONFIG=daydayarxiv.toml`
-  - `ARXIV_*` 环境变量覆盖
+  - `DDARXIV_*` 环境变量覆盖
 - 输出目录、并发度、日志级别、LLM 配置、重试策略均可配置。
 
 ## Actions 调整

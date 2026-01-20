@@ -39,7 +39,7 @@ def _settings(tmp_path, *, fail_on_error: bool = False) -> Settings:
 
 
 def test_resolve_dates_env(monkeypatch):
-    monkeypatch.setenv("ARXIV_DATE", "2025-01-01")
+    monkeypatch.setenv("DDARXIV_DATE", "2025-01-01")
     monkeypatch.setattr(sys, "argv", ["prog"])
     args = cli._parse_args()
     dates = cli._resolve_dates(args)
@@ -47,8 +47,8 @@ def test_resolve_dates_env(monkeypatch):
 
 
 def test_resolve_dates_env_range(monkeypatch):
-    monkeypatch.setenv("ARXIV_START_DATE", "2025-01-01")
-    monkeypatch.setenv("ARXIV_END_DATE", "2025-01-02")
+    monkeypatch.setenv("DDARXIV_START_DATE", "2025-01-01")
+    monkeypatch.setenv("DDARXIV_END_DATE", "2025-01-02")
     monkeypatch.setattr(sys, "argv", ["prog"])
     args = cli._parse_args()
     dates = cli._resolve_dates(args)
@@ -56,9 +56,9 @@ def test_resolve_dates_env_range(monkeypatch):
 
 
 def test_resolve_dates_default(monkeypatch):
-    monkeypatch.delenv("ARXIV_DATE", raising=False)
-    monkeypatch.delenv("ARXIV_START_DATE", raising=False)
-    monkeypatch.delenv("ARXIV_END_DATE", raising=False)
+    monkeypatch.delenv("DDARXIV_DATE", raising=False)
+    monkeypatch.delenv("DDARXIV_START_DATE", raising=False)
+    monkeypatch.delenv("DDARXIV_END_DATE", raising=False)
     monkeypatch.setattr(sys, "argv", ["prog"])
     args = cli._parse_args()
     dates = cli._resolve_dates(args)
