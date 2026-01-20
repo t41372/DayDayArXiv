@@ -63,17 +63,16 @@ npm run dev
 ### 配置说明（简版）
 
 - 默认会读取 `daydayarxiv.toml`；也可通过环境变量指定：
-  - `DAYDAYARXIV_CONFIG=/path/to/daydayarxiv.toml`
+  - `ARXIV_CONFIG=/path/to/daydayarxiv.toml`
 - 环境变量会覆盖配置文件（例如 Actions 里直接注入）。
 - 如果想走环境变量配置，可复制 `.env.sample` 为 `.env` 并补齐；`.env` 会被自动读取。
-- 环境变量并未废弃：推荐使用 `DAYDAYARXIV_LLM__WEAK__BASE_URL` 这类新命名；同时也兼容旧的 `OPENAI_API_KEY/OPENAI_API_BASE_URL/LLM_MODEL` 等变量（见 `.env.sample`），**旧命名也可直接写在 `.env` 里**。
 - `backup` provider 可选；未配置时不会使用 fallback。
 - Langfuse 默认开启；若本地不需要可设置：
-  - `DAYDAYARXIV_LANGFUSE__ENABLED=false`
+  - `ARXIV_LANGFUSE_ENABLED=false`
 - 默认遇到失败会标记并等待下次重试；如需严格退出可设置：
-  - `DAYDAYARXIV_FAIL_ON_ERROR=true` 或配置 `fail_on_error = true`
+  - `ARXIV_FAIL_ON_ERROR=true` 或配置 `fail_on_error = true`
 - 状态写入频率（减少频繁磁盘写入，可根据需要调小或设为 0 关闭节流）：
-  - `DAYDAYARXIV_STATE_SAVE_INTERVAL_S=1.0` 或配置 `state_save_interval_s = 1.0`
+  - `ARXIV_STATE_SAVE_INTERVAL_S=1.0` 或配置 `state_save_interval_s = 1.0`
 
 ### 常见问题 / 故障排查
 
@@ -83,7 +82,7 @@ npm run dev
 - 报错 “Failed to spawn: daydayarxiv”
   - 说明 CLI 脚本尚未安装到环境中；请重新执行 `uv sync` 或 `uv sync --reinstall`。
 - 报错 “Langfuse is enabled but ... keys are missing”
-  - 说明开启了 Langfuse 但未配置 key；要么补齐 `LANGFUSE_PUBLIC_KEY/SECRET_KEY`，要么关闭 Langfuse。
+  - 说明开启了 Langfuse 但未配置 key；要么补齐 `ARXIV_LANGFUSE_PUBLIC_KEY/ARXIV_LANGFUSE_SECRET_KEY`，要么关闭 Langfuse。
 - 生成失败后是否退出
   - 默认不会退出，会标记失败并等待下次运行自动重试。
   - 如需严格失败（CI 直接退出），设置 `fail_on_error = true`。

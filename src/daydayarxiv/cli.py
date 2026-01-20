@@ -8,6 +8,7 @@ import os
 from dataclasses import dataclass
 
 from loguru import logger
+from dotenv import dotenv_values
 
 from daydayarxiv.llm.client import LLMClient
 from daydayarxiv.logging import configure_logging
@@ -58,9 +59,11 @@ def _parse_args() -> argparse.Namespace:
 
 
 def _resolve_dates(args: argparse.Namespace) -> list[str]:
-    env_date = os.getenv("DAYDAYARXIV_DATE")
-    env_start = os.getenv("DAYDAYARXIV_START_DATE")
-    env_end = os.getenv("DAYDAYARXIV_END_DATE")
+    env_file = {key: value for key, value in dotenv_values(".env").items() if key and value is not None}
+    env = {**env_file, **os.environ}
+    env_date = env.get("ARXIV_DATE")
+    env_start = env.get("ARXIV_START_DATE")
+    env_end = env.get("ARXIV_END_DATE")
 
     if not args.date and env_date:
         args.date = env_date

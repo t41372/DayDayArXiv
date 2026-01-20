@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import tomllib
 from pathlib import Path
@@ -10,6 +11,8 @@ from typing import Any, cast
 from dotenv import dotenv_values
 from pydantic import BaseModel, Field, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
+
+ENV_PREFIX = "ARXIV_"
 
 
 def _coerce_bool(value: str | None) -> bool | None:
@@ -23,6 +26,15 @@ def _coerce_int(value: str | None) -> int | None:
         return None
     try:
         return int(value)
+    except ValueError:
+        return None
+
+
+def _coerce_float(value: str | None) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
     except ValueError:
         return None
 
@@ -76,8 +88,7 @@ class Settings(BaseSettings):
     """Project settings with env + TOML support."""
 
     model_config = SettingsConfigDict(
-        env_prefix="DAYDAYARXIV_",
-        env_nested_delimiter="__",
+        env_prefix="",
         env_file=".env",
         extra="ignore",
     )
@@ -103,7 +114,9 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def _validate_provider_uniqueness(self) -> Settings:
         if self.langfuse.enabled and not self.langfuse.is_configured():
-            raise ValueError("Langfuse is enabled but LANGFUSE_PUBLIC_KEY/SECRET_KEY are missing")
+            raise ValueError(
+                "Langfuse is enabled but ARXIV_LANGFUSE_PUBLIC_KEY/ARXIV_LANGFUSE_SECRET_KEY are missing"
+            )
         return self
 
     @classmethod
@@ -117,16 +130,15 @@ class Settings(BaseSettings):
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         return (
             init_settings,
-            env_settings,
-            dotenv_settings,
-            cast(PydanticBaseSettingsSource, _legacy_env_settings),
+            cast(PydanticBaseSettingsSource, _simple_env_settings),
             cast(PydanticBaseSettingsSource, _toml_settings),
             file_secret_settings,
         )
 
 
 def _toml_settings() -> dict[str, Any]:
-    config_path = os.environ.get("DAYDAYARXIV_CONFIG")
+    env = {**_load_env_file(Path(".env")), **os.environ}
+    config_path = env.get(f"{ENV_PREFIX}CONFIG")
     if not config_path:
         default = Path("daydayarxiv.toml")
         if default.exists():
@@ -135,87 +147,80 @@ def _toml_settings() -> dict[str, Any]:
     return _load_toml(Path(config_path))
 
 
-def _legacy_env_settings() -> dict[str, Any]:
+def _simple_env_settings() -> dict[str, Any]:
     env_file = Path(".env")
     env = {**_load_env_file(env_file), **os.environ}
     data: dict[str, Any] = {}
-    if env.get("RPM") and not env.get("LLM_RPM"):
-        env = {**env, "LLM_RPM": env.get("RPM", "")}
+    def set_value(key: str, target_key: str, *, cast_fn=None) -> None:
+        raw = env.get(key)
+        if raw is None or raw == "":
+            return
+        value = cast_fn(raw) if cast_fn else raw
+        if value is None:
+            return
+        data[target_key] = value
 
-    def set_provider(prefix: str, mapping: dict[str, str]) -> None:
-        provider: dict[str, Any] = {}
-        base_url = env.get(mapping.get("base_url", ""))
-        api_key = env.get(mapping.get("api_key", ""))
-        model = env.get(mapping.get("model", ""))
-        rpm = _coerce_int(env.get(mapping.get("rpm", "")))
-        if base_url:
-            provider["base_url"] = base_url
-        if api_key:
-            provider["api_key"] = api_key
-        if model:
-            provider["model"] = model
-        if rpm is not None:
-            provider["rpm"] = rpm
-        if provider:
-            data.setdefault("llm", {})[prefix] = provider
+    def set_nested(section: str, key: str, value: Any) -> None:
+        if value is None or value == "":
+            return
+        data.setdefault(section, {})[key] = value
 
-    set_provider(
-        "weak",
-        {
-            "base_url": "OPENAI_API_BASE_URL",
-            "api_key": "OPENAI_API_KEY",
-            "model": "LLM_MODEL",
-            "rpm": "LLM_RPM",
-        },
-    )
+    def set_provider(provider: str, field: str, env_key: str, *, cast_fn=None) -> None:
+        raw = env.get(env_key)
+        if raw is None or raw == "":
+            return
+        value = cast_fn(raw) if cast_fn else raw
+        if value is None:
+            return
+        data.setdefault("llm", {}).setdefault(provider, {})[field] = value
 
-    set_provider(
-        "strong",
-        {
-            "base_url": "OPENAI_API_BASE_URL_STRONG",
-            "api_key": "OPENAI_API_KEY_STRONG",
-            "model": "LLM_MODEL_STRONG",
-            "rpm": "LLM_RPM_STRONG",
-        },
-    )
+    set_value(f"{ENV_PREFIX}DATA_DIR", "data_dir")
+    set_value(f"{ENV_PREFIX}LOG_DIR", "log_dir")
+    set_value(f"{ENV_PREFIX}LOG_LEVEL", "log_level")
+    set_value(f"{ENV_PREFIX}CATEGORY", "category")
+    set_value(f"{ENV_PREFIX}MAX_RESULTS", "max_results", cast_fn=_coerce_int)
+    set_value(f"{ENV_PREFIX}CONCURRENCY", "concurrency", cast_fn=_coerce_int)
+    set_value(f"{ENV_PREFIX}BATCH_SIZE", "batch_size", cast_fn=_coerce_int)
+    set_value(f"{ENV_PREFIX}FORCE", "force", cast_fn=_coerce_bool)
+    set_value(f"{ENV_PREFIX}PAPER_MAX_ATTEMPTS", "paper_max_attempts", cast_fn=_coerce_int)
+    set_value(f"{ENV_PREFIX}FAIL_ON_ERROR", "fail_on_error", cast_fn=_coerce_bool)
+    set_value(f"{ENV_PREFIX}STATE_SAVE_INTERVAL_S", "state_save_interval_s", cast_fn=_coerce_float)
 
-    set_provider(
-        "backup",
-        {
-            "base_url": "OPENAI_API_BASE_URL_BACKUP",
-            "api_key": "OPENAI_API_KEY_BACKUP",
-            "model": "LLM_MODEL_BACKUP",
-            "rpm": "LLM_RPM_BACKUP",
-        },
-    )
+    failure_raw = env.get(f"{ENV_PREFIX}FAILURE_PATTERNS")
+    if failure_raw:
+        try:
+            parsed = json.loads(failure_raw)
+        except json.JSONDecodeError:
+            parsed = [item.strip() for item in failure_raw.split(",") if item.strip()]
+        if isinstance(parsed, list) and parsed:
+            data["failure_patterns"] = parsed
 
-    langfuse: dict[str, Any] = {}
-    if env.get("LANGFUSE_HOST"):
-        langfuse["host"] = env.get("LANGFUSE_HOST")
-    if env.get("LANGFUSE_BASE_URL") and "host" not in langfuse:
-        langfuse["host"] = env.get("LANGFUSE_BASE_URL")
-    if env.get("LANGFUSE_PUBLIC_KEY"):
-        langfuse["public_key"] = env.get("LANGFUSE_PUBLIC_KEY")
-    if env.get("LANGFUSE_SECRET_KEY"):
-        langfuse["secret_key"] = env.get("LANGFUSE_SECRET_KEY")
-    if env.get("LANGFUSE_SESSION_NOTE"):
-        langfuse["session_note"] = env.get("LANGFUSE_SESSION_NOTE")
-    if env.get("LANGFUSE_ENABLED"):
-        enabled = _coerce_bool(env.get("LANGFUSE_ENABLED"))
-        if enabled is not None:
-            langfuse["enabled"] = enabled
-    if langfuse:
-        data["langfuse"] = langfuse
+    set_provider("weak", "base_url", f"{ENV_PREFIX}LLM_WEAK_BASE_URL")
+    set_provider("weak", "api_key", f"{ENV_PREFIX}LLM_WEAK_API_KEY")
+    set_provider("weak", "model", f"{ENV_PREFIX}LLM_WEAK_MODEL")
+    set_provider("weak", "rpm", f"{ENV_PREFIX}LLM_WEAK_RPM", cast_fn=_coerce_int)
+    set_provider("weak", "timeout_s", f"{ENV_PREFIX}LLM_WEAK_TIMEOUT_S", cast_fn=_coerce_float)
+    set_provider("weak", "max_retries", f"{ENV_PREFIX}LLM_WEAK_MAX_RETRIES", cast_fn=_coerce_int)
 
-    if env.get("DAYDAYARXIV_FORCE"):
-        force_value = _coerce_bool(env.get("DAYDAYARXIV_FORCE"))
-        if force_value is not None:
-            data["force"] = force_value
+    set_provider("strong", "base_url", f"{ENV_PREFIX}LLM_STRONG_BASE_URL")
+    set_provider("strong", "api_key", f"{ENV_PREFIX}LLM_STRONG_API_KEY")
+    set_provider("strong", "model", f"{ENV_PREFIX}LLM_STRONG_MODEL")
+    set_provider("strong", "rpm", f"{ENV_PREFIX}LLM_STRONG_RPM", cast_fn=_coerce_int)
+    set_provider("strong", "timeout_s", f"{ENV_PREFIX}LLM_STRONG_TIMEOUT_S", cast_fn=_coerce_float)
+    set_provider("strong", "max_retries", f"{ENV_PREFIX}LLM_STRONG_MAX_RETRIES", cast_fn=_coerce_int)
 
-    if env.get("DAYDAYARXIV_MAX_RESULTS"):
-        max_results = _coerce_int(env.get("DAYDAYARXIV_MAX_RESULTS"))
-        if max_results is not None:
-            data["max_results"] = max_results
+    set_provider("backup", "base_url", f"{ENV_PREFIX}LLM_BACKUP_BASE_URL")
+    set_provider("backup", "api_key", f"{ENV_PREFIX}LLM_BACKUP_API_KEY")
+    set_provider("backup", "model", f"{ENV_PREFIX}LLM_BACKUP_MODEL")
+    set_provider("backup", "rpm", f"{ENV_PREFIX}LLM_BACKUP_RPM", cast_fn=_coerce_int)
+    set_provider("backup", "timeout_s", f"{ENV_PREFIX}LLM_BACKUP_TIMEOUT_S", cast_fn=_coerce_float)
+    set_provider("backup", "max_retries", f"{ENV_PREFIX}LLM_BACKUP_MAX_RETRIES", cast_fn=_coerce_int)
+
+    set_nested("langfuse", "enabled", _coerce_bool(env.get(f"{ENV_PREFIX}LANGFUSE_ENABLED")))
+    set_nested("langfuse", "host", env.get(f"{ENV_PREFIX}LANGFUSE_HOST"))
+    set_nested("langfuse", "public_key", env.get(f"{ENV_PREFIX}LANGFUSE_PUBLIC_KEY"))
+    set_nested("langfuse", "secret_key", env.get(f"{ENV_PREFIX}LANGFUSE_SECRET_KEY"))
+    set_nested("langfuse", "session_note", env.get(f"{ENV_PREFIX}LANGFUSE_SESSION_NOTE"))
 
     return data
 
