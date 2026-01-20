@@ -120,6 +120,7 @@ class Pipeline:
 
         self.state_manager.register_raw_papers(raw_papers, max_attempts=self.settings.paper_max_attempts)
         paper_lookup = {paper.arxiv_id: paper for paper in raw_papers}
+        logger.info(f"Loaded {len(raw_papers)} papers; starting LLM processing")
 
         try:
             await self._process_papers(paper_lookup)
@@ -142,7 +143,9 @@ class Pipeline:
             return False
 
         try:
+            logger.info("Generating daily summary")
             summary = await self._generate_summary(raw_papers, date_str)
+            logger.info("Daily summary generated")
         except Exception as exc:
             self._mark_daily_failure(state, f"Summary generation failed: {exc}")
             return False
@@ -212,15 +215,24 @@ class Pipeline:
                 batch = pending_ids[start : start + batch_size]
                 tasks = [handle_paper(paper_id) for paper_id in batch]
                 await asyncio.gather(*tasks, return_exceptions=False)
+                state = self.state_manager.current_state
+                if state:
+                    logger.info(
+                        "Progress: "
+                        f"{state.processed_papers_count}/{len(papers)} completed, "
+                        f"{state.failed_papers_count} failed"
+                    )
 
     async def _process_single_paper(self, paper: RawPaper) -> Paper | None:
         arxiv_id = paper.arxiv_id
         self.state_manager.update_paper(arxiv_id, status=TaskStatus.IN_PROGRESS)
 
         try:
+            logger.info(f"[{arxiv_id}] Processing: translate_title + tldr")
             title_task = self.llm.translate_title(paper.title, paper.abstract)
             tldr_task = self.llm.tldr(paper.title, paper.abstract)
             title_zh, tldr_zh = await asyncio.gather(title_task, tldr_task)
+            logger.info(f"[{arxiv_id}] Completed: translate_title + tldr")
 
             result = {
                 "title": paper.title,
