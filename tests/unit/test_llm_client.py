@@ -13,6 +13,7 @@ from daydayarxiv.llm.client import (
     _is_valid_output,
     _prepare_langfuse_env,
 )
+from daydayarxiv.llm.validators import LLMValidationError
 from daydayarxiv.settings import LangfuseSettings, ProviderSettings
 
 
@@ -65,13 +66,14 @@ def _provider_settings() -> ProviderSettings:
     )
 
 
-def _make_llm(monkeypatch, weak_client, backup_client):
+def _make_llm(monkeypatch, weak_client, backup_client=None):
     settings = _provider_settings()
     providers = {
         "weak": Provider("weak", settings, weak_client, RateLimiter(1000)),
         "strong": Provider("strong", settings, weak_client, RateLimiter(1000)),
-        "backup": Provider("backup", settings, backup_client, RateLimiter(1000)),
     }
+    if backup_client:
+        providers["backup"] = Provider("backup", settings, backup_client, RateLimiter(1000))
 
     def _build_provider(self, name, *_args):
         return providers[name]
@@ -80,7 +82,7 @@ def _make_llm(monkeypatch, weak_client, backup_client):
     return LLMClient(
         weak=settings,
         strong=settings,
-        backup=settings,
+        backup=settings if backup_client else None,
         langfuse=LangfuseSettings(enabled=False),
         failure_patterns=["翻译失败"],
     )
@@ -191,6 +193,18 @@ def test_llm_client_build_provider(monkeypatch):
     assert set(llm.providers.keys()) == {"weak", "strong", "backup"}
 
 
+def test_llm_client_without_backup():
+    settings = _provider_settings()
+    llm = LLMClient(
+        weak=settings,
+        strong=settings.model_copy(update={"base_url": "https://strong.local"}),
+        backup=None,
+        langfuse=LangfuseSettings(enabled=False),
+        failure_patterns=[],
+    )
+    assert set(llm.providers.keys()) == {"weak", "strong"}
+
+
 def test_is_valid_output_empty():
     assert _is_valid_output("", ["bad"]) is False
     assert _is_valid_output(" ", ["bad"]) is False
@@ -209,6 +223,14 @@ async def test_llm_fallback_raises_last_error(monkeypatch):
 
     with pytest.raises(LLMRetryableError):
         await llm.tldr("Title", "Abstract")
+
+
+@pytest.mark.asyncio
+async def test_llm_no_backup_raises_on_invalid(monkeypatch):
+    weak_client = DummyClient(["翻译失败"])
+    llm = _make_llm(monkeypatch, weak_client, None)
+    with pytest.raises(LLMValidationError):
+        await llm.translate_title("Title", "Abstract")
 
 
 def test_classify_error_branches(monkeypatch):

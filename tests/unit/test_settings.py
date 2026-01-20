@@ -15,16 +15,17 @@ from daydayarxiv.settings import (
 )
 
 
-def _set_required_env(monkeypatch, *, prefix: str = "DAYDAYARXIV_"):
+def _set_required_env(monkeypatch, *, prefix: str = "DAYDAYARXIV_", include_backup: bool = True):
     monkeypatch.setenv(f"{prefix}LLM__WEAK__BASE_URL", "https://weak.local")
     monkeypatch.setenv(f"{prefix}LLM__WEAK__API_KEY", "weak-key")
     monkeypatch.setenv(f"{prefix}LLM__WEAK__MODEL", "weak-model")
     monkeypatch.setenv(f"{prefix}LLM__STRONG__BASE_URL", "https://strong.local")
     monkeypatch.setenv(f"{prefix}LLM__STRONG__API_KEY", "strong-key")
     monkeypatch.setenv(f"{prefix}LLM__STRONG__MODEL", "strong-model")
-    monkeypatch.setenv(f"{prefix}LLM__BACKUP__BASE_URL", "https://backup.local")
-    monkeypatch.setenv(f"{prefix}LLM__BACKUP__API_KEY", "backup-key")
-    monkeypatch.setenv(f"{prefix}LLM__BACKUP__MODEL", "backup-model")
+    if include_backup:
+        monkeypatch.setenv(f"{prefix}LLM__BACKUP__BASE_URL", "https://backup.local")
+        monkeypatch.setenv(f"{prefix}LLM__BACKUP__API_KEY", "backup-key")
+        monkeypatch.setenv(f"{prefix}LLM__BACKUP__MODEL", "backup-model")
 
 
 def test_settings_langfuse_requires_keys(monkeypatch, tmp_path):
@@ -46,6 +47,14 @@ def test_settings_loads_env(monkeypatch, tmp_path):
     settings = Settings()
     assert settings.llm.weak.model == "weak-model"
     assert settings.llm.strong.base_url == "https://strong.local"
+
+
+def test_settings_allows_missing_backup(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    _set_required_env(monkeypatch, include_backup=False)
+    monkeypatch.setenv("DAYDAYARXIV_LANGFUSE__ENABLED", "false")
+    settings = Settings()
+    assert settings.llm.backup is None
 
 
 def test_load_settings_success(monkeypatch, tmp_path):

@@ -160,7 +160,7 @@ class LLMClient:
         *,
         weak: ProviderSettings,
         strong: ProviderSettings,
-        backup: ProviderSettings,
+        backup: ProviderSettings | None,
         langfuse: LangfuseSettings,
         failure_patterns: Iterable[str],
     ) -> None:
@@ -171,8 +171,9 @@ class LLMClient:
         self.providers = {
             "weak": self._build_provider("weak", weak, langfuse),
             "strong": self._build_provider("strong", strong, langfuse),
-            "backup": self._build_provider("backup", backup, langfuse),
         }
+        if backup:
+            self.providers["backup"] = self._build_provider("backup", backup, langfuse)
 
         self.session_id = (
             time.strftime("%Y-%m-%d_%H-%M", time.gmtime())
@@ -235,7 +236,10 @@ class LLMClient:
         temperature: float,
         validate: bool = True,
     ) -> str:
-        providers = [self.providers[primary], self.providers["backup"]]
+        providers = [self.providers[primary]]
+        backup_provider = self.providers.get("backup")
+        if backup_provider:
+            providers.append(backup_provider)
         last_error: Exception | None = None
         for provider in providers:
             try:

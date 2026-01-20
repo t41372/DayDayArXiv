@@ -30,7 +30,7 @@ GitHub action 会调用 python 脚本来生成每天的更新数据。更新数�
 ```bash
 cp daydayarxiv.toml.example daydayarxiv.toml
 ```
-把 `daydayarxiv.toml` 里的三套 LLM（weak / strong / backup）配置补齐，**三者必须是不同供应商**（不同 base_url / api_key / model / rpm）。
+把 `daydayarxiv.toml` 里的 LLM 配置补齐：`weak` / `strong` 必填，`backup` 可选（不配置则不走 fallback）。若配置了多个 provider，**默认要求不同供应商**（不同 base_url / api_key / model / rpm）。
 
 2. 安装依赖（会安装当前项目本体）
 ```bash
@@ -67,6 +67,7 @@ npm run dev
 - 环境变量会覆盖配置文件（例如 Actions 里直接注入）。
 - 如果想走环境变量配置，可复制 `.env.sample` 为 `.env` 并补齐；`.env` 会被自动读取。
 - 环境变量并未废弃：推荐使用 `DAYDAYARXIV_LLM__WEAK__BASE_URL` 这类新命名；同时也兼容旧的 `OPENAI_API_KEY/OPENAI_API_BASE_URL/LLM_MODEL` 等变量（见 `.env.sample`），**旧命名也可直接写在 `.env` 里**。
+- `backup` provider 可选；未配置时不会使用 fallback。
 - Langfuse 默认开启；若本地不需要可设置：
   - `DAYDAYARXIV_LANGFUSE__ENABLED=false`
 - 默认遇到失败会标记并等待下次重试；如需严格退出可设置：
