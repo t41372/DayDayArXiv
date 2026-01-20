@@ -7,6 +7,7 @@ import tomllib
 from pathlib import Path
 from typing import Any, cast
 
+from dotenv import dotenv_values
 from pydantic import BaseModel, Field, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
@@ -31,6 +32,12 @@ def _load_toml(path: Path) -> dict[str, Any]:
         return {}
     with path.open("rb") as handle:
         return tomllib.load(handle)
+
+
+def _load_env_file(path: Path) -> dict[str, str]:
+    if not path.exists():
+        return {}
+    return {key: value for key, value in dotenv_values(path).items() if key and value is not None}
 
 
 class ProviderSettings(BaseModel):
@@ -142,7 +149,8 @@ def _toml_settings() -> dict[str, Any]:
 
 
 def _legacy_env_settings() -> dict[str, Any]:
-    env = os.environ
+    env_file = Path(".env")
+    env = {**_load_env_file(env_file), **os.environ}
     data: dict[str, Any] = {}
     if env.get("RPM") and not env.get("LLM_RPM"):
         env = {**env, "LLM_RPM": env.get("RPM", "")}

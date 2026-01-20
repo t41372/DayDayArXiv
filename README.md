@@ -66,7 +66,7 @@ npm run dev
   - `DAYDAYARXIV_CONFIG=/path/to/daydayarxiv.toml`
 - 环境变量会覆盖配置文件（例如 Actions 里直接注入）。
 - 如果想走环境变量配置，可复制 `.env.sample` 为 `.env` 并补齐；`.env` 会被自动读取。
-- 环境变量并未废弃：推荐使用 `DAYDAYARXIV_LLM__WEAK__BASE_URL` 这类新命名；同时也兼容旧的 `OPENAI_API_KEY/OPENAI_API_BASE_URL/LLM_MODEL` 等变量（见 `.env.sample`）。
+- 环境变量并未废弃：推荐使用 `DAYDAYARXIV_LLM__WEAK__BASE_URL` 这类新命名；同时也兼容旧的 `OPENAI_API_KEY/OPENAI_API_BASE_URL/LLM_MODEL` 等变量（见 `.env.sample`），**旧命名也可直接写在 `.env` 里**。
 - Langfuse 默认开启；若本地不需要可设置：
   - `DAYDAYARXIV_LANGFUSE__ENABLED=false`
 - 默认遇到失败会标记并等待下次重试；如需严格退出可设置：

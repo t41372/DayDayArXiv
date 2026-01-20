@@ -27,7 +27,8 @@ def _set_required_env(monkeypatch, *, prefix: str = "DAYDAYARXIV_"):
     monkeypatch.setenv(f"{prefix}LLM__BACKUP__MODEL", "backup-model")
 
 
-def test_settings_langfuse_requires_keys(monkeypatch):
+def test_settings_langfuse_requires_keys(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     _set_required_env(monkeypatch)
     monkeypatch.delenv("LANGFUSE_PUBLIC_KEY", raising=False)
     monkeypatch.delenv("LANGFUSE_SECRET_KEY", raising=False)
@@ -38,7 +39,8 @@ def test_settings_langfuse_requires_keys(monkeypatch):
         load_settings()
 
 
-def test_settings_loads_env(monkeypatch):
+def test_settings_loads_env(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     _set_required_env(monkeypatch)
     monkeypatch.setenv("DAYDAYARXIV_LANGFUSE__ENABLED", "false")
     settings = Settings()
@@ -46,14 +48,16 @@ def test_settings_loads_env(monkeypatch):
     assert settings.llm.strong.base_url == "https://strong.local"
 
 
-def test_load_settings_success(monkeypatch):
+def test_load_settings_success(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     _set_required_env(monkeypatch)
     monkeypatch.setenv("DAYDAYARXIV_LANGFUSE__ENABLED", "false")
     settings = load_settings()
     assert settings.llm.backup.base_url == "https://backup.local"
 
 
-def test_settings_requires_unique_base_urls(monkeypatch):
+def test_settings_requires_unique_base_urls(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     _set_required_env(monkeypatch)
     monkeypatch.setenv("DAYDAYARXIV_LLM__STRONG__BASE_URL", "https://weak.local")
     monkeypatch.setenv("DAYDAYARXIV_LANGFUSE__ENABLED", "false")
@@ -61,7 +65,8 @@ def test_settings_requires_unique_base_urls(monkeypatch):
         Settings()
 
 
-def test_settings_legacy_env_mapping(monkeypatch):
+def test_settings_legacy_env_mapping(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("OPENAI_API_BASE_URL", "https://legacy.local")
     monkeypatch.setenv("OPENAI_API_KEY", "legacy-key")
     monkeypatch.setenv("LLM_MODEL", "legacy-model")
@@ -115,7 +120,8 @@ def test_settings_toml_loading(monkeypatch, tmp_path):
     assert settings.llm.backup.base_url == "https://backup.local"
 
 
-def test_load_settings_invalid_config(monkeypatch):
+def test_load_settings_invalid_config(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     _set_required_env(monkeypatch)
     monkeypatch.setenv("DAYDAYARXIV_LLM__STRONG__BASE_URL", "https://weak.local")
     monkeypatch.setenv("DAYDAYARXIV_LANGFUSE__ENABLED", "false")
@@ -145,7 +151,8 @@ def test_toml_settings_default_file(monkeypatch, tmp_path):
     assert data["category"] == "cs.LG"
 
 
-def test_legacy_env_settings(monkeypatch):
+def test_legacy_env_settings(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("LANGFUSE_HOST", raising=False)
     monkeypatch.setenv("RPM", "8")
     monkeypatch.setenv("OPENAI_API_BASE_URL", "https://legacy.local")
@@ -164,3 +171,30 @@ def test_legacy_env_settings(monkeypatch):
     assert data["langfuse"]["enabled"] is True
     assert data["force"] is True
     assert data["max_results"] == 42
+
+
+def test_legacy_env_from_dotenv(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".env").write_text(
+        "\n".join(
+            [
+                "OPENAI_API_BASE_URL=https://legacy.local",
+                "OPENAI_API_KEY=legacy-key",
+                "LLM_MODEL=legacy-model",
+                "OPENAI_API_BASE_URL_STRONG=https://legacy-strong.local",
+                "OPENAI_API_KEY_STRONG=legacy-strong-key",
+                "LLM_MODEL_STRONG=legacy-strong-model",
+                "OPENAI_API_BASE_URL_BACKUP=https://legacy-backup.local",
+                "OPENAI_API_KEY_BACKUP=legacy-backup-key",
+                "LLM_MODEL_BACKUP=legacy-backup-model",
+                "LANGFUSE_ENABLED=false",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    data = _legacy_env_settings()
+    assert data["llm"]["weak"]["base_url"] == "https://legacy.local"
+    assert data["llm"]["strong"]["model"] == "legacy-strong-model"
+    assert data["llm"]["backup"]["model"] == "legacy-backup-model"
+    assert data["langfuse"]["enabled"] is False
