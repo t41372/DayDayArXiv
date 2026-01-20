@@ -36,6 +36,7 @@ cp daydayarxiv.toml.example daydayarxiv.toml
 ```bash
 uv sync
 ```
+如果你刚拉取了更新（例如新增 CLI），请重新执行一次 `uv sync` 让入口脚本生效。
 
 3. 运行（推荐 CLI）
 ```bash
@@ -74,6 +75,8 @@ npm run dev
 - 报错 “ModuleNotFoundError: No module named 'daydayarxiv'”
   - 请先执行 `uv sync`（确保项目本体已安装），然后使用 `uv run daydayarxiv ...` 或 `uv run python -m daydayarxiv ...`。
   - 若仍想使用旧入口，请确认已执行 `uv sync` 后再运行 `uv run fetch_arxiv.py ...`。
+- 报错 “Failed to spawn: daydayarxiv”
+  - 说明 CLI 脚本尚未安装到环境中；请重新执行 `uv sync` 或 `uv sync --reinstall`。
 - 报错 “Langfuse is enabled but ... keys are missing”
   - 说明开启了 Langfuse 但未配置 key；要么补齐 `LANGFUSE_PUBLIC_KEY/SECRET_KEY`，要么关闭 Langfuse。
 - 报错 “LLM providers must use different base_url...”
