@@ -45,6 +45,16 @@ def write_json_atomic(path: Path, data: Any) -> None:
     tmp_path.replace(path)
 
 
+def _is_valid_date_str(date_str: str) -> bool:
+    if len(date_str) != 10:
+        return False
+    try:
+        datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return False
+    return True
+
+
 def build_data_index(base_dir: Path) -> DataIndex:
     index = DataIndex()
     if not base_dir.exists():
@@ -54,11 +64,7 @@ def build_data_index(base_dir: Path) -> DataIndex:
         if not date_dir.is_dir():
             continue
         date_str = date_dir.name
-        if len(date_str) != 10:
-            continue
-        if not date_str[0:4].isdigit() or date_str[4] != "-" or not date_str[5:7].isdigit():
-            continue
-        if date_str[7] != "-" or not date_str[8:10].isdigit():
+        if not _is_valid_date_str(date_str):
             continue
 
         categories: list[str] = []
@@ -94,6 +100,8 @@ def load_data_index(path: Path) -> DataIndex | None:
 
 
 def update_data_index(paths: OutputPaths, date: str, category: str) -> DataIndex:
+    if not _is_valid_date_str(date):
+        raise ValueError(f"Invalid date '{date}' (expected YYYY-MM-DD)")
     index_path = paths.index_path()
     index = load_data_index(index_path)
     if index is None:

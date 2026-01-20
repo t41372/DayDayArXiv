@@ -8,8 +8,8 @@ const DATA_STORE_NAME = 'dataCache';
 const META_STORE_NAME = 'metaCache';
 const DB_VERSION = 1;
 
-// Cache expiration (7 days in milliseconds)
-const CACHE_EXPIRATION = 7 * 24 * 60 * 60 * 1000;
+// Cache expiration (24 hours in milliseconds)
+const CACHE_EXPIRATION = 24 * 60 * 60 * 1000;
 
 interface CacheEntry {
   data: DailyData;

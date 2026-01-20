@@ -12,6 +12,8 @@ def test_normalize_date_format():
 
     with pytest.raises(utils.DateParseError):
         utils.normalize_date_format("not-a-date")
+    with pytest.raises(utils.DateParseError):
+        utils.normalize_date_format("2025-02-30")
 
 
 def test_build_date_range():

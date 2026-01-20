@@ -120,7 +120,10 @@ def main() -> int:
         failure_patterns=settings.failure_patterns,
     )
 
-    state_manager = StateManager(OutputPaths(settings.data_dir))
+    state_manager = StateManager(
+        OutputPaths(settings.data_dir),
+        save_interval_s=settings.state_save_interval_s,
+    )
     pipeline = Pipeline(settings, llm, state_manager)
 
     async def _run() -> int:

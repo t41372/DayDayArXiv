@@ -31,15 +31,27 @@ export async function fetchDailyData(date: Date, category: string): Promise<Dail
     console.log(`Fetching data for ${dateStr}/${category} from network`);
     
     const response = await fetch(`/data/${dateStr}/${category}.json`);
-    
+
     if (!response.ok) {
-      console.log(`No data available for ${dateStr}/${category}`);
-      // Return a default response instead of throwing an error
+      if (response.status === 404) {
+        console.log(`No data available for ${dateStr}/${category}`);
+        return {
+          date: dateStr,
+          category: category,
+          summary: `No data available for ${category} on ${dateStr}.`,
+          papers: [],
+          processing_status: "no_papers",
+        };
+      }
+      const message = `Failed to load ${dateStr}/${category}: ${response.status} ${response.statusText}`;
+      console.error(message);
       return {
         date: dateStr,
         category: category,
-        summary: `No data available for ${category} on ${dateStr}.`,
-        papers: []
+        summary: `数据加载失败（${response.status}）`,
+        papers: [],
+        processing_status: "failed",
+        error: message,
       };
     }
     
@@ -53,14 +65,17 @@ export async function fetchDailyData(date: Date, category: string): Promise<Dail
     
     return data;
   } catch (error) {
-    console.log("No data for this date:", error);
+    console.error("Failed to load data:", error);
     const dateStr = format(date, "yyyy-MM-dd");
+    const message = `Failed to load ${dateStr}/${category}: ${error instanceof Error ? error.message : String(error)}`;
     // Return a default response for any errors
     return {
       date: dateStr,
       category: category,
-      summary: `No data available for ${category} on ${dateStr}.`,
-      papers: []
+      summary: "数据加载失败",
+      papers: [],
+      processing_status: "failed",
+      error: message,
     };
   }
 }

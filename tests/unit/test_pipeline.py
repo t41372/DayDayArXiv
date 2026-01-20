@@ -80,6 +80,48 @@ def _raw_paper() -> RawPaper:
     )
 
 
+def _raw_paper_with_title(title: str) -> RawPaper:
+    return _raw_paper().model_copy(update={"title": title})
+
+
+def test_pipeline_helper_no_state(tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+    counts = pipeline._paper_status_counts()
+    assert counts[TaskStatus.PENDING] == 0
+    pipeline._log_progress(1)
+    assert pipeline._paper_attempt_info("missing") == (0, 0)
+
+
+def test_pipeline_helper_missing_paper(tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    manager.load("2025-01-01", "cs.AI")
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+    assert pipeline._paper_attempt_info("missing") == (0, 0)
+
+
+def test_pipeline_truncate_title():
+    assert Pipeline._truncate_title("") == ""
+    short = "short title"
+    assert Pipeline._truncate_title(short) == short
+    long_title = "x" * 200
+    assert Pipeline._truncate_title(long_title, max_len=10) == "xxxxxxx..."
+
+
+@pytest.mark.asyncio
+async def test_pipeline_process_single_paper_logs_empty_title(tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    manager.load("2025-01-01", "cs.AI")
+    paper = _raw_paper_with_title("")
+    manager.register_raw_papers([paper], max_attempts=1)
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+    result = await pipeline._process_single_paper(paper)
+    assert result is not None
+
+
 @pytest.mark.asyncio
 async def test_pipeline_no_papers(monkeypatch, tmp_path):
     settings = _settings(tmp_path)

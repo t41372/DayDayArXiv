@@ -72,6 +72,8 @@ npm run dev
   - `DAYDAYARXIV_LANGFUSE__ENABLED=false`
 - 默认遇到失败会标记并等待下次重试；如需严格退出可设置：
   - `DAYDAYARXIV_FAIL_ON_ERROR=true` 或配置 `fail_on_error = true`
+- 状态写入频率（减少频繁磁盘写入，可根据需要调小或设为 0 关闭节流）：
+  - `DAYDAYARXIV_STATE_SAVE_INTERVAL_S=1.0` 或配置 `state_save_interval_s = 1.0`
 
 ### 常见问题 / 故障排查
 
@@ -82,8 +84,6 @@ npm run dev
   - 说明 CLI 脚本尚未安装到环境中；请重新执行 `uv sync` 或 `uv sync --reinstall`。
 - 报错 “Langfuse is enabled but ... keys are missing”
   - 说明开启了 Langfuse 但未配置 key；要么补齐 `LANGFUSE_PUBLIC_KEY/SECRET_KEY`，要么关闭 Langfuse。
-- 报错 “LLM providers must use different base_url...”
-  - 三个 LLM 必须是不同供应商，base_url 不能相同。
 - 生成失败后是否退出
   - 默认不会退出，会标记失败并等待下次运行自动重试。
   - 如需严格失败（CI 直接退出），设置 `fail_on_error = true`。

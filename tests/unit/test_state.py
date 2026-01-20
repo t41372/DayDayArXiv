@@ -57,6 +57,7 @@ def test_state_reset(tmp_path):
 def test_state_no_current_state(tmp_path):
     manager = StateManager(OutputPaths(tmp_path))
     manager.save()
+    manager.save_throttled()
     manager.register_raw_papers([_raw_paper("id1")], max_attempts=1)
     manager.update_paper("id1", status=TaskStatus.COMPLETED)
     assert manager.pending_paper_ids() == []
@@ -64,6 +65,7 @@ def test_state_no_current_state(tmp_path):
     assert manager.failed_papers() == []
     assert manager.reset_failed_papers() == 0
     manager._recalculate_counts()
+    manager._touch_state()
 
 
 def test_state_update_placeholder(tmp_path):
@@ -112,3 +114,35 @@ def test_state_reset_failed_papers(tmp_path):
     paper = next(p for p in manager.current_state.papers if p.arxiv_id == "id1")
     assert paper.processing_status == TaskStatus.RETRYING
     assert paper.attempts == 0
+
+
+def test_state_save_throttled_skips(tmp_path, monkeypatch):
+    manager = StateManager(OutputPaths(tmp_path), save_interval_s=10)
+    times = iter([100.0, 100.0, 111.0])
+    monkeypatch.setattr("daydayarxiv.state.time.monotonic", lambda: next(times))
+    manager.load("2025-01-01", "cs.AI")
+
+    calls = {"count": 0}
+
+    def _write(*_args, **_kwargs):
+        calls["count"] += 1
+
+    monkeypatch.setattr("daydayarxiv.state.write_json_atomic", _write)
+    manager.save_throttled()
+    manager.save_throttled()
+    assert calls["count"] == 1
+
+
+def test_state_save_throttled_disabled(tmp_path, monkeypatch):
+    manager = StateManager(OutputPaths(tmp_path), save_interval_s=0)
+    monkeypatch.setattr("daydayarxiv.state.time.monotonic", lambda: 200.0)
+    manager.load("2025-01-01", "cs.AI")
+
+    calls = {"count": 0}
+
+    def _write(*_args, **_kwargs):
+        calls["count"] += 1
+
+    monkeypatch.setattr("daydayarxiv.state.write_json_atomic", _write)
+    manager.save_throttled()
+    assert calls["count"] == 1

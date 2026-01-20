@@ -42,7 +42,12 @@ def normalize_date_format(date_str: str) -> str:
     match = re.match(r"^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$", raw)
     if match:
         year, month, day = match.groups()
-        return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+        normalized = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+        try:
+            datetime.strptime(normalized, "%Y-%m-%d")
+        except ValueError as exc:
+            raise DateParseError(f"Date string '{date_str}' does not match supported formats") from exc
+        return normalized
 
     for fmt in SUPPORTED_DATE_FORMATS:
         try:

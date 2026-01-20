@@ -93,6 +93,7 @@ class Settings(BaseSettings):
     force: bool = False
     paper_max_attempts: int = 3
     fail_on_error: bool = False
+    state_save_interval_s: float = Field(default=1.0, ge=0)
 
     failure_patterns: list[str] = Field(default_factory=lambda: ["翻译失败", "生成失败", "快报生成失败"])
 

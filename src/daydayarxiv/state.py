@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import UTC, datetime
+import time
 from typing import Any
 
 from loguru import logger
@@ -15,9 +16,11 @@ from daydayarxiv.storage import OutputPaths, read_json, write_json_atomic
 class StateManager:
     """Manage pipeline state persisted in the output JSON file."""
 
-    def __init__(self, paths: OutputPaths) -> None:
+    def __init__(self, paths: OutputPaths, *, save_interval_s: float = 1.0) -> None:
         self.paths = paths
         self.current_state: DailyData | None = None
+        self.save_interval_s = save_interval_s
+        self._last_save_ts = 0.0
 
     def load(self, date: str, category: str) -> DailyData:
         output_file = self.paths.daily_path(date, category)
@@ -37,7 +40,7 @@ class StateManager:
             category=category,
             summary="",
             papers=[],
-            last_update=datetime.now(),
+            last_update=datetime.now(UTC),
         )
         self.current_state = state
         self.save()
@@ -50,7 +53,7 @@ class StateManager:
             category=category,
             summary="",
             papers=[],
-            last_update=datetime.now(),
+            last_update=datetime.now(UTC),
         )
         self.current_state = state
         self.save()
@@ -68,7 +71,7 @@ class StateManager:
                 paper.processing_status = TaskStatus.RETRYING
                 paper.attempts = 0
                 paper.error = None
-                paper.last_update = datetime.now()
+                paper.last_update = datetime.now(UTC)
                 reset_count += 1
 
         if reset_count:
@@ -82,10 +85,27 @@ class StateManager:
             logger.error("No state to save")
             return
 
-        self.current_state.last_update = datetime.now()
-        self._recalculate_counts()
+        self._touch_state()
         output_file = self.paths.daily_path(self.current_state.date, self.current_state.category)
         write_json_atomic(output_file, self.current_state.model_dump(mode="json"))
+        self._last_save_ts = time.monotonic()
+
+    def save_throttled(self) -> None:
+        if not self.current_state:
+            logger.error("No state to save")
+            return
+        self._touch_state()
+        if self.save_interval_s <= 0:
+            output_file = self.paths.daily_path(self.current_state.date, self.current_state.category)
+            write_json_atomic(output_file, self.current_state.model_dump(mode="json"))
+            self._last_save_ts = time.monotonic()
+            return
+        now = time.monotonic()
+        if now - self._last_save_ts < self.save_interval_s:
+            return
+        output_file = self.paths.daily_path(self.current_state.date, self.current_state.category)
+        write_json_atomic(output_file, self.current_state.model_dump(mode="json"))
+        self._last_save_ts = now
 
     def register_raw_papers(self, raw_papers: Iterable[RawPaper], max_attempts: int) -> None:
         if not self.current_state:
@@ -112,7 +132,7 @@ class StateManager:
                 processing_status=TaskStatus.PENDING,
                 attempts=0,
                 max_attempts=max_attempts,
-                last_update=datetime.now(),
+                last_update=datetime.now(UTC),
             )
             self.current_state.papers.append(paper)
 
@@ -151,7 +171,7 @@ class StateManager:
                 updated_date="",
                 processing_status=TaskStatus.PENDING,
                 attempts=0,
-                last_update=datetime.now(),
+                last_update=datetime.now(UTC),
             )
             self.current_state.papers.append(paper)
 
@@ -171,8 +191,8 @@ class StateManager:
                 if hasattr(paper, key):
                     setattr(paper, key, value)
 
-        paper.last_update = datetime.now()
-        self.save()
+        paper.last_update = datetime.now(UTC)
+        self.save_throttled()
 
     def pending_paper_ids(self) -> list[str]:
         if not self.current_state:
@@ -218,3 +238,9 @@ class StateManager:
         )
         self.current_state.processed_papers_count = completed
         self.current_state.failed_papers_count = failed
+
+    def _touch_state(self) -> None:
+        if not self.current_state:
+            return
+        self.current_state.last_update = datetime.now(UTC)
+        self._recalculate_counts()

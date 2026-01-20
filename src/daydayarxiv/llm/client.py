@@ -143,13 +143,13 @@ def _prepare_langfuse_env(settings: LangfuseSettings) -> None:
     if not settings.enabled or not settings.is_configured():
         return
     if settings.host:
-        os.environ.setdefault("LANGFUSE_HOST", settings.host)
-        os.environ.setdefault("LANGFUSE_BASE_URL", settings.host)
+        os.environ["LANGFUSE_HOST"] = settings.host
+        os.environ["LANGFUSE_BASE_URL"] = settings.host
     if settings.public_key:
-        os.environ.setdefault("LANGFUSE_PUBLIC_KEY", settings.public_key.get_secret_value())
+        os.environ["LANGFUSE_PUBLIC_KEY"] = settings.public_key.get_secret_value()
     if settings.secret_key:
-        os.environ.setdefault("LANGFUSE_SECRET_KEY", settings.secret_key.get_secret_value())
-    os.environ.setdefault("LANGFUSE_SESSION_NOTE", settings.session_note)
+        os.environ["LANGFUSE_SECRET_KEY"] = settings.secret_key.get_secret_value()
+    os.environ["LANGFUSE_SESSION_NOTE"] = settings.session_note
 
 
 class LLMClient:

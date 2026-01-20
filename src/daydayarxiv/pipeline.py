@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import UTC, datetime
 
 from loguru import logger
 
@@ -45,6 +46,46 @@ class Pipeline:
         self.llm = llm
         self.state_manager = state_manager
         self.paths = state_manager.paths
+
+    def _paper_status_counts(self) -> dict[TaskStatus, int]:
+        counts = {status: 0 for status in TaskStatus}
+        state = self.state_manager.current_state
+        if not state:
+            return counts
+        for paper in state.papers:
+            counts[paper.processing_status] += 1
+        return counts
+
+    def _log_progress(self, total: int, *, prefix: str = "Progress") -> None:
+        state = self.state_manager.current_state
+        if not state:
+            return
+        counts = self._paper_status_counts()
+        logger.info(
+            f"{prefix}: {counts[TaskStatus.COMPLETED]}/{total} completed, "
+            f"{counts[TaskStatus.FAILED]} failed, "
+            f"{counts[TaskStatus.IN_PROGRESS]} in progress, "
+            f"{counts[TaskStatus.RETRYING]} retrying, "
+            f"{counts[TaskStatus.PENDING]} pending"
+        )
+
+    def _paper_attempt_info(self, arxiv_id: str) -> tuple[int, int]:
+        state = self.state_manager.current_state
+        if not state:
+            return 0, 0
+        for paper in state.papers:
+            if paper.arxiv_id == arxiv_id:
+                return paper.attempts, paper.max_attempts
+        return 0, 0
+
+    @staticmethod
+    def _truncate_title(title: str, max_len: int = 80) -> str:
+        if not title:
+            return ""
+        normalized = " ".join(title.split())
+        if len(normalized) <= max_len:
+            return normalized
+        return normalized[: max_len - 3] + "..."
 
     async def run_for_date(
         self,
@@ -210,29 +251,36 @@ class Pipeline:
             batch_size = (
                 self.settings.batch_size if self.settings.batch_size > 0 else len(pending_ids) or 1
             )
-            logger.info(f"Processing {len(pending_ids)} papers")
-            for start in range(0, len(pending_ids), batch_size):
+            total_batches = (len(pending_ids) + batch_size - 1) // batch_size
+            self._log_progress(len(papers), prefix="Queue")
+            logger.info(
+                f"Processing {len(pending_ids)} papers in {total_batches} batches (batch_size={batch_size})"
+            )
+            for batch_index, start in enumerate(range(0, len(pending_ids), batch_size), 1):
                 batch = pending_ids[start : start + batch_size]
+                logger.info(f"Starting batch {batch_index}/{total_batches} ({len(batch)} papers)")
                 tasks = [handle_paper(paper_id) for paper_id in batch]
                 await asyncio.gather(*tasks, return_exceptions=False)
-                state = self.state_manager.current_state
-                if state:
-                    logger.info(
-                        "Progress: "
-                        f"{state.processed_papers_count}/{len(papers)} completed, "
-                        f"{state.failed_papers_count} failed"
-                    )
+                self._log_progress(len(papers), prefix=f"Batch {batch_index}/{total_batches} progress")
 
     async def _process_single_paper(self, paper: RawPaper) -> Paper | None:
         arxiv_id = paper.arxiv_id
         self.state_manager.update_paper(arxiv_id, status=TaskStatus.IN_PROGRESS)
+        attempt, max_attempts = self._paper_attempt_info(arxiv_id)
+        title = self._truncate_title(paper.title)
+        if title:
+            logger.info(f"[{arxiv_id}] Attempt {attempt}/{max_attempts} start: {title}")
+        else:
+            logger.info(f"[{arxiv_id}] Attempt {attempt}/{max_attempts} start")
+        start_ts = time.monotonic()
 
         try:
-            logger.info(f"[{arxiv_id}] Processing: translate_title + tldr")
+            logger.info(f"[{arxiv_id}] Task: translate_title + tldr")
             title_task = self.llm.translate_title(paper.title, paper.abstract)
             tldr_task = self.llm.tldr(paper.title, paper.abstract)
             title_zh, tldr_zh = await asyncio.gather(title_task, tldr_task)
-            logger.info(f"[{arxiv_id}] Completed: translate_title + tldr")
+            duration_s = time.monotonic() - start_ts
+            logger.info(f"[{arxiv_id}] Completed translate_title + tldr in {duration_s:.1f}s")
 
             result = {
                 "title": paper.title,
@@ -247,13 +295,13 @@ class Pipeline:
                 "published_date": paper.published_date,
                 "updated_date": paper.updated_date,
                 "completed_steps": ["translation", "tldr"],
-                "last_update": datetime.now(),
+                "last_update": datetime.now(UTC),
             }
 
             self.state_manager.update_paper(arxiv_id, status=TaskStatus.COMPLETED, result=result)
             return Paper.model_validate({"arxiv_id": arxiv_id, **result, "processing_status": TaskStatus.COMPLETED})
         except Exception as exc:
-            logger.error(f"Failed processing paper {arxiv_id}: {exc}")
+            logger.error(f"[{arxiv_id}] Failed processing paper: {exc}")
             self.state_manager.update_paper(arxiv_id, status=TaskStatus.FAILED, error=str(exc))
             return None
 

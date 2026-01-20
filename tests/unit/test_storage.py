@@ -1,3 +1,5 @@
+import pytest
+
 from daydayarxiv.storage import (
     OutputPaths,
     build_data_index,
@@ -28,6 +30,8 @@ def test_build_data_index(tmp_path):
     invalid_dir.mkdir()
     invalid_day_dir = base_dir / "2025-01-0A"
     invalid_day_dir.mkdir()
+    invalid_date_dir = base_dir / "2025-02-30"
+    invalid_date_dir.mkdir()
     empty_dir = base_dir / "2025-01-02"
     empty_dir.mkdir()
     (empty_dir / "cs.AI_raw.json").write_text("{}", encoding="utf-8")
@@ -79,3 +83,11 @@ def test_update_data_index_adds_date_and_category(tmp_path):
     assert "2025-01-02" in index.available_dates
     assert index.by_date["2025-01-02"] == ["cs.CL"]
     assert "cs.CL" in index.categories
+
+
+def test_update_data_index_invalid_date(tmp_path):
+    base_dir = tmp_path / "data"
+    base_dir.mkdir(parents=True)
+    paths = OutputPaths(base_dir)
+    with pytest.raises(ValueError):
+        update_data_index(paths, "2025-02-30", "cs.AI")
