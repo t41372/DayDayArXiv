@@ -32,19 +32,31 @@ cp daydayarxiv.toml.example daydayarxiv.toml
 ```
 把 `daydayarxiv.toml` 里的三套 LLM（weak / strong / backup）配置补齐，**三者必须是不同供应商**（不同 base_url / api_key / model / rpm）。
 
-2. 安装依赖
+2. 安装依赖（会安装当前项目本体）
 ```bash
 uv sync
 ```
 
-3. 运行（兼容旧入口）
+3. 运行（推荐 CLI）
 ```bash
-uv run fetch_arxiv.py --date 2025-03-01
+uv run daydayarxiv --date 2025-03-01
 ```
 
 也可以用模块入口：
 ```bash
 uv run python -m daydayarxiv --date 2025-03-01
+```
+
+旧入口（仅作为兼容，仍需先执行 `uv sync`）：
+```bash
+uv run daydayarxiv --date 2025-03-01
+```
+
+4. （可选）前端本地开发
+```bash
+cd daydayarxiv_frontend
+npm install
+npm run dev
 ```
 
 ### 配置说明（简版）
@@ -59,6 +71,9 @@ uv run python -m daydayarxiv --date 2025-03-01
 
 ### 常见问题 / 故障排查
 
+- 报错 “ModuleNotFoundError: No module named 'daydayarxiv'”
+  - 请先执行 `uv sync`（确保项目本体已安装），然后使用 `uv run daydayarxiv ...` 或 `uv run python -m daydayarxiv ...`。
+  - 若仍想使用旧入口，请确认已执行 `uv sync` 后再运行 `uv run fetch_arxiv.py ...`。
 - 报错 “Langfuse is enabled but ... keys are missing”
   - 说明开启了 Langfuse 但未配置 key；要么补齐 `LANGFUSE_PUBLIC_KEY/SECRET_KEY`，要么关闭 Langfuse。
 - 报错 “LLM providers must use different base_url...”
@@ -74,7 +89,7 @@ A tool to fetch and process arXiv papers with LLM-powered translation and summar
 ## Usage
 
 ```bash
-uv run fetch_arxiv.py [options]
+uv run daydayarxiv [options]
 ```
 
 ### Options
@@ -96,17 +111,17 @@ uv run fetch_arxiv.py --date 2025-03-01
 
 Process papers from a date range:
 ```bash
-uv run fetch_arxiv.py --start-date 2025-03-01 --end-date 2025-03-07
+uv run daydayarxiv --start-date 2025-03-01 --end-date 2025-03-07
 ```
 
 Process papers from a different category:
 ```bash
-uv run fetch_arxiv.py --date 2025-03-01 --category cs.CL
+uv run daydayarxiv --date 2025-03-01 --category cs.CL
 ```
 
 Force refresh existing data:
 ```bash
-uv run fetch_arxiv.py --date 2025-03-01 --force
+uv run daydayarxiv --date 2025-03-01 --force
 ```
 
 配置与限流建议在 `daydayarxiv.toml` 中完成（见上文 Quickstart）。
