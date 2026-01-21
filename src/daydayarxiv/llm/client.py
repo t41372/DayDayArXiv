@@ -155,6 +155,8 @@ def _prepare_langfuse_env(settings: LangfuseSettings) -> None:
 class LLMClient:
     """LLM client with fallback providers and validation support."""
 
+    _PRIMARY_FAILURES_BEFORE_BACKUP = 3
+
     def __init__(
         self,
         *,
@@ -236,17 +238,17 @@ class LLMClient:
         temperature: float,
         validate: bool = True,
     ) -> str:
-        providers = [self.providers[primary]]
+        primary_provider = self.providers[primary]
         backup_provider = self.providers.get("backup")
-        if backup_provider:
-            providers.append(backup_provider)
         last_error: Exception | None = None
-        for provider in providers:
+        for attempt in range(1, self._PRIMARY_FAILURES_BEFORE_BACKUP + 1):
             try:
-                logger.debug(f"Calling provider {provider.name} for model {provider.settings.model}")
+                logger.debug(
+                    f"Calling provider {primary_provider.name} for model {primary_provider.settings.model}"
+                )
                 result = await self._request(
-                    provider,
-                    model=provider.settings.model,
+                    primary_provider,
+                    model=primary_provider.settings.model,
                     messages=messages,
                     temperature=temperature,
                 )
@@ -255,8 +257,26 @@ class LLMClient:
                 return result
             except Exception as exc:  # pragma: no cover - exercised in tests
                 last_error = exc
-                logger.warning(f"Provider {provider.name} failed: {exc}")
-                continue
+                logger.warning(
+                    f"Provider {primary_provider.name} failed (attempt {attempt}/{self._PRIMARY_FAILURES_BEFORE_BACKUP}): {exc}"
+                )
+
+        if backup_provider:
+            try:
+                logger.debug(f"Calling provider {backup_provider.name} for model {backup_provider.settings.model}")
+                result = await self._request(
+                    backup_provider,
+                    model=backup_provider.settings.model,
+                    messages=messages,
+                    temperature=temperature,
+                )
+                if validate and not _is_valid_output(result, self.failure_patterns):
+                    raise LLMValidationError("LLM output failed validation")
+                return result
+            except Exception as exc:  # pragma: no cover - exercised in tests
+                last_error = exc
+                logger.warning(f"Provider {backup_provider.name} failed: {exc}")
+
         if last_error:
             raise last_error
         raise LLMRetryableError("No providers available")  # pragma: no cover

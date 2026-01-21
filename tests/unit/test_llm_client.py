@@ -90,7 +90,7 @@ def _make_llm(monkeypatch, weak_client, backup_client=None):
 
 @pytest.mark.asyncio
 async def test_llm_fallback_on_invalid(monkeypatch):
-    weak_client = DummyClient(["翻译失败"])
+    weak_client = DummyClient(["翻译失败", "翻译失败", "翻译失败"])
     backup_client = DummyClient(["有效输出"])
     llm = _make_llm(monkeypatch, weak_client, backup_client)
     result = await llm.translate_title("Title", "Abstract")
@@ -227,8 +227,17 @@ async def test_llm_fallback_raises_last_error(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_llm_no_backup_raises_on_invalid(monkeypatch):
-    weak_client = DummyClient(["翻译失败"])
+    weak_client = DummyClient(["翻译失败", "翻译失败", "翻译失败"])
     llm = _make_llm(monkeypatch, weak_client, None)
+    with pytest.raises(LLMValidationError):
+        await llm.translate_title("Title", "Abstract")
+
+
+@pytest.mark.asyncio
+async def test_llm_backup_invalid_raises(monkeypatch):
+    weak_client = DummyClient(["翻译失败", "翻译失败", "翻译失败"])
+    backup_client = DummyClient(["翻译失败"])
+    llm = _make_llm(monkeypatch, weak_client, backup_client)
     with pytest.raises(LLMValidationError):
         await llm.translate_title("Title", "Abstract")
 
