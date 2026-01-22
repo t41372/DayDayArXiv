@@ -277,20 +277,20 @@ class Pipeline:
         arxiv_id = paper.arxiv_id
         self.state_manager.update_paper(arxiv_id, status=TaskStatus.IN_PROGRESS)
         attempt, max_attempts = self._paper_attempt_info(arxiv_id)
-        title = self._truncate_title(paper.title)
-        if title:
-            logger.info(f"[{arxiv_id}] Attempt {attempt}/{max_attempts} start: {title}")
-        else:
-            logger.info(f"[{arxiv_id}] Attempt {attempt}/{max_attempts} start")
+        title = self._truncate_title(paper.title, max_len=120)
+        title_info = f" | title: {title}" if title else ""
+        logger.info(f"[{arxiv_id}] Attempt {attempt}/{max_attempts} start{title_info}")
         start_ts = time.monotonic()
 
         try:
-            logger.info(f"[{arxiv_id}] Task: translate_title + tldr")
+            logger.info(f"[{arxiv_id}] Task: translate_title + tldr{title_info}")
             title_task = self.llm.translate_title(paper.title, paper.abstract)
             tldr_task = self.llm.tldr(paper.title, paper.abstract)
             title_zh, tldr_zh = await asyncio.gather(title_task, tldr_task)
             duration_s = time.monotonic() - start_ts
-            logger.info(f"[{arxiv_id}] Completed translate_title + tldr in {duration_s:.1f}s")
+            logger.info(
+                f"[{arxiv_id}] Completed translate_title + tldr in {duration_s:.1f}s{title_info}"
+            )
 
             result = {
                 "title": paper.title,
@@ -313,7 +313,7 @@ class Pipeline:
                 {"arxiv_id": arxiv_id, **result, "processing_status": TaskStatus.COMPLETED}
             )
         except Exception as exc:
-            logger.error(f"[{arxiv_id}] Failed processing paper: {exc}")
+            logger.error(f"[{arxiv_id}] Failed processing paper: {exc}{title_info}")
             self.state_manager.update_paper(arxiv_id, status=TaskStatus.FAILED, error=str(exc))
             return None
 

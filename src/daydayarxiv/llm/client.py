@@ -34,18 +34,16 @@ from tenacity import (
 
 from daydayarxiv.llm.validators import LLMValidationError
 from daydayarxiv.prompts.daily_summary_prompt import (
-    DAILY_SUMMARY_USER_INSTRUCTION,
+    build_daily_summary_user_prompt,
     get_daily_summary_system_prompt,
 )
 from daydayarxiv.prompts.tldr_prompt import (
-    TLDR_ASSISTANT_EXAMPLE,
     TLDR_SYSTEM_PROMPT,
-    TLDR_USER_EXAMPLE,
+    build_tldr_user_prompt,
 )
 from daydayarxiv.prompts.translate_title_prompt import (
-    TRANSLATE_TITLE_ASSISTANT_EXAMPLE,
     TRANSLATE_TITLE_SYSTEM_PROMPT,
-    TRANSLATE_TITLE_USER_EXAMPLE,
+    build_translate_title_user_prompt,
 )
 from daydayarxiv.settings import LangfuseSettings, ProviderSettings
 
@@ -311,17 +309,9 @@ class LLMClient:
     async def translate_title(self, title: str, abstract: str) -> str:
         messages: list[ChatCompletionMessageParam] = [
             {"role": "system", "content": TRANSLATE_TITLE_SYSTEM_PROMPT},
-            {"role": "user", "content": TRANSLATE_TITLE_USER_EXAMPLE},
-            {"role": "assistant", "content": TRANSLATE_TITLE_ASSISTANT_EXAMPLE},
             {
                 "role": "user",
-                "content": f"""# Paper Title:\n```
-{title}
-```
-\n# Abstract:\n```
-{abstract}
-```
-""",
+                "content": build_translate_title_user_prompt(title, abstract),
             },
         ]
         return await self._with_fallback("weak", messages=messages, temperature=0.5)
@@ -330,17 +320,9 @@ class LLMClient:
     async def tldr(self, title: str, abstract: str) -> str:
         messages: list[ChatCompletionMessageParam] = [
             {"role": "system", "content": TLDR_SYSTEM_PROMPT},
-            {"role": "user", "content": TLDR_USER_EXAMPLE},
-            {"role": "assistant", "content": TLDR_ASSISTANT_EXAMPLE},
             {
                 "role": "user",
-                "content": f"""# Paper Title:\n```
-{title}
-```
-\n# Abstract:\n```
-{abstract}
-```
-""",
+                "content": build_tldr_user_prompt(title, abstract),
             },
         ]
         return await self._with_fallback("weak", messages=messages, temperature=0.5)
@@ -350,7 +332,10 @@ class LLMClient:
         system_prompt = get_daily_summary_system_prompt(target_date_str=date_str)
         messages: list[ChatCompletionMessageParam] = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"{paper_text}\n{DAILY_SUMMARY_USER_INSTRUCTION}"},
+            {
+                "role": "user",
+                "content": build_daily_summary_user_prompt(paper_text, date_str),
+            },
         ]
         return await self._with_fallback("strong", messages=messages, temperature=0.5)
 

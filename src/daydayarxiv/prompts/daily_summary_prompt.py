@@ -3,8 +3,18 @@ Prompt for generating daily summaries of all papers.
 """
 
 
-def get_daily_summary_system_prompt(target_date_str: str) -> str:
+DAILY_SUMMARY_SYSTEM_PROMPT = ""
+
+# Legacy placeholder for import tests; the prompt is now built inline.
+DAILY_SUMMARY_USER_INSTRUCTION = ""
+
+
+def get_daily_summary_system_prompt(_target_date_str: str) -> str:
     """Returns the system prompt for daily summary generation with current date"""
+    return DAILY_SUMMARY_SYSTEM_PROMPT
+
+
+def build_daily_summary_user_prompt(paper_text: str, target_date_str: str) -> str:
     return f"""## 任务说明
 你是一个多年的研究者，终生教授，专业的研究论文摘要专家和日报作者。你将会阅读大量的 arXiv 论文 (只包含标题和 abstract)，你的任务是深度阅读这些信息，撰写今天 ({target_date_str}) 的中文 arXiv TLDR（太长不读）快报，让读者快速理解今天的 arXiv 都更新了什么论文，是否有自己感兴趣的文章，文章都解决了什么问题。
 
@@ -25,10 +35,8 @@ TLDR 应捕捉论文的核心贡献、方法和发现，你可以在日报中提
 - 列出每一篇论文的标题 (中文 + 英文)
 - 保留论文的核心学术术语
 - 清晰描述论文的主要贡献和发现
-"""
 
-
-DAILY_SUMMARY_USER_INSTRUCTION = """
+{paper_text}
 上面是这次收录的全部 arXiv 论文，请撰写 TLDR 快报。
 
 ## 输出要求
