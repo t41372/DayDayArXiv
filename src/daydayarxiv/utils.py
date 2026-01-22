@@ -46,7 +46,9 @@ def normalize_date_format(date_str: str) -> str:
         try:
             datetime.strptime(normalized, "%Y-%m-%d")
         except ValueError as exc:
-            raise DateParseError(f"Date string '{date_str}' does not match supported formats") from exc
+            raise DateParseError(
+                f"Date string '{date_str}' does not match supported formats"
+            ) from exc
         return normalized
 
     for fmt in SUPPORTED_DATE_FORMATS:

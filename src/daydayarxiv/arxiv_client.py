@@ -56,7 +56,9 @@ async def fetch_papers(
                 raise ArxivFetchError(message) from exc
             delay = retry_delays[attempt]
             attempt += 1
-            logger.warning(f"Query error: {exc}. Retrying in {delay}s (attempt {attempt}/{len(retry_delays)})")
+            logger.warning(
+                f"Query error: {exc}. Retrying in {delay}s (attempt {attempt}/{len(retry_delays)})"
+            )
             await asyncio.sleep(delay)
 
     papers: list[RawPaper] = []

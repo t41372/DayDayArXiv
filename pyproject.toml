@@ -36,12 +36,14 @@ package = true
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+testpaths = ["tests"]
 addopts = "-q --cov=daydayarxiv --cov-report=term-missing --cov-fail-under=100"
 asyncio_mode = "auto"
 
 [tool.ruff]
 target-version = "py312"
 line-length = 100
+include = ["src/daydayarxiv/**/*.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
@@ -59,4 +61,5 @@ typeCheckingMode = "strict"
 reportMissingTypeStubs = "none"
 venvPath = "."
 venv = ".venv"
-exclude = ["tests", "daydayarxiv_frontend", "work"]
+include = ["src/daydayarxiv"]
+exclude = ["**/__pycache__"]

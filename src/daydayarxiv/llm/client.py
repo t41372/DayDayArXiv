@@ -69,6 +69,7 @@ try:  # pragma: no cover - optional dependency path
     _langfuse_context = _langfuse_decorators.langfuse_context
     _observe = _langfuse_decorators.observe
 except Exception:  # pragma: no cover - fallback for optional dependency
+
     class _DummyLangfuseContext:
         def update_current_trace(self, **_kwargs: Any) -> None:
             return None
@@ -77,8 +78,11 @@ except Exception:  # pragma: no cover - fallback for optional dependency
     _observe = _identity_observe
 
 langfuse_context = cast(LangfuseContext, _langfuse_context)
+
+
 def observe(*args: Any, **kwargs: Any) -> Callable[[Callable[P, R]], Callable[P, R]]:
     return cast(Callable[[Callable[P, R]], Callable[P, R]], _observe(*args, **kwargs))
+
 
 try:  # pragma: no cover - optional dependency path
     _langfuse_openai = importlib.import_module("langfuse.openai")
@@ -133,7 +137,14 @@ def _classify_error(exc: Exception) -> Exception:
         return LLMRetryableError(str(exc))
     if isinstance(
         exc,
-        (AuthenticationError, PermissionDeniedError, BadRequestError, NotFoundError, ConflictError, UnprocessableEntityError),
+        (
+            AuthenticationError,
+            PermissionDeniedError,
+            BadRequestError,
+            NotFoundError,
+            ConflictError,
+            UnprocessableEntityError,
+        ),
     ):
         return LLMNonRetryableError(str(exc))
     return LLMRetryableError(str(exc))
@@ -185,14 +196,18 @@ class LLMClient:
             + (weak.model or "unknown_model")
         )
 
-    def _build_provider(self, name: str, settings: ProviderSettings, langfuse: LangfuseSettings) -> Provider:
+    def _build_provider(
+        self, name: str, settings: ProviderSettings, langfuse: LangfuseSettings
+    ) -> Provider:
         client_cls = LangfuseAsyncOpenAI if langfuse.enabled else OpenAIAsyncOpenAI
         client = client_cls(
             api_key=settings.api_key.get_secret_value(),
             base_url=settings.base_url,
             timeout=settings.timeout_s,
         )
-        return Provider(name=name, settings=settings, client=client, rate_limiter=RateLimiter(settings.rpm))
+        return Provider(
+            name=name, settings=settings, client=client, rate_limiter=RateLimiter(settings.rpm)
+        )
 
     async def _request(
         self,
@@ -272,7 +287,9 @@ class LLMClient:
 
         if backup_provider:
             try:
-                logger.debug(f"Calling provider {backup_provider.name} for model {backup_provider.settings.model}")
+                logger.debug(
+                    f"Calling provider {backup_provider.name} for model {backup_provider.settings.model}"
+                )
                 result = await self._request(
                     backup_provider,
                     model=backup_provider.settings.model,

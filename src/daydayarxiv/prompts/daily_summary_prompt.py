@@ -2,6 +2,7 @@
 Prompt for generating daily summaries of all papers.
 """
 
+
 def get_daily_summary_system_prompt(target_date_str: str) -> str:
     """Returns the system prompt for daily summary generation with current date"""
     return f"""## 任务说明
@@ -25,6 +26,7 @@ TLDR 应捕捉论文的核心贡献、方法和发现，你可以在日报中提
 - 保留论文的核心学术术语
 - 清晰描述论文的主要贡献和发现
 """
+
 
 DAILY_SUMMARY_USER_INSTRUCTION = """
 上面是这次收录的全部 arXiv 论文，请撰写 TLDR 快报。

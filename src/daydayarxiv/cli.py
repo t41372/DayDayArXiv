@@ -7,8 +7,8 @@ import asyncio
 import os
 from dataclasses import dataclass
 
-from loguru import logger
 from dotenv import dotenv_values
+from loguru import logger
 
 from daydayarxiv.llm.client import LLMClient
 from daydayarxiv.logging import configure_logging
@@ -59,7 +59,9 @@ def _parse_args() -> argparse.Namespace:
 
 
 def _resolve_dates(args: argparse.Namespace) -> list[str]:
-    env_file = {key: value for key, value in dotenv_values(".env").items() if key and value is not None}
+    env_file = {
+        key: value for key, value in dotenv_values(".env").items() if key and value is not None
+    }
     env = {**env_file, **os.environ}
     env_date = env.get("DDARXIV_DATE")
     env_start = env.get("DDARXIV_START_DATE")

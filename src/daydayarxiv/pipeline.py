@@ -109,11 +109,15 @@ class Pipeline:
                 if state.processing_status in {DailyStatus.COMPLETED, DailyStatus.NO_PAPERS}:
                     logger.info("Existing data is complete; skipping.")
                     return True
-                logger.warning("Existing data complete but not marked successful; retrying index update.")
+                logger.warning(
+                    "Existing data complete but not marked successful; retrying index update."
+                )
                 try:
                     update_data_index(self.paths, date_str, category)
                 except Exception as exc:
-                    self._mark_daily_failure(state, f"Failed to update data index: {exc}", retain_data=True)
+                    self._mark_daily_failure(
+                        state, f"Failed to update data index: {exc}", retain_data=True
+                    )
                     return False
                 state.processing_status = DailyStatus.COMPLETED
                 state.error = None
@@ -154,12 +158,16 @@ class Pipeline:
             try:
                 update_data_index(self.paths, date_str, category)
             except Exception as exc:
-                self._mark_daily_failure(state, f"Failed to update data index: {exc}", retain_data=True)
+                self._mark_daily_failure(
+                    state, f"Failed to update data index: {exc}", retain_data=True
+                )
                 return False
             logger.info("No papers found; saved empty daily data.")
             return True
 
-        self.state_manager.register_raw_papers(raw_papers, max_attempts=self.settings.paper_max_attempts)
+        self.state_manager.register_raw_papers(
+            raw_papers, max_attempts=self.settings.paper_max_attempts
+        )
         paper_lookup = {paper.arxiv_id: paper for paper in raw_papers}
         logger.info(f"Loaded {len(raw_papers)} papers; starting LLM processing")
 
@@ -261,7 +269,9 @@ class Pipeline:
                 logger.info(f"Starting batch {batch_index}/{total_batches} ({len(batch)} papers)")
                 tasks = [handle_paper(paper_id) for paper_id in batch]
                 await asyncio.gather(*tasks, return_exceptions=False)
-                self._log_progress(len(papers), prefix=f"Batch {batch_index}/{total_batches} progress")
+                self._log_progress(
+                    len(papers), prefix=f"Batch {batch_index}/{total_batches} progress"
+                )
 
     async def _process_single_paper(self, paper: RawPaper) -> Paper | None:
         arxiv_id = paper.arxiv_id
@@ -299,7 +309,9 @@ class Pipeline:
             }
 
             self.state_manager.update_paper(arxiv_id, status=TaskStatus.COMPLETED, result=result)
-            return Paper.model_validate({"arxiv_id": arxiv_id, **result, "processing_status": TaskStatus.COMPLETED})
+            return Paper.model_validate(
+                {"arxiv_id": arxiv_id, **result, "processing_status": TaskStatus.COMPLETED}
+            )
         except Exception as exc:
             logger.error(f"[{arxiv_id}] Failed processing paper: {exc}")
             self.state_manager.update_paper(arxiv_id, status=TaskStatus.FAILED, error=str(exc))
@@ -309,7 +321,9 @@ class Pipeline:
         prompt_text = _export_prompt(raw_papers)
         return await self.llm.daily_summary(prompt_text, date_str)
 
-    def _mark_daily_failure(self, state: DailyData, message: str, *, retain_data: bool = False) -> None:
+    def _mark_daily_failure(
+        self, state: DailyData, message: str, *, retain_data: bool = False
+    ) -> None:
         state.processing_status = DailyStatus.FAILED
         state.error = message
         if not retain_data:

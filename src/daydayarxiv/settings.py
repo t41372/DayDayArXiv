@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, cast
 
@@ -98,7 +99,9 @@ class Settings(BaseSettings):
     fail_on_error: bool = False
     state_save_interval_s: float = Field(default=1.0, ge=0)
 
-    failure_patterns: list[str] = Field(default_factory=lambda: ["翻译失败", "生成失败", "快报生成失败"])
+    failure_patterns: list[str] = Field(
+        default_factory=lambda: ["翻译失败", "生成失败", "快报生成失败"]
+    )
 
     llm: LLMSettings
     langfuse: LangfuseSettings = LangfuseSettings()
@@ -131,11 +134,17 @@ def _simple_env_settings() -> dict[str, Any]:
     env_file = Path(".env")
     env = {**_load_env_file(env_file), **os.environ}
     data: dict[str, Any] = {}
-    def set_value(key: str, target_key: str, *, cast_fn=None) -> None:
+
+    def set_value(
+        key: str,
+        target_key: str,
+        *,
+        cast_fn: Callable[[str], Any] | None = None,
+    ) -> None:
         raw = env.get(key)
         if raw is None or raw == "":
             return
-        value = cast_fn(raw) if cast_fn else raw
+        value: Any = cast_fn(raw) if cast_fn else raw
         if value is None:
             return
         data[target_key] = value
@@ -145,11 +154,17 @@ def _simple_env_settings() -> dict[str, Any]:
             return
         data.setdefault(section, {})[key] = value
 
-    def set_provider(provider: str, field: str, env_key: str, *, cast_fn=None) -> None:
+    def set_provider(
+        provider: str,
+        field: str,
+        env_key: str,
+        *,
+        cast_fn: Callable[[str], Any] | None = None,
+    ) -> None:
         raw = env.get(env_key)
         if raw is None or raw == "":
             return
-        value = cast_fn(raw) if cast_fn else raw
+        value: Any = cast_fn(raw) if cast_fn else raw
         if value is None:
             return
         data.setdefault("llm", {}).setdefault(provider, {})[field] = value
@@ -187,14 +202,18 @@ def _simple_env_settings() -> dict[str, Any]:
     set_provider("strong", "model", f"{ENV_PREFIX}LLM_STRONG_MODEL")
     set_provider("strong", "rpm", f"{ENV_PREFIX}LLM_STRONG_RPM", cast_fn=_coerce_int)
     set_provider("strong", "timeout_s", f"{ENV_PREFIX}LLM_STRONG_TIMEOUT_S", cast_fn=_coerce_float)
-    set_provider("strong", "max_retries", f"{ENV_PREFIX}LLM_STRONG_MAX_RETRIES", cast_fn=_coerce_int)
+    set_provider(
+        "strong", "max_retries", f"{ENV_PREFIX}LLM_STRONG_MAX_RETRIES", cast_fn=_coerce_int
+    )
 
     set_provider("backup", "base_url", f"{ENV_PREFIX}LLM_BACKUP_BASE_URL")
     set_provider("backup", "api_key", f"{ENV_PREFIX}LLM_BACKUP_API_KEY")
     set_provider("backup", "model", f"{ENV_PREFIX}LLM_BACKUP_MODEL")
     set_provider("backup", "rpm", f"{ENV_PREFIX}LLM_BACKUP_RPM", cast_fn=_coerce_int)
     set_provider("backup", "timeout_s", f"{ENV_PREFIX}LLM_BACKUP_TIMEOUT_S", cast_fn=_coerce_float)
-    set_provider("backup", "max_retries", f"{ENV_PREFIX}LLM_BACKUP_MAX_RETRIES", cast_fn=_coerce_int)
+    set_provider(
+        "backup", "max_retries", f"{ENV_PREFIX}LLM_BACKUP_MAX_RETRIES", cast_fn=_coerce_int
+    )
 
     set_nested("langfuse", "enabled", _coerce_bool(env.get(f"{ENV_PREFIX}LANGFUSE_ENABLED")))
     set_nested("langfuse", "host", env.get(f"{ENV_PREFIX}LANGFUSE_HOST"))

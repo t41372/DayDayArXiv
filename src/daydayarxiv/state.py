@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import time
 from collections.abc import Iterable
 from datetime import UTC, datetime
-import time
 from typing import Any
 
 from loguru import logger
@@ -67,7 +67,10 @@ class StateManager:
 
         reset_count = 0
         for paper in self.current_state.papers:
-            if paper.processing_status == TaskStatus.FAILED and paper.attempts >= paper.max_attempts:
+            if (
+                paper.processing_status == TaskStatus.FAILED
+                and paper.attempts >= paper.max_attempts
+            ):
                 paper.processing_status = TaskStatus.RETRYING
                 paper.attempts = 0
                 paper.error = None
@@ -96,7 +99,9 @@ class StateManager:
             return
         self._touch_state()
         if self.save_interval_s <= 0:
-            output_file = self.paths.daily_path(self.current_state.date, self.current_state.category)
+            output_file = self.paths.daily_path(
+                self.current_state.date, self.current_state.category
+            )
             write_json_atomic(output_file, self.current_state.model_dump(mode="json"))
             self._last_save_ts = time.monotonic()
             return
@@ -113,7 +118,9 @@ class StateManager:
             return
 
         for raw in raw_papers:
-            existing = next((p for p in self.current_state.papers if p.arxiv_id == raw.arxiv_id), None)
+            existing = next(
+                (p for p in self.current_state.papers if p.arxiv_id == raw.arxiv_id), None
+            )
             if existing:
                 continue
             paper = Paper(
@@ -176,7 +183,10 @@ class StateManager:
             self.current_state.papers.append(paper)
 
         if status:
-            if status == TaskStatus.IN_PROGRESS and paper.processing_status != TaskStatus.IN_PROGRESS:
+            if (
+                status == TaskStatus.IN_PROGRESS
+                and paper.processing_status != TaskStatus.IN_PROGRESS
+            ):
                 paper.attempts += 1
             paper.processing_status = status
 
@@ -205,7 +215,9 @@ class StateManager:
                 pending.append(paper.arxiv_id)
             elif paper.processing_status in {TaskStatus.PENDING, TaskStatus.RETRYING}:
                 pending.append(paper.arxiv_id)
-            elif paper.processing_status == TaskStatus.FAILED and paper.attempts < paper.max_attempts:
+            elif (
+                paper.processing_status == TaskStatus.FAILED and paper.attempts < paper.max_attempts
+            ):
                 paper.processing_status = TaskStatus.RETRYING
                 pending.append(paper.arxiv_id)
         if pending:
@@ -230,7 +242,9 @@ class StateManager:
         if not self.current_state:
             return
         self.current_state.papers_count = len(self.current_state.papers)
-        completed = sum(1 for p in self.current_state.papers if p.processing_status == TaskStatus.COMPLETED)
+        completed = sum(
+            1 for p in self.current_state.papers if p.processing_status == TaskStatus.COMPLETED
+        )
         failed = sum(
             1
             for p in self.current_state.papers
