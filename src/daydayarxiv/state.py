@@ -250,8 +250,10 @@ class StateManager:
             for p in self.current_state.papers
             if p.processing_status == TaskStatus.FAILED and p.attempts >= p.max_attempts
         )
+        backup_calls = sum(p.llm_backup_calls for p in self.current_state.papers)
         self.current_state.processed_papers_count = completed
         self.current_state.failed_papers_count = failed
+        self.current_state.llm_backup_calls = backup_calls
 
     def _touch_state(self) -> None:
         if not self.current_state:

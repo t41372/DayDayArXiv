@@ -56,17 +56,27 @@ class Pipeline:
             counts[paper.processing_status] += 1
         return counts
 
+    def _backup_call_count(self) -> int:
+        state = self.state_manager.current_state
+        if not state:
+            return 0
+        return sum(paper.llm_backup_calls for paper in state.papers)
+
     def _log_progress(self, total: int, *, prefix: str = "Progress") -> None:
         state = self.state_manager.current_state
         if not state:
             return
         counts = self._paper_status_counts()
+        completed = counts[TaskStatus.COMPLETED]
+        percent = (completed / total * 100.0) if total else 0.0
+        backup_calls = self._backup_call_count()
         logger.info(
-            f"{prefix}: {counts[TaskStatus.COMPLETED]}/{total} completed, "
+            f"{prefix}: {completed}/{total} completed ({percent:.1f}%), "
             f"{counts[TaskStatus.FAILED]} failed, "
             f"{counts[TaskStatus.IN_PROGRESS]} in progress, "
             f"{counts[TaskStatus.RETRYING]} retrying, "
-            f"{counts[TaskStatus.PENDING]} pending"
+            f"{counts[TaskStatus.PENDING]} pending, "
+            f"{backup_calls} backup calls"
         )
 
     def _paper_attempt_info(self, arxiv_id: str) -> tuple[int, int]:
@@ -77,6 +87,16 @@ class Pipeline:
             if paper.arxiv_id == arxiv_id:
                 return paper.attempts, paper.max_attempts
         return 0, 0
+
+    def _paper_index_info(self, arxiv_id: str) -> tuple[int, int]:
+        state = self.state_manager.current_state
+        if not state or not state.papers:
+            return 0, 0
+        total = len(state.papers)
+        for index, paper in enumerate(state.papers, 1):
+            if paper.arxiv_id == arxiv_id:
+                return index, total
+        return 0, total
 
     @staticmethod
     def _truncate_title(title: str, max_len: int = 80) -> str:
@@ -176,6 +196,10 @@ class Pipeline:
         except Exception as exc:
             self._mark_daily_failure(state, f"Processing error: {exc}")
             return False
+
+        backup_calls = self._backup_call_count()
+        if backup_calls:
+            logger.info(f"Backup provider used {backup_calls} time(s) for {date_str}")
 
         completed_papers = self.state_manager.completed_papers()
         failed_papers = self.state_manager.failed_papers()
@@ -277,19 +301,32 @@ class Pipeline:
         arxiv_id = paper.arxiv_id
         self.state_manager.update_paper(arxiv_id, status=TaskStatus.IN_PROGRESS)
         attempt, max_attempts = self._paper_attempt_info(arxiv_id)
+        paper_index, paper_total = self._paper_index_info(arxiv_id)
         title = self._truncate_title(paper.title, max_len=120)
         title_info = f" | title: {title}" if title else ""
-        logger.info(f"[{arxiv_id}] Attempt {attempt}/{max_attempts} start{title_info}")
+        paper_info = (
+            f" | paper {paper_index or '?'} of {paper_total}" if paper_total else ""
+        )
+        context_info = f"{paper_info}{title_info}"
+        logger.info(f"[{arxiv_id}] Attempt {attempt}/{max_attempts} start{context_info}")
         start_ts = time.monotonic()
 
         try:
-            logger.info(f"[{arxiv_id}] Task: translate_title + tldr{title_info}")
-            title_task = self.llm.translate_title(paper.title, paper.abstract)
-            tldr_task = self.llm.tldr(paper.title, paper.abstract)
-            title_zh, tldr_zh = await asyncio.gather(title_task, tldr_task)
+            logger.info(f"[{arxiv_id}] Task: translate_title + tldr{context_info}")
+            title_task = self.llm.translate_title_with_meta(paper.title, paper.abstract)
+            tldr_task = self.llm.tldr_with_meta(paper.title, paper.abstract)
+            title_result, tldr_result = await asyncio.gather(title_task, tldr_task)
+            title_zh = title_result.content
+            tldr_zh = tldr_result.content
+            backup_calls = int(title_result.used_backup) + int(tldr_result.used_backup)
+            if backup_calls:
+                logger.info(
+                    f"[{arxiv_id}] Backup provider used {backup_calls} time(s){context_info}"
+                )
             duration_s = time.monotonic() - start_ts
             logger.info(
-                f"[{arxiv_id}] Completed translate_title + tldr in {duration_s:.1f}s{title_info}"
+                f"[{arxiv_id}] Completed translate_title + tldr in "
+                f"{duration_s:.1f}s{context_info}"
             )
 
             result = {
@@ -305,6 +342,7 @@ class Pipeline:
                 "published_date": paper.published_date,
                 "updated_date": paper.updated_date,
                 "completed_steps": ["translation", "tldr"],
+                "llm_backup_calls": backup_calls,
                 "last_update": datetime.now(UTC),
             }
 
@@ -313,7 +351,7 @@ class Pipeline:
                 {"arxiv_id": arxiv_id, **result, "processing_status": TaskStatus.COMPLETED}
             )
         except Exception as exc:
-            logger.error(f"[{arxiv_id}] Failed processing paper: {exc}{title_info}")
+            logger.error(f"[{arxiv_id}] Failed processing paper: {exc}{context_info}")
             self.state_manager.update_paper(arxiv_id, status=TaskStatus.FAILED, error=str(exc))
             return None
 

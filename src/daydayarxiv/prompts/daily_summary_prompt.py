@@ -9,7 +9,7 @@ DAILY_SUMMARY_SYSTEM_PROMPT = ""
 DAILY_SUMMARY_USER_INSTRUCTION = ""
 
 
-def get_daily_summary_system_prompt(_target_date_str: str) -> str:
+def get_daily_summary_system_prompt(target_date_str: str) -> str:
     """Returns the system prompt for daily summary generation with current date"""
     return DAILY_SUMMARY_SYSTEM_PROMPT
 

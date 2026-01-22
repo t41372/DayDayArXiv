@@ -68,6 +68,7 @@ class Paper(BaseModel):
     max_attempts: int = 3
     error: str | None = None
     completed_steps: list[str] = Field(default_factory=list)
+    llm_backup_calls: int = 0
     last_update: datetime | None = None
 
     @field_serializer("last_update")
@@ -92,6 +93,7 @@ class DailyData(BaseModel):
     papers_count: int = 0
     processed_papers_count: int = 0
     failed_papers_count: int = 0
+    llm_backup_calls: int = 0
     summary_generated: bool = False
     daily_data_saved: bool = False
     last_update: datetime | None = None

@@ -115,7 +115,15 @@ def main() -> int:
     configure_logging(settings.log_level, settings.log_dir)
 
     run_config = _build_run_config(args, settings)
-    logger.info(f"Dates to process: {', '.join(run_config.dates)}")
+    if len(run_config.dates) == 1:
+        logger.info(f"Dates to process: {run_config.dates[0]} (1 day)")
+    else:
+        logger.info(
+            "Date range: "
+            f"{run_config.dates[0]} -> {run_config.dates[-1]} "
+            f"({len(run_config.dates)} days)"
+        )
+        logger.info(f"Dates to process: {', '.join(run_config.dates)}")
 
     llm = LLMClient(
         weak=settings.llm.weak,
@@ -133,7 +141,9 @@ def main() -> int:
 
     async def _run() -> int:
         success_count = 0
-        for date_str in run_config.dates:
+        total_days = len(run_config.dates)
+        for index, date_str in enumerate(run_config.dates, start=1):
+            logger.info(f"Processing date {date_str} ({index}/{total_days})")
             try:
                 ok = await pipeline.run_for_date(
                     date_str=date_str,

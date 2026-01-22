@@ -125,6 +125,14 @@ class Provider:
     rate_limiter: RateLimiter
 
 
+@dataclass(frozen=True)
+class LLMCallResult:
+    content: str
+    provider: str
+    used_backup: bool
+    primary_failures: int
+
+
 def _classify_error(exc: Exception) -> Exception:
     if isinstance(exc, APIStatusError):
         status_code = getattr(exc, "status_code", None)
@@ -252,17 +260,18 @@ class LLMClient:
                 return content
         raise LLMRetryableError("Exhausted retries")  # pragma: no cover
 
-    async def _with_fallback(
+    async def _with_fallback_result(
         self,
         primary: str,
         *,
         messages: list[ChatCompletionMessageParam],
         temperature: float,
         validate: bool = True,
-    ) -> str:
+    ) -> LLMCallResult:
         primary_provider = self.providers[primary]
         backup_provider = self.providers.get("backup")
         last_error: Exception | None = None
+        primary_failures = 0
         for attempt in range(1, self._PRIMARY_FAILURES_BEFORE_BACKUP + 1):
             try:
                 logger.debug(
@@ -276,9 +285,15 @@ class LLMClient:
                 )
                 if validate and not _is_valid_output(result, self.failure_patterns):
                     raise LLMValidationError("LLM output failed validation")
-                return result
+                return LLMCallResult(
+                    content=result,
+                    provider=primary_provider.name,
+                    used_backup=False,
+                    primary_failures=primary_failures,
+                )
             except Exception as exc:  # pragma: no cover - exercised in tests
                 last_error = exc
+                primary_failures += 1
                 logger.warning(
                     f"Provider {primary_provider.name} failed (attempt {attempt}/{self._PRIMARY_FAILURES_BEFORE_BACKUP}): {exc}"
                 )
@@ -296,7 +311,16 @@ class LLMClient:
                 )
                 if validate and not _is_valid_output(result, self.failure_patterns):
                     raise LLMValidationError("LLM output failed validation")
-                return result
+                logger.info(
+                    f"Fallback to backup provider {backup_provider.name} after "
+                    f"{primary_failures} primary failures"
+                )
+                return LLMCallResult(
+                    content=result,
+                    provider=backup_provider.name,
+                    used_backup=True,
+                    primary_failures=primary_failures,
+                )
             except Exception as exc:  # pragma: no cover - exercised in tests
                 last_error = exc
                 logger.warning(f"Provider {backup_provider.name} failed: {exc}")
@@ -314,7 +338,18 @@ class LLMClient:
                 "content": build_translate_title_user_prompt(title, abstract),
             },
         ]
-        return await self._with_fallback("weak", messages=messages, temperature=0.5)
+        result = await self._with_fallback_result("weak", messages=messages, temperature=0.5)
+        return result.content
+
+    async def translate_title_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+        messages: list[ChatCompletionMessageParam] = [
+            {"role": "system", "content": TRANSLATE_TITLE_SYSTEM_PROMPT},
+            {
+                "role": "user",
+                "content": build_translate_title_user_prompt(title, abstract),
+            },
+        ]
+        return await self._with_fallback_result("weak", messages=messages, temperature=0.5)
 
     @observe()
     async def tldr(self, title: str, abstract: str) -> str:
@@ -325,7 +360,18 @@ class LLMClient:
                 "content": build_tldr_user_prompt(title, abstract),
             },
         ]
-        return await self._with_fallback("weak", messages=messages, temperature=0.5)
+        result = await self._with_fallback_result("weak", messages=messages, temperature=0.5)
+        return result.content
+
+    async def tldr_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+        messages: list[ChatCompletionMessageParam] = [
+            {"role": "system", "content": TLDR_SYSTEM_PROMPT},
+            {
+                "role": "user",
+                "content": build_tldr_user_prompt(title, abstract),
+            },
+        ]
+        return await self._with_fallback_result("weak", messages=messages, temperature=0.5)
 
     @observe()
     async def daily_summary(self, paper_text: str, date_str: str) -> str:
@@ -337,7 +383,8 @@ class LLMClient:
                 "content": build_daily_summary_user_prompt(paper_text, date_str),
             },
         ]
-        return await self._with_fallback("strong", messages=messages, temperature=0.5)
+        result = await self._with_fallback_result("strong", messages=messages, temperature=0.5)
+        return result.content
 
 
 def _is_valid_output(value: str | None, failure_patterns: Iterable[str]) -> bool:
