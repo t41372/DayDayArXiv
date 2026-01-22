@@ -42,6 +42,49 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      # Core settings (match .env.sample; values can come from secrets or vars)
+      DDARXIV_DATA_DIR: ${{ secrets.DDARXIV_DATA_DIR || vars.DDARXIV_DATA_DIR }}
+      DDARXIV_LOG_DIR: ${{ secrets.DDARXIV_LOG_DIR || vars.DDARXIV_LOG_DIR }}
+      DDARXIV_LOG_LEVEL: ${{ secrets.DDARXIV_LOG_LEVEL || vars.DDARXIV_LOG_LEVEL }}
+      DDARXIV_CATEGORY: ${{ secrets.DDARXIV_CATEGORY || vars.DDARXIV_CATEGORY }}
+      DDARXIV_MAX_RESULTS: ${{ secrets.DDARXIV_MAX_RESULTS || vars.DDARXIV_MAX_RESULTS }}
+      DDARXIV_CONCURRENCY: ${{ secrets.DDARXIV_CONCURRENCY || vars.DDARXIV_CONCURRENCY }}
+      DDARXIV_BATCH_SIZE: ${{ secrets.DDARXIV_BATCH_SIZE || vars.DDARXIV_BATCH_SIZE }}
+      DDARXIV_FORCE: ${{ secrets.DDARXIV_FORCE || vars.DDARXIV_FORCE }}
+      DDARXIV_PAPER_MAX_ATTEMPTS: ${{ secrets.DDARXIV_PAPER_MAX_ATTEMPTS || vars.DDARXIV_PAPER_MAX_ATTEMPTS }}
+      DDARXIV_FAIL_ON_ERROR: ${{ secrets.DDARXIV_FAIL_ON_ERROR || vars.DDARXIV_FAIL_ON_ERROR }}
+      DDARXIV_STATE_SAVE_INTERVAL_S: ${{ secrets.DDARXIV_STATE_SAVE_INTERVAL_S || vars.DDARXIV_STATE_SAVE_INTERVAL_S }}
+      DDARXIV_FAILURE_PATTERNS: ${{ secrets.DDARXIV_FAILURE_PATTERNS || vars.DDARXIV_FAILURE_PATTERNS }}
+
+      # LLM providers (match .env.sample)
+      DDARXIV_LLM_WEAK_BASE_URL: ${{ secrets.DDARXIV_LLM_WEAK_BASE_URL || vars.DDARXIV_LLM_WEAK_BASE_URL }}
+      DDARXIV_LLM_WEAK_API_KEY: ${{ secrets.DDARXIV_LLM_WEAK_API_KEY || vars.DDARXIV_LLM_WEAK_API_KEY }}
+      DDARXIV_LLM_WEAK_MODEL: ${{ secrets.DDARXIV_LLM_WEAK_MODEL || vars.DDARXIV_LLM_WEAK_MODEL }}
+      DDARXIV_LLM_WEAK_RPM: ${{ secrets.DDARXIV_LLM_WEAK_RPM || vars.DDARXIV_LLM_WEAK_RPM }}
+      DDARXIV_LLM_WEAK_TIMEOUT_S: ${{ secrets.DDARXIV_LLM_WEAK_TIMEOUT_S || vars.DDARXIV_LLM_WEAK_TIMEOUT_S }}
+      DDARXIV_LLM_WEAK_MAX_RETRIES: ${{ secrets.DDARXIV_LLM_WEAK_MAX_RETRIES || vars.DDARXIV_LLM_WEAK_MAX_RETRIES }}
+
+      DDARXIV_LLM_STRONG_BASE_URL: ${{ secrets.DDARXIV_LLM_STRONG_BASE_URL || vars.DDARXIV_LLM_STRONG_BASE_URL }}
+      DDARXIV_LLM_STRONG_API_KEY: ${{ secrets.DDARXIV_LLM_STRONG_API_KEY || vars.DDARXIV_LLM_STRONG_API_KEY }}
+      DDARXIV_LLM_STRONG_MODEL: ${{ secrets.DDARXIV_LLM_STRONG_MODEL || vars.DDARXIV_LLM_STRONG_MODEL }}
+      DDARXIV_LLM_STRONG_RPM: ${{ secrets.DDARXIV_LLM_STRONG_RPM || vars.DDARXIV_LLM_STRONG_RPM }}
+      DDARXIV_LLM_STRONG_TIMEOUT_S: ${{ secrets.DDARXIV_LLM_STRONG_TIMEOUT_S || vars.DDARXIV_LLM_STRONG_TIMEOUT_S }}
+      DDARXIV_LLM_STRONG_MAX_RETRIES: ${{ secrets.DDARXIV_LLM_STRONG_MAX_RETRIES || vars.DDARXIV_LLM_STRONG_MAX_RETRIES }}
+
+      DDARXIV_LLM_BACKUP_BASE_URL: ${{ secrets.DDARXIV_LLM_BACKUP_BASE_URL || vars.DDARXIV_LLM_BACKUP_BASE_URL }}
+      DDARXIV_LLM_BACKUP_API_KEY: ${{ secrets.DDARXIV_LLM_BACKUP_API_KEY || vars.DDARXIV_LLM_BACKUP_API_KEY }}
+      DDARXIV_LLM_BACKUP_MODEL: ${{ secrets.DDARXIV_LLM_BACKUP_MODEL || vars.DDARXIV_LLM_BACKUP_MODEL }}
+      DDARXIV_LLM_BACKUP_RPM: ${{ secrets.DDARXIV_LLM_BACKUP_RPM || vars.DDARXIV_LLM_BACKUP_RPM }}
+      DDARXIV_LLM_BACKUP_TIMEOUT_S: ${{ secrets.DDARXIV_LLM_BACKUP_TIMEOUT_S || vars.DDARXIV_LLM_BACKUP_TIMEOUT_S }}
+      DDARXIV_LLM_BACKUP_MAX_RETRIES: ${{ secrets.DDARXIV_LLM_BACKUP_MAX_RETRIES || vars.DDARXIV_LLM_BACKUP_MAX_RETRIES }}
+
+      # Langfuse (match .env.sample; keep backward compatibility with LANGFUSE_* secrets)
+      DDARXIV_LANGFUSE_ENABLED: ${{ secrets.DDARXIV_LANGFUSE_ENABLED || vars.DDARXIV_LANGFUSE_ENABLED }}
+      DDARXIV_LANGFUSE_HOST: ${{ secrets.DDARXIV_LANGFUSE_HOST || secrets.LANGFUSE_HOST || vars.DDARXIV_LANGFUSE_HOST || vars.LANGFUSE_HOST }}
+      DDARXIV_LANGFUSE_PUBLIC_KEY: ${{ secrets.DDARXIV_LANGFUSE_PUBLIC_KEY || secrets.LANGFUSE_PUBLIC_KEY || vars.DDARXIV_LANGFUSE_PUBLIC_KEY || vars.LANGFUSE_PUBLIC_KEY }}
+      DDARXIV_LANGFUSE_SECRET_KEY: ${{ secrets.DDARXIV_LANGFUSE_SECRET_KEY || secrets.LANGFUSE_SECRET_KEY || vars.DDARXIV_LANGFUSE_SECRET_KEY || vars.LANGFUSE_SECRET_KEY }}
+      DDARXIV_LANGFUSE_SESSION_NOTE: ${{ secrets.DDARXIV_LANGFUSE_SESSION_NOTE || secrets.LANGFUSE_SESSION_NOTE || vars.DDARXIV_LANGFUSE_SESSION_NOTE || vars.LANGFUSE_SESSION_NOTE }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -85,24 +128,6 @@ jobs:
           DDARXIV_MAX_RESULTS: ${{ inputs.max-results }}
           DDARXIV_FORCE: ${{ inputs.force }}
           DDARXIV_LOG_LEVEL: ${{ inputs.log-level }}
-          # LLM configuration (OpenAI-compatible providers)
-          DDARXIV_LLM_WEAK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          DDARXIV_LLM_WEAK_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
-          DDARXIV_LLM_WEAK_MODEL: ${{ secrets.LLM_MODEL }}
-          DDARXIV_LLM_WEAK_RPM: ${{ secrets.LLM_RPM || secrets.RPM || '20' }}
-          DDARXIV_LLM_STRONG_API_KEY: ${{ secrets.OPENAI_API_KEY_STRONG }}
-          DDARXIV_LLM_STRONG_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_STRONG }}
-          DDARXIV_LLM_STRONG_MODEL: ${{ secrets.LLM_MODEL_STRONG }}
-          DDARXIV_LLM_STRONG_RPM: ${{ secrets.LLM_RPM_STRONG || '10' }}
-          DDARXIV_LLM_BACKUP_API_KEY: ${{ secrets.OPENAI_API_KEY_BACKUP }}
-          DDARXIV_LLM_BACKUP_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_BACKUP }}
-          DDARXIV_LLM_BACKUP_MODEL: ${{ secrets.LLM_MODEL_BACKUP }}
-          DDARXIV_LLM_BACKUP_RPM: ${{ secrets.LLM_RPM_BACKUP || '10' }}
-          DDARXIV_LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
-          DDARXIV_LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          DDARXIV_LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
-          DDARXIV_LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
-          DDARXIV_LANGFUSE_ENABLED: "true"
       
       - name: Run fetch_arxiv script (for scheduled runs or manual runs without specified dates)
         if: ${{ inputs.date == '' && inputs.start-date == '' }}
@@ -115,24 +140,6 @@ jobs:
           DDARXIV_MAX_RESULTS: ${{ inputs.max-results || '1000' }}
           DDARXIV_FORCE: ${{ inputs.force }}
           DDARXIV_LOG_LEVEL: ${{ inputs.log-level || 'INFO' }}
-          # LLM configuration (OpenAI-compatible providers)
-          DDARXIV_LLM_WEAK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          DDARXIV_LLM_WEAK_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL }}
-          DDARXIV_LLM_WEAK_MODEL: ${{ secrets.LLM_MODEL }}
-          DDARXIV_LLM_WEAK_RPM: ${{ secrets.LLM_RPM || secrets.RPM || '20' }}
-          DDARXIV_LLM_STRONG_API_KEY: ${{ secrets.OPENAI_API_KEY_STRONG }}
-          DDARXIV_LLM_STRONG_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_STRONG }}
-          DDARXIV_LLM_STRONG_MODEL: ${{ secrets.LLM_MODEL_STRONG }}
-          DDARXIV_LLM_STRONG_RPM: ${{ secrets.LLM_RPM_STRONG || '10' }}
-          DDARXIV_LLM_BACKUP_API_KEY: ${{ secrets.OPENAI_API_KEY_BACKUP }}
-          DDARXIV_LLM_BACKUP_BASE_URL: ${{ secrets.OPENAI_API_BASE_URL_BACKUP }}
-          DDARXIV_LLM_BACKUP_MODEL: ${{ secrets.LLM_MODEL_BACKUP }}
-          DDARXIV_LLM_BACKUP_RPM: ${{ secrets.LLM_RPM_BACKUP || '10' }}
-          DDARXIV_LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
-          DDARXIV_LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
-          DDARXIV_LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
-          DDARXIV_LANGFUSE_SESSION_NOTE: ${{ secrets.LANGFUSE_SESSION_NOTE }}
-          DDARXIV_LANGFUSE_ENABLED: "true"
 
       - name: Check for changes
         id: check_changes
