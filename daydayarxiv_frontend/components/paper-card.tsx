@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react"
+import ReactMarkdown from "react-markdown"
 import type { Paper } from "@/lib/types"
 
 interface PaperCardProps {
@@ -13,7 +14,9 @@ export default function PaperCard({ paper }: PaperCardProps) {
 
       <p className="text-sm text-[#45454a] mb-4">{paper.authors.join(", ")}</p>
 
-      <p className="text-[#45454a] mb-6 whitespace-pre-line">{paper.tldr_zh}</p>
+      <div className="text-[#45454a] prose prose-sm max-w-none mb-6">
+        <ReactMarkdown>{paper.tldr_zh}</ReactMarkdown>
+      </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
         <span className="bg-[#c00f0c] text-white px-3 py-1 rounded-md text-sm">arXiv:{paper.arxiv_id}</span>
