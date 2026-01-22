@@ -212,6 +212,15 @@ class LLMClient:
             with attempt:
                 await provider.rate_limiter.wait()
                 try:
+                    attempt_number = attempt.retry_state.attempt_number
+                    max_attempts = provider.settings.max_retries + 1
+                    logger.info(
+                        "Calling LLM (attempt {attempt}/{max_attempts}): provider={provider} model={model}",
+                        attempt=attempt_number,
+                        max_attempts=max_attempts,
+                        provider=provider.name,
+                        model=model,
+                    )
                     response = await provider.client.chat.completions.create(
                         model=model,
                         messages=messages,
