@@ -54,6 +54,19 @@ def test_state_reset(tmp_path):
     assert manager.current_state.date == "2025-01-02"
 
 
+def test_state_backup_call_count(tmp_path):
+    manager = StateManager(OutputPaths(tmp_path))
+    manager.load("2025-01-01", "cs.AI")
+    manager.register_raw_papers([_raw_paper("id1")], max_attempts=1)
+    manager.update_paper(
+        "id1",
+        status=TaskStatus.COMPLETED,
+        result={"llm_backup_calls": 2},
+    )
+    assert manager.current_state is not None
+    assert manager.current_state.llm_backup_calls == 2
+
+
 def test_state_no_current_state(tmp_path):
     manager = StateManager(OutputPaths(tmp_path))
     manager.save()

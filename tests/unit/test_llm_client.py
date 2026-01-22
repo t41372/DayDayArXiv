@@ -5,6 +5,7 @@ import pytest
 
 from daydayarxiv.llm.client import (
     LLMClient,
+    LLMCallResult,
     LLMNonRetryableError,
     LLMRetryableError,
     Provider,
@@ -95,6 +96,31 @@ async def test_llm_fallback_on_invalid(monkeypatch):
     llm = _make_llm(monkeypatch, weak_client, backup_client)
     result = await llm.translate_title("Title", "Abstract")
     assert result == "有效输出"
+
+
+@pytest.mark.asyncio
+async def test_llm_meta_reports_backup(monkeypatch):
+    weak_client = DummyClient(["翻译失败", "翻译失败", "翻译失败"])
+    backup_client = DummyClient(["有效输出"])
+    llm = _make_llm(monkeypatch, weak_client, backup_client)
+    result = await llm.translate_title_with_meta("Title", "Abstract")
+    assert isinstance(result, LLMCallResult)
+    assert result.content == "有效输出"
+    assert result.used_backup is True
+    assert result.provider == "backup"
+    assert result.primary_failures == 3
+
+
+@pytest.mark.asyncio
+async def test_llm_meta_primary_success(monkeypatch):
+    weak_client = DummyClient(["OK"])
+    backup_client = DummyClient(["备用"])
+    llm = _make_llm(monkeypatch, weak_client, backup_client)
+    result = await llm.tldr_with_meta("Title", "Abstract")
+    assert result.content == "OK"
+    assert result.used_backup is False
+    assert result.provider == "weak"
+    assert result.primary_failures == 0
 
 
 @pytest.mark.asyncio

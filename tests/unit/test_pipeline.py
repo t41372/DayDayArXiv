@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 
 from daydayarxiv.arxiv_client import ArxivFetchError
+from daydayarxiv.llm.client import LLMCallResult
 from daydayarxiv.models import DailyData, DailyStatus, Paper, RawPaper, TaskStatus
 from daydayarxiv.pipeline import Pipeline, _export_prompt
 from daydayarxiv.settings import Settings
@@ -25,6 +26,26 @@ class DummyLLM:
             raise RuntimeError("LLM error")
         return "摘要"
 
+    async def translate_title_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+        if self.raise_on_paper:
+            raise RuntimeError("LLM error")
+        return LLMCallResult(
+            content="标题",
+            provider="weak",
+            used_backup=False,
+            primary_failures=0,
+        )
+
+    async def tldr_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+        if self.raise_on_paper:
+            raise RuntimeError("LLM error")
+        return LLMCallResult(
+            content="摘要",
+            provider="weak",
+            used_backup=False,
+            primary_failures=0,
+        )
+
     async def daily_summary(self, paper_text: str, date_str: str) -> str:
         return self.summary
 
@@ -39,6 +60,17 @@ class FlakyLLM(DummyLLM):
             self._failed_once = True
             raise RuntimeError("LLM error")
         return "标题"
+
+    async def translate_title_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+        if not self._failed_once:
+            self._failed_once = True
+            raise RuntimeError("LLM error")
+        return LLMCallResult(
+            content="标题",
+            provider="weak",
+            used_backup=False,
+            primary_failures=1,
+        )
 
 
 def _settings(tmp_path, *, paper_max_attempts: int = 2) -> Settings:
@@ -92,6 +124,8 @@ def test_pipeline_helper_no_state(tmp_path):
     assert counts[TaskStatus.PENDING] == 0
     pipeline._log_progress(1)
     assert pipeline._paper_attempt_info("missing") == (0, 0)
+    assert pipeline._paper_index_info("missing") == (0, 0)
+    assert pipeline._backup_call_count() == 0
 
 
 def test_pipeline_helper_missing_paper(tmp_path):
@@ -100,6 +134,9 @@ def test_pipeline_helper_missing_paper(tmp_path):
     manager.load("2025-01-01", "cs.AI")
     pipeline = Pipeline(settings, DummyLLM(), manager)
     assert pipeline._paper_attempt_info("missing") == (0, 0)
+    assert pipeline._paper_index_info("missing") == (0, 0)
+    manager.register_raw_papers([_raw_paper()], max_attempts=1)
+    assert pipeline._paper_index_info("missing") == (0, 1)
 
 
 def test_pipeline_truncate_title():
@@ -120,6 +157,78 @@ async def test_pipeline_process_single_paper_logs_empty_title(tmp_path):
     pipeline = Pipeline(settings, DummyLLM(), manager)
     result = await pipeline._process_single_paper(paper)
     assert result is not None
+
+
+@pytest.mark.asyncio
+async def test_pipeline_backup_calls_tracked(tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+    manager.load("2025-01-01", "cs.AI")
+    paper = _raw_paper()
+    manager.register_raw_papers([paper], max_attempts=1)
+
+    class BackupLLM(DummyLLM):
+        async def translate_title_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+            return LLMCallResult(
+                content="标题",
+                provider="backup",
+                used_backup=True,
+                primary_failures=3,
+            )
+
+        async def tldr_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+            return LLMCallResult(
+                content="摘要",
+                provider="weak",
+                used_backup=False,
+                primary_failures=0,
+            )
+
+    pipeline = Pipeline(settings, BackupLLM(), manager)
+    result = await pipeline._process_single_paper(paper)
+    assert result is not None
+    assert result.llm_backup_calls == 1
+    assert manager.current_state is not None
+    assert manager.current_state.llm_backup_calls == 1
+
+
+@pytest.mark.asyncio
+async def test_pipeline_backup_calls_logged_for_date(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    manager = StateManager(OutputPaths(settings.data_dir))
+
+    class BackupLLM(DummyLLM):
+        async def translate_title_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+            return LLMCallResult(
+                content="标题",
+                provider="backup",
+                used_backup=True,
+                primary_failures=3,
+            )
+
+        async def tldr_with_meta(self, title: str, abstract: str) -> LLMCallResult:
+            return LLMCallResult(
+                content="摘要",
+                provider="weak",
+                used_backup=False,
+                primary_failures=0,
+            )
+
+    async def _fetch(*_args, **_kwargs):
+        return [_raw_paper()]
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    pipeline = Pipeline(settings, BackupLLM(), manager)
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-01",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is True
+    assert manager.current_state is not None
+    assert manager.current_state.llm_backup_calls == 1
 
 
 @pytest.mark.asyncio
