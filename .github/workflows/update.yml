@@ -152,20 +152,169 @@ jobs:
             echo "changes=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Package data artifact
+        if: always()
+        id: package_data
+        run: |
+          set -euo pipefail
+          DATA_DIR="daydayarxiv_frontend/public/data"
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "has_zip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [[ ! -d "$DATA_DIR" ]]; then
+            echo "has_zip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          ARCHIVE_PATH="${RUNNER_TEMP}/daydayarxiv-data-${{ github.run_id }}-${{ github.run_attempt }}.zip"
+          export ARCHIVE_PATH DATA_DIR
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import zipfile
+
+          data_dir = Path(os.environ["DATA_DIR"]).resolve()
+          archive_path = Path(os.environ["ARCHIVE_PATH"]).resolve()
+          root = Path.cwd().resolve()
+
+          files = [p for p in data_dir.rglob("*") if p.is_file()]
+          if not files:
+              raise SystemExit(0)
+
+          with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+              for path in files:
+                  zf.write(path, path.relative_to(root))
+
+          print(f"Packed {len(files)} files into {archive_path}")
+          PY
+
+          if [[ -f "$ARCHIVE_PATH" ]]; then
+            echo "has_zip=true" >> "$GITHUB_OUTPUT"
+            echo "zip_path=$ARCHIVE_PATH" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_zip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload data artifact
+        if: steps.package_data.outputs.has_zip == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: daydayarxiv-data-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.package_data.outputs.zip_path }}
+
       - name: Commit and push changes
         if: steps.check_changes.outputs.changes == 'true'
+        id: push_changes
         run: |
+          set -euo pipefail
           DATE=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
           git add -A
           git commit -m "Update data: $DATE"
           git remote set-url origin https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}
-          git push
+          BRANCH="${{ github.ref_name }}"
+
+          if git fetch origin "$BRANCH" && git rebase "origin/$BRANCH"; then
+            if git push origin "HEAD:$BRANCH"; then
+              echo "push_status=success" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          else
+            git rebase --abort || true
+          fi
+
+          RECOVERY_BRANCH="data-recovery/${{ github.run_id }}-${{ github.run_attempt }}"
+          git push origin "HEAD:refs/heads/$RECOVERY_BRANCH" || true
+          echo "push_status=fallback" >> "$GITHUB_OUTPUT"
+          echo "recovery_branch=$RECOVERY_BRANCH" >> "$GITHUB_OUTPUT"
+          exit 1
 
       - name: Trigger build-frontend workflow
-        if: steps.check_changes.outputs.changes == 'true'
+        if: steps.push_changes.outputs.push_status == 'success'
         run: |
           curl -X POST \
             -H "Authorization: token ${{ secrets.PAT_GITHUB }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-frontend.yml/dispatches \
             -d '{"ref":"${{ github.ref }}"}'
+
+      - name: Open recovery PR
+        if: steps.push_changes.outputs.push_status == 'fallback'
+        id: recovery_pr
+        run: |
+          set -euo pipefail
+          BRANCH="${{ steps.push_changes.outputs.recovery_branch }}"
+          BASE="${{ github.ref_name }}"
+          OWNER="${{ github.repository_owner }}"
+          API="https://api.github.com/repos/${{ github.repository }}/pulls"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          cat > "$RUNNER_TEMP/pr_payload.json" <<JSON
+          {
+            "title": "Data recovery: ${BRANCH}",
+            "head": "${BRANCH}",
+            "base": "${BASE}",
+            "body": "Automated recovery PR created from workflow run ${RUN_URL}."
+          }
+          JSON
+
+          STATUS=$(curl -s -o "$RUNNER_TEMP/pr_response.json" -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.PAT_GITHUB }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d @"$RUNNER_TEMP/pr_payload.json" \
+            "$API")
+
+          if [[ "$STATUS" == "201" ]]; then
+            PR_URL=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("${RUNNER_TEMP}/pr_response.json").read_text())
+          print(data.get("html_url", ""))
+          PY
+            )
+            echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          SEARCH_URL="https://api.github.com/repos/${{ github.repository }}/pulls?state=open&head=${OWNER}:${BRANCH}"
+          STATUS=$(curl -s -o "$RUNNER_TEMP/pr_search.json" -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.PAT_GITHUB }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "$SEARCH_URL")
+
+          if [[ "$STATUS" == "200" ]]; then
+            PR_URL=$(python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("${RUNNER_TEMP}/pr_search.json").read_text())
+          if isinstance(data, list) and data:
+              print(data[0].get("html_url", ""))
+          PY
+            )
+            if [[ -n "$PR_URL" ]]; then
+              echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Write recovery summary
+        if: always()
+        run: |
+          {
+            echo "## Data recovery"
+            if [[ "${{ steps.package_data.outputs.has_zip }}" == "true" ]]; then
+              echo "- Artifact: daydayarxiv-data-${{ github.run_id }}-${{ github.run_attempt }}"
+            else
+              echo "- Artifact: none"
+            fi
+
+            if [[ "${{ steps.push_changes.outputs.push_status }}" == "fallback" ]]; then
+              echo "- Recovery branch: ${{ steps.push_changes.outputs.recovery_branch }}"
+              if [[ -n "${{ steps.recovery_pr.outputs.pr_url }}" ]]; then
+                echo "- Recovery PR: ${{ steps.recovery_pr.outputs.pr_url }}"
+              else
+                echo "- Recovery PR: none"
+              fi
+            else
+              echo "- Recovery branch: none"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
