@@ -47,7 +47,22 @@ uv run python -m daydayarxiv --date 2025-03-01
 uv run fetch_arxiv.py --date 2025-03-01
 ```
 
-3. （可选）前端本地开发
+3. （可选）刷新前端数据索引（根据实际数据同步 `index.json`）
+```bash
+uv run daydayarxiv refresh-index
+```
+
+可按类别过滤并进行严格校验：
+```bash
+uv run daydayarxiv refresh-index --category cs.AI --fail-on-issues
+```
+
+允许部分数据进入索引，但会输出警告与重跑命令：
+```bash
+uv run daydayarxiv refresh-index --allow-partial
+```
+
+4. （可选）前端本地开发
 ```bash
 cd daydayarxiv_frontend
 npm install
@@ -86,11 +101,17 @@ A tool to fetch and process arXiv papers with LLM-powered translation and summar
 ## Usage
 
 ```bash
-uv run daydayarxiv [options]
+uv run daydayarxiv [command] [options]
 ```
+
+### Commands
+
+- `run` (default): Fetch and process arXiv papers.
+- `refresh-index`: Rebuild `daydayarxiv_frontend/public/data/index.json` from actual data files.
 
 ### Options
 
+#### `run` options
 - `--date DATE`: Process papers for a specific date (YYYY-MM-DD format)
 - `--start-date DATE`: Start date for processing a date range (YYYY-MM-DD format)
 - `--end-date DATE`: End date for processing a date range (YYYY-MM-DD format)
@@ -98,6 +119,14 @@ uv run daydayarxiv [options]
 - `--max-results N`: Maximum number of papers to fetch (default: 1000)
 - `--force`: Force refresh data even if it exists
 - `--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}`: Set logging level (default: INFO)
+
+#### `refresh-index` options
+- `--data-dir PATH`: Data directory (default from settings/env)
+- `--category CATEGORY`: Restrict to specific categories (repeatable)
+- `--no-content-validation`: Skip summary/content validation checks
+- `--dry-run`: Do not write `index.json`, only report issues
+- `--fail-on-issues`: Exit non-zero if invalid files are found
+- `--allow-partial`: Include partially valid data in index while warning
 
 ### Examples
 
@@ -119,6 +148,11 @@ uv run daydayarxiv --date 2025-03-01 --category cs.CL
 Force refresh existing data:
 ```bash
 uv run daydayarxiv --date 2025-03-01 --force
+```
+
+Refresh index.json for existing data:
+```bash
+uv run daydayarxiv refresh-index
 ```
 
 配置与限流建议通过 `.env` 或环境变量完成（见上文 Quickstart）。
