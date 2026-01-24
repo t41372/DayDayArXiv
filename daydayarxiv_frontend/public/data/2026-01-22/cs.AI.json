@@ -1,7 +1,7 @@
 {
   "date": "2026-01-22",
   "category": "cs.AI",
-  "summary": "",
+  "summary": "你好！欢迎来到 **UTC 时间 2026-01-22** 的 arXiv 中文 TLDR 快报！\n\n**今日总结**：\n今天的 arXiv 充满了“**Test-Time**”和“**Agentic**”的味道。最重磅的工作莫过于 Yejin Choi 和 James Zou 等人推出的 **TTT-Discover**，探索了在推理时进行强化学习以发现科学新知；Agent 领域则在**沙盒环境（Sandbox）**、**计算机操作（Computer Use）**以及**自我校准（Calibration）**上迎来了井喷。此外，NVIDIA 推出的 **Cosmos Policy** 让视频生成模型无缝转化为机器人策略，非常值得关注。\n\n让我们开始今天的深度阅读：\n\n---\n\n### 🚀 必读精选：Test-Time Training 与通用 Agent\n\n**1. Learning to Discover at Test Time**\n**(学习在测试时发现)**\n> **Authors:** Mert Yuksekgonul, Yejin Choi, James Zou, et al.\n> **关键词:** Test-Time Training (TTT), Reinforcement Learning, Scientific Discovery\n\n这绝对是今天的头条。Yejin Choi 团队不再满足于简单的 Prompting，而是提出了 **TTT-Discover**。\n*   **核心思想**：不同于以往的 Test-time scaling（通常是搜索），这里是在测试阶段对 LLM 进行**强化学习（RL）**。但这是一种特殊的持续学习（Continual Learning）：目标不是为了在多个问题上表现好，而是为了解决**当前这一个**特定的难题。\n*   **成果**：使用 OpenAI `gpt-oss-120b` 模型，在数学、GPU内核优化、生物学等领域打破了 SOTA。\n*   **Implication**：这预示着未来的推理范式可能从“搜索”转向“针对性微调”。\n\n**2. LLM-in-Sandbox Elicits General Agentic Intelligence**\n**(LLM-in-Sandbox 诱发通用智能代理能力)**\n> **Authors:** Daixuan Cheng, Furu Wei, et al. (Microsoft Research & RUC)\n> **关键词:** Sandbox, Agentic Intelligence, Tool Use\n\n这篇论文探讨了环境对智能的塑造。\n*   **发现**：强大的 LLM 即使没有额外训练，只要被放入一个**代码沙盒（Code Sandbox）**环境，就能涌现出非代码领域的通用智能（如自发调用文件系统处理长上下文）。\n*   **方法**：提出了 **LLM-in-Sandbox-RL**，仅使用非 Agent 数据来训练模型探索沙盒。\n*   **结论**：沙盒不仅是代码执行器，更是 Agent 展现通用解决问题能力的“游乐场”。\n\n**3. EvoCUA: Evolving Computer Use Agents via Learning from Scalable Synthetic Experience**\n**(EvoCUA：通过大规模合成经验进化计算机操作 Agent)**\n> **Authors:** Taofeng Xue, Xipeng Qiu, et al. (Fudan Univ.)\n> **关键词:** Computer Use Agent (CUA), Synthetic Data, Evolutionary Learning\n\n针对最近大火的“计算机操作 Agent”（如 Claude Computer Use），复旦团队提出了进阶版。\n*   **痛点**：静态数据难以捕捉长程任务的因果动态。\n*   **方法**：**EvoCUA** 构建了一个自我维持的进化循环。它包含一个可验证的合成引擎来生成任务，并通过大规模沙盒交互积累经验。最重要的是，它能将失败的轨迹转化为监督信号（Self-correction）。\n*   **效果**：在 OSWorld 基准上达到了 56.7% 的 SOTA，超越了之前的 OpenCUA 和闭源模型。\n\n---\n\n### 🤖 具身智能与视频生成\n\n**4. Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning**\n**(Cosmos Policy：微调视频模型用于视觉运动控制与规划)**\n> **Authors:** Moo Jin Kim, Chelsea Finn, Jinwei Gu, et al. (NVIDIA)\n> **关键词:** Video Generation Models, Robot Policy, World Model\n\nNVIDIA 将视频生成模型的潜力释放到了机器人领域。\n*   **方法**：不需要复杂的架构修改，直接对预训练的视频模型（Cosmos-Predict2）进行**单阶段微调**。\n*   **机制**：机器人动作被编码为 latent frames，直接融入视频模型的扩散过程中。这使得模型既能生成动作，又能像世界模型一样预测未来状态。\n*   **战绩**：在 LIBERO 和 RoboCasa 模拟以及真实世界双臂操作中均表现出色。\n\n**5. Why Can't I Open My Drawer? Mitigating Object-Driven Shortcuts in Zero-Shot Compositional Action Recognition**\n**(为什么我打不开抽屉？缓解零样本组合动作识别中的物体驱动捷径)**\n> **Authors:** Geo Ahn, Jinwoo Choi, et al.\n> **关键词:** Compositional Video Understanding, Bias Mitigation, RCORE\n\n一个非常有趣的各种“捷径”研究。\n*   **发现**：现有的视频理解模型很懒，它们通过“物体”来猜“动作”（比如看到抽屉就猜“打开”），而不是真正看懂了动作。这种 **Object-driven verb shortcuts** 导致模型在没见过的【动作+物体】组合上彻底失效。\n*   **方案**：提出了 **RCORE**，强制模型关注时间上的动作线索，而不是仅仅依赖物体的共现统计。\n\n---\n\n### 🧠 模型推理、校准与对齐\n\n**6. Even GPT-5.2 Can't Count to Five: The Case for Zero-Error Horizon in Trustworthy LLMs**\n**(就连 GPT-5.2 也数不到五：可信 LLM 的零误差视野)**\n> **Authors:** Ryoma Sato\n> **关键词:** Zero-Error Horizon (ZEH), Trustworthiness, Evaluation\n\n标题很“标题党”，但概念很硬核。\n*   **概念**：提出了 **Zero-Error Horizon (ZEH)**，即模型能**100%**无误解决问题的最大范围。\n*   **发现**：虽然现在的模型（文中设定为 GPT-5.2）很强，但在极短的范围内（如判断 `11000` 的奇偶性或简单的括号匹配），ZEH 依然短得惊人。这提醒我们，在安全关键领域，平均准确率高并不代表可靠。\n\n**7. Agentic Confidence Calibration & Agentic Uncertainty Quantification**\n**(Agent 信心校准与不确定性量化)**\n> **Authors:** Jiaxin Zhang, Caiming Xiong, Chien-Sheng Wu (Salesforce Research)\n> **关键词:** Uncertainty Quantification, Calibration, Trajectory\n\nSalesforce 团队今天连发多篇关于 Agent 不确定性的文章（Paper 48, 64, 66）。\n*   **核心观点**：Agent 的不确定性不能只是一个被动的“度量指标”，而必须转变为**主动的控制信号（Active Control Signal）**。\n*   **方法**：提出了 **Holistic Trajectory Calibration (HTC)**，从整个轨迹的宏观动态到微观稳定性进行校准；以及 **Dual-Process Agentic UQ**，模仿人类的系统1（直觉）和系统2（推理）来动态处理不确定性，避免 Agent 陷入“幻觉螺旋”。\n\n**8. Robust Tool Use via Fission-GRPO: Learning to Recover from Execution Errors**\n**(通过 Fission-GRPO 实现鲁棒工具使用：学习从执行错误中恢复)**\n> **Authors:** Zhiwei Zhang, Kam-Fai Wong, et al.\n> **关键词:** Tool Use, Reinforcement Learning, GRPO, Error Recovery\n\n*   **问题**：LLM 调用工具报错后，往往会陷入复读机模式，无法自我修正。\n*   **方法**：**Fission-GRPO**。利用 GRPO（最近很火的 RL 策略），将失败的轨迹“裂变”（Fission）成新的训练实例，并辅以错误模拟器的诊断反馈。这让模型学会了“如何在跌倒的地方爬起来”。\n\n---\n\n### 🎨 创意与趣味研究\n\n**9. Dancing in Chains: Strategic Persuasion in Academic Rebuttal via Theory of Mind**\n**(带着镣铐跳舞：基于心智理论的学术 Rebuttal 策略性说服)**\n> **Authors:** Zhitao He, Yi R Fung, et al.\n> **关键词:** Theory of Mind (ToM), Academic Rebuttal, Persuasion\n\n这绝对是每个研究人员的刚需！\n*   **内容**：学术 Rebuttal 不仅仅是技术辩论，更是一场心理战。作者提出了 **RebuttalAgent**，基于**心智理论（ToM）**来建模审稿人的心理状态，制定说服策略，然后生成回复。\n*   **评价**：在自动评估中，它生成的 Rebuttal 比 GPT-4.1 更能讨好审稿人。\n\n**10. DeepASMR: LLM-Based Zero-Shot ASMR Speech Generation for Anyone of Any Voice**\n**(DeepASMR：基于 LLM 的零样本 ASMR 语音生成)**\n> **Authors:** Leying Zhang, Yanmin Qian, et al.\n> **关键词:** ASMR, Text-to-Speech, Zero-shot\n\n深夜写论文必备。\n*   **突破**：普通的 TTS 很难生成那种让人“颅内高潮”的耳语感（ASMR）。**DeepASMR** 只需要你平时说话的一小段录音，就能零样本生成你的 ASMR 语音。\n*   **技术**：利用 LLM 进行内容-风格编码，配合 Flow-matching 解码器重构音色。\n\n---\n\n### 🛡️ 安全与多模态\n\n*   **PyraTok: Language-Aligned Pyramidal Tokenizer for Video Understanding and Generation**: 提出了金字塔结构的视频 Tokenizer，在视频生成和理解任务上都取得了 SOTA。\n*   **Learning to Watermark in the Latent Space (DistSeal)**: Meta 团队的工作。在生成模型的 Latent Space 里加水印，比像素级水印快20倍且更鲁棒。\n*   **Improving Methodologies for LLM Evaluations Across Global Languages**: 新加坡、日本、英国等国 AI 安全机构（AISI）的联合评估报告，关注多语言下的模型安全差异。\n\n今天的 arXiv 快报就到这里。**TTT-Discover** 和 **Cosmos Policy** 是今日首选，如果你正在赶 Rebuttal，不妨关注一下 **RebuttalAgent**。祝大家科研顺利，明日再见！",
   "papers": [
     {
       "arxiv_id": "2601.16211v1",
@@ -2425,7 +2425,7 @@
     {
       "arxiv_id": "2601.15673v1",
       "title": "Enhancing guidance for missing data in diffusion-based sequential recommendation",
-      "title_zh": "",
+      "title_zh": "增强基于扩散模型的序列推荐中针对缺失数据的引导",
       "authors": [
         "Qilong Yan",
         "Yifei Xing",
@@ -2434,7 +2434,7 @@
         "Jian Yin"
       ],
       "abstract": "Contemporary sequential recommendation methods are becoming more complex, shifting from classification to a diffusion-guided generative paradigm. However, the quality of guidance in the form of user information is often compromised by missing data in the observed sequences, leading to suboptimal generation quality. Existing methods address this by removing locally similar items, but overlook ``critical turning points'' in user interest, which are crucial for accurately predicting subsequent user intent. To address this, we propose a novel Counterfactual Attention Regulation Diffusion model (CARD), which focuses on amplifying the signal from key interest-turning-point items while concurrently identifying and suppressing noise within the user sequence. CARD consists of (1) a Dual-side Thompson Sampling method to identify sequences undergoing significant interest shift, and (2) a counterfactual attention mechanism for these sequences to quantify the importance of each item. In this manner, CARD provides the diffusion model with a high-quality guidance signal composed of dynamically re-weighted interaction vectors to enable effective generation. Experiments show our method works well on real-world data without being computationally expensive. Our code is available at https://github.com/yanqilong3321/CARD.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究针对扩散引导(diffusion-guided)的序列推荐模型在面对缺失数据时指导质量下降的问题，提出了CARD(Counterfactual Attention Regulation Diffusion)模型。CARD旨在识别并放大用户序列中关键的“兴趣转折点”信号，同时抑制序列噪声，解决现有方法忽视用户兴趣动态转变的缺陷。该框架核心包含双侧汤普森采样(Dual-side Thompson Sampling)方法和反事实注意力机制(Counterfactual Attention Mechanism)，前者用于捕捉兴趣发生显著偏移的序列，后者则通过量化各序列项的重要性来优化引导信号。通过这种机制，CARD能为扩散模型提供由动态重加权交互向量构成的高质量引导，从而实现更有效的推荐生成。实验结果证明，该方法在真实世界数据集上表现优异且计算效率高，为处理序列推荐中的缺失数据和兴趣演变提供了新的解决方案。",
       "categories": [
         "cs.IR",
         "cs.AI"
@@ -2444,13 +2444,16 @@
       "pdf_url": "https://arxiv.org/pdf/2601.15673v1",
       "published_date": "2026-01-22 05:55:21 UTC",
       "updated_date": "2026-01-22 05:55:21 UTC",
-      "processing_status": "failed",
-      "attempts": 3,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
-      "error": "Your request was blocked.",
-      "completed_steps": [],
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-23T09:17:43.939735+00:00"
+      "last_update": "2026-01-24T02:26:44.431872+00:00"
     },
     {
       "arxiv_id": "2601.15671v1",
@@ -3175,14 +3178,14 @@
       "last_update": "2026-01-23T09:16:05.975469+00:00"
     }
   ],
-  "processing_status": "failed",
-  "error": "1 papers failed; summary skipped",
+  "processing_status": "completed",
+  "error": null,
   "raw_papers_fetched": true,
   "papers_count": 91,
-  "processed_papers_count": 90,
-  "failed_papers_count": 1,
+  "processed_papers_count": 91,
+  "failed_papers_count": 0,
   "llm_backup_calls": 0,
-  "summary_generated": false,
-  "daily_data_saved": false,
-  "last_update": "2026-01-23T09:17:43.946013+00:00"
+  "summary_generated": true,
+  "daily_data_saved": true,
+  "last_update": "2026-01-24T02:28:38.921834+00:00"
 }
