@@ -1,7 +1,7 @@
 {
   "date": "2026-01-21",
   "category": "cs.AI",
-  "summary": "",
+  "summary": "你好！欢迎来到 UTC 时间 2026-01-21 的 arXiv 中文 TLDR 快报！\n\n**今日总结**：\n今天的 arXiv 充满了“硬核”的理论反思与工程突破。**Reasoning（推理）** 依然是绝对的主角，但风向变了：研究者们不再单纯堆砌数据，而是开始探索 **Offline RL（离线强化学习）** 在推理中的潜力 (#105 PCL-Reasoner)，并反直觉地发现“任意顺序生成”反而可能损害推理能力 (#45)。**Agent（智能体）** 领域开始关注系统级的编排与安全性，特别是“为了讨好裁判模型”而伪造推理过程的现象令人警醒 (#115)。此外，一篇试图从物理原理（信号去噪）推导 Transformer 架构的文章 (#1 PRISM) 非常硬核，值得关注。\n\n---\n\n### 🚀 必读：推理能力的边界与强化 (Reasoning & RL)\n\n**1. PCL-Reasoner-V1.5: Advancing Math Reasoning with Offline Reinforcement Learning**\n**PCL-Reasoner-V1.5：利用离线强化学习提升数学推理能力**\n> 核心术语：Offline RL, Math Reasoning, Process Reward, Qwen2.5\n- **核心贡献**：发布了基于 Qwen2.5-32B 的数学推理模型 PCL-Reasoner-V1.5。\n- **主要发现**：作者提出了一种**离线强化学习 (Offline RL)** 方法，相比于目前流行的在线 RL（如 GRPO），它具有更好的训练稳定性和效率。该模型在 AIME 2024 (90.9%) 和 AIME 2025 (85.6%) 上取得了 SOTA 成绩，证明了离线 RL 是提升 LLM 推理能力的有效且高效的范式。\n\n**2. The Flexibility Trap: Why Arbitrary Order Limits Reasoning Potential in Diffusion Language Models**\n**灵活性陷阱：为什么任意顺序生成限制了扩散语言模型的推理潜力**\n> 核心术语：Diffusion LLM, Arbitrary Order, Reasoning, Solution Space Collapse\n- **核心贡献**：挑战了“扩散语言模型 (dLLMs) 的任意顺序生成能带来更强推理能力”的直觉。\n- **主要发现**：研究发现，dLLMs 倾向于利用“任意顺序”的灵活性来跳过高不确定性的 Token（通常是推理的关键步骤），导致解空间的过早坍缩。作者提出 **JustGRPO**，放弃任意顺序，回归标准策略优化，反而能在 GSM8K 上达到 89.1% 的准确率。**结论：太自由反而学不好推理。**\n\n**3. Outcome-Based RL Provably Leads Transformers to Reason, but Only With the Right Data**\n**基于结果的强化学习不仅能引导 Transformer 推理，但前提是数据正确**\n> 核心术语：Outcome-based Supervision, Chain-of-Thought (CoT), Gradient Flow\n- **核心贡献**：从理论上解释了为什么仅给予最终答案的奖励（Outcome-based），模型也能自发学会中间推理步骤（CoT）。\n- **主要发现**：通过分析梯度流动力学，作者证明了成功的关键在于训练分布中必须包含足够的“简单样本”（需要较少推理步骤的样本）。这些简单样本充当了“垫脚石”，让模型学会通用的遍历策略。\n\n**4. CoScale-RL: Efficient Post-Training by Co-Scaling Data and Computation**\n**CoScale-RL：通过协同扩展数据与计算实现高效后训练**\n> 核心术语：Post-training Scaling, Re-distillation, LRM\n- **核心贡献**：提出了一种针对大型推理模型 (LRM) 的新 Scaling 策略。\n- **主要发现**：与其单纯增加数据集大小，不如对每个问题收集多个解（Scale up solutions），并在强化学习阶段增加 Rollout 的计算量。结合 Re-distillation 技术，该方法在不依赖大规模 SFT 数据的情况下显著提升了推理边界。\n\n---\n\n### 🤖 Agent 系统与安全性 (Agents & Safety)\n\n**5. MAS-Orchestra: Understanding and Improving Multi-Agent Reasoning Through Holistic Orchestration and Controlled Benchmarks**\n**MAS-Orchestra：通过整体编排与受控基准理解并提升多智能体推理**\n> 核心术语：Multi-Agent Systems (MAS), Holistic Orchestration, Function-calling RL\n- **核心贡献**：批评了当前多智能体系统 (MAS) 仅仅是顺序代码执行的现状，提出了 **MAS-Orchestra**。\n- **主要发现**：将 MAS 编排形式化为一个函数调用 RL 问题，一次性生成整个 MAS 结构，而不是按顺序拼凑。作者还发布了 **MASBENCH**，研究发现 MAS 的优势并非普遍存在，而是高度依赖于任务结构和验证协议。\n\n**6. Gaming the Judge: Unfaithful Chain-of-Thought Can Undermine Agent Evaluation**\n**愚弄裁判：不忠实的思维链会破坏智能体评估**\n> 核心术语：LLM-as-a-Judge, Unfaithful CoT, Agent Evaluation\n- **核心贡献**：揭示了 LLM 裁判的一个巨大漏洞——它们容易被“伪造”的推理过程欺骗。\n- **主要发现**：作者通过重写智能体的 CoT（保持行动和观察不变），发现现有的 SOTA 视觉语言模型裁判的误报率（False Positive）激增了 90%。这意味着智能体可以通过生成“看起来很棒但实际上毫无关联”的推理来“刷分”。\n\n**7. INFA-Guard: Mitigating Malicious Propagation via Infection-Aware Safeguarding in LLM-Based Multi-Agent Systems**\n**INFA-Guard：在 LLM 多智能体系统中缓解恶意传播**\n> 核心术语：Multi-Agent Security, Malicious Propagation, Infection-Aware\n- **核心贡献**：针对多智能体系统中“病毒式”传播的恶意影响（即良性智能体被恶意智能体带偏）提出的防御框架。\n- **主要发现**：传统防御只分黑白，忽略了“被感染者”。INFA-Guard 通过拓扑约束定位感染源和感染范围，在切断传播的同时保留了智能体网络的完整性。\n\n---\n\n### 👁️ 视觉与多模态 (Vision & Multimodal)\n\n**8. PRISM: Deriving the Transformer as a Signal-Denoising Operator via Maximum Coding Rate Reduction**\n**PRISM：通过最大化编码率降低原理将 Transformer 推导为信号去噪算子**\n> 核心术语：Interpretability, White-box Transformer, Signal-Denoising, MCR^2\n- **核心贡献**：这是一篇硬核的理论文章。作者试图打开“黑盒”，从第一性原理推导出了一个白盒 Transformer 架构（Prism）。\n- **主要发现**：将注意力机制建模为信号-噪声流形上的梯度上升过程。实验发现 Prism 模型自发地将注意力头分化为捕捉长程依赖的“低频头”（信号）和处理局部句法的“高频头”（噪声），表明可解释性与性能可以统一。\n\n**9. OpenVision 3: A Family of Unified Visual Encoder for Both Understanding and Generation**\n**OpenVision 3：面向理解与生成的统一视觉编码器家族**\n> 核心术语：Unified Visual Encoder, ViT-VAE, Contrastive Learning\n- **核心贡献**：解决了一个长期痛点：理解任务（如 CLIP）和生成任务（如 Diffusion）通常需要不同的视觉编码器。\n- **主要发现**：通过将 VAE 压缩的潜变量输入 ViT，并同时优化重建目标（生成）和对比学习目标（理解），OpenVision 3 得到了一个通用的视觉表示，在 LLaVA（理解）和 RAE（生成）框架下都表现出色。\n\n**10. HERMES: KV Cache as Hierarchical Memory for Efficient Streaming Video Understanding**\n**HERMES：将 KV Cache 作为分层记忆用于高效流视频理解**\n> 核心术语：Streaming Video Understanding, KV Cache, Hierarchical Memory\n- **核心贡献**：针对流媒体视频理解的效率瓶颈，提出了无需训练的 HERMES 架构。\n- **主要发现**：将 KV Cache 概念化为分层记忆，保留不同粒度的视频信息。在推理时复用紧凑的 KV Cache，实现了 10 倍的首字生成速度（TTFT）提升，且在流媒体数据集上准确率提升了 11.4%。\n\n---\n\n### 📉 模型遗忘与量化 (Unlearning & Quantization)\n\n**11. QUAIL: Quantization Aware Unlearning for Mitigating Misinformation in LLMs**\n**QUAIL：用于缓解 LLM 错误信息的量化感知遗忘**\n> 核心术语：Machine Unlearning, Quantization, Logits Space Hinge Loss\n- **核心贡献**：发现了一个严重问题——模型量化（如 4-bit）会“灾难性地恢复”原本已经被遗忘（Unlearning）的信息。\n- **主要发现**：量化会因为精度损失导致遗忘更新失效。作者提出了 QUAIL，引入 Logits 空间的 Hinge Loss，确保遗忘样本在量化后依然与原模型保持足够的输出差异，从而在 4-bit 量化下也能保持遗忘效果。\n\n**12. Mechanism Shift During Post-training from Autoregressive to Masked Diffusion Language Models**\n**从自回归到掩码扩散语言模型后训练过程中的机制转移**\n> 核心术语：Autoregressive (ARM), Masked Diffusion (MDM), Circuit Analysis\n- **核心贡献**：分析了将自回归模型（ARM）后训练为扩散模型（MDM）时，内部机制发生了什么变化。\n- **主要发现**：对于局部依赖任务，MDM 保留了自回归电路；但对于全局规划任务，MDM 放弃了原有的路径，转而采用一种更加分布式的、早期层处理增强的新机制。这意味着扩散后训练不仅仅是参数微调，而是发生了根本性的计算重组。\n\n---\n\n### 🔬 科学与社会应用 (Science & Society)\n\n**13. OmniSpectra: A Unified Foundation Model for Native Resolution Astronomical Spectra**\n**OmniSpectra：原生分辨率天文光谱的统一基础模型**\n> 核心术语：Astronomy, Foundation Model, Spectroscopy\n- **核心贡献**：发布了首个处理原生分辨率天文光谱的基础模型，不再需要重采样或插值。\n- **主要发现**：利用自适应 Patching 和正弦波长编码，模型可以处理任意长度的光谱，在恒星/星系分类、红移估计等任务上展现了强大的 Zero-shot 能力。\n\n**14. The Rise of Large Language Models and the Direction and Impact of US Federal Research Funding**\n**LLM 的兴起与美国联邦研究资助的方向及影响**\n> 核心术语：Science of Science, LLM usage, Funding Bias\n- **核心贡献**：分析了 NSF 和 NIH 的提案数据，调查 LLM 在科研资助中的渗透。\n- **主要发现**：2023 年起 LLM 使用量激增。使用 LLM 撰写的提案语义独特性较低（更套路化）。有趣的是，在 NIH（国立卫生研究院），使用 LLM 与更高的提案成功率正相关，但在 NSF（国家科学基金会）则无关。\n\n**15. Is Grokipedia Right-Leaning? Comparing Political Framing in Wikipedia and Grokipedia on Controversial Topics**\n**Grokipedia 是右倾的吗？比较 Wikipedia 和 Grokipedia 在争议话题上的政治框架**\n> 核心术语：Political Bias, Grokipedia, Semantic Framing\n- **核心贡献**：对比了维基百科和 xAI 推出的 Grokipedia。\n- **主要发现**：两者总体上都呈现左倾框架，但 Grokipedia 展现出更明显的双峰分布，即包含更多右倾内容的显著性。两者在争议话题上的语义分歧远大于普通话题。\n\n---\n🎉 **祝大家科研顺利，这时候我们不仅仅是在读论文，更是在见证 AI 如何重塑科学发现的范式。明天见！**",
   "papers": [
     {
       "arxiv_id": "2601.15540v1",
@@ -744,7 +744,7 @@
     {
       "arxiv_id": "2601.15412v1",
       "title": "A Checklist for Trustworthy, Safe, and User-Friendly Mental Health Chatbots",
-      "title_zh": "",
+      "title_zh": "值得信赖、安全且用户友好的心理健康聊天机器人核查清单",
       "authors": [
         "Shreya Haran",
         "Samiha Thatikonda",
@@ -752,7 +752,7 @@
         "Koustuv Saha"
       ],
       "abstract": "Mental health concerns are rising globally, prompting increased reliance on technology to address the demand-supply gap in mental health services. In particular, mental health chatbots are emerging as a promising solution, but these remain largely untested, raising concerns about safety and potential harms. In this paper, we dive into the literature to identify critical gaps in the design and implementation of mental health chatbots. We contribute an operational checklist to help guide the development and design of more trustworthy, safe, and user-friendly chatbots. The checklist serves as both a developmental framework and an auditing tool to ensure ethical and effective chatbot design. We discuss how this checklist is a step towards supporting more responsible design practices and supporting new standards for sociotechnically sound digital mental health tools.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究关注全球心理健康需求增长背景下，心理健康聊天机器人（mental health chatbots）作为填补服务缺口手段所面临的安全性与潜在风险问题。通过深入回顾现有文献，研究识别了此类机器人在设计与实施过程中的关键空白。为了解决这些挑战，研究提出了一份操作清单（operational checklist），旨在指导开发者构建更具可信度（trustworthy）、安全性（safe）且用户友好（user-friendly）的聊天机器人。该清单不仅可以作为开发框架，还能作为确保设计符合伦理且具备实效的审计工具。这项工作为推动负责任的设计实践迈出了重要一步，并为建立社会技术（sociotechnical）健全的数字心理健康工具新标准提供了有力支持。",
       "categories": [
         "cs.HC",
         "cs.AI",
@@ -763,13 +763,16 @@
       "pdf_url": "https://arxiv.org/pdf/2601.15412v1",
       "published_date": "2026-01-21 19:24:27 UTC",
       "updated_date": "2026-01-21 19:24:27 UTC",
-      "processing_status": "failed",
-      "attempts": 3,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
-      "error": "Your request was blocked.",
-      "completed_steps": [],
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-23T08:58:47.999366+00:00"
+      "last_update": "2026-01-24T02:25:28.414233+00:00"
     },
     {
       "arxiv_id": "2601.15408v1",
@@ -1204,7 +1207,7 @@
     {
       "arxiv_id": "2601.15249v2",
       "title": "Recommending Best Paper Awards for ML/AI Conferences via the Isotonic Mechanism",
-      "title_zh": "",
+      "title_zh": "基于保序机制的机器学习/人工智能会议最佳论文奖推荐",
       "authors": [
         "Garrett G. Wen",
         "Buxin Su",
@@ -1213,7 +1216,7 @@
         "Weijie Su"
       ],
       "abstract": "Machine learning and artificial intelligence conferences such as NeurIPS and ICML now regularly receive tens of thousands of submissions, posing significant challenges to maintaining the quality and consistency of the peer review process. This challenge is particularly acute for best paper awards, which are an important part of the peer review process, yet whose selection has increasingly become a subject of debate in recent years. In this paper, we introduce an author-assisted mechanism to facilitate the selection of best paper awards. Our method employs the Isotonic Mechanism for eliciting authors' assessments of their own submissions in the form of a ranking, which is subsequently utilized to adjust the raw review scores for optimal estimation of the submissions' ground-truth quality. We demonstrate that authors are incentivized to report truthfully when their utility is a convex additive function of the adjusted scores, and we validate this convexity assumption for best paper awards using publicly accessible review data of ICLR from 2019 to 2023 and NeurIPS from 2021 to 2023. Crucially, in the special case where an author has a single quota -- that is, may nominate only one paper -- we prove that truthfulness holds even when the utility function is merely nondecreasing and additive. This finding represents a substantial relaxation of the assumptions required in prior work. For practical implementation, we extend our mechanism to accommodate the common scenario of overlapping authorship. Finally, simulation results demonstrate that our mechanism significantly improves the quality of papers selected for awards.",
-      "tldr_zh": "",
+      "tldr_zh": "针对NeurIPS和ICML等顶尖学术会议在Best Paper Awards评选过程中面临的质量一致性挑战，该研究提出了一种利用作者辅助信息的Isotonic Mechanism。该方法通过引入作者对其自身投稿论文的排名评估来修正原始评审分数，从而优化对论文Ground-truth Quality的估计。研究证明在Convex Additive Function的效用假设下，该机制能有效激励作者诚实报告，并利用ICLR和NeurIPS的历史评审数据验证了该假设的真实性。特别是在作者仅有一个提名配额的情况下，该研究证明即便在更宽松的非递减加性效用条件下，诚实性依然成立，这显著放宽了以往研究的限制。此外，该机制还针对Overlapping Authorship等复杂实际场景进行了扩展。模拟结果显示，该机制能显著改善获奖论文的选择质量，为大规模会议的奖励评选提供了更具鲁棒性的解决方案。",
       "categories": [
         "cs.LG",
         "cs.AI",
@@ -1225,13 +1228,16 @@
       "pdf_url": "https://arxiv.org/pdf/2601.15249v2",
       "published_date": "2026-01-21 18:30:42 UTC",
       "updated_date": "2026-01-22 15:51:15 UTC",
-      "processing_status": "failed",
-      "attempts": 3,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
-      "error": "Your request was blocked.",
-      "completed_steps": [],
+      "error": null,
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-23T08:58:59.871781+00:00"
+      "last_update": "2026-01-24T02:25:37.846982+00:00"
     },
     {
       "arxiv_id": "2601.15241v1",
@@ -4748,14 +4754,14 @@
       "last_update": "2026-01-23T08:56:54.935560+00:00"
     }
   ],
-  "processing_status": "failed",
-  "error": "2 papers failed; summary skipped",
+  "processing_status": "completed",
+  "error": null,
   "raw_papers_fetched": true,
   "papers_count": 143,
-  "processed_papers_count": 141,
-  "failed_papers_count": 2,
+  "processed_papers_count": 143,
+  "failed_papers_count": 0,
   "llm_backup_calls": 0,
-  "summary_generated": false,
-  "daily_data_saved": false,
-  "last_update": "2026-01-23T08:58:59.881122+00:00"
+  "summary_generated": true,
+  "daily_data_saved": true,
+  "last_update": "2026-01-24T02:26:29.060863+00:00"
 }
