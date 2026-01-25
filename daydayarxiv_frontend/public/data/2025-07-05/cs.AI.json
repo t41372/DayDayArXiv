@@ -1,7 +1,7 @@
 {
   "date": "2025-07-05",
   "category": "cs.AI",
-  "summary": "",
+  "summary": "欢迎来到 UTC 时间 2025-07-05 的 arXiv 中文 TLDR 快报！\n\n👋 **一句话总结：**\n今天的 arXiv 充满了对于 **Agent 生态系统**的深刻反思（特别是 MCP 协议的安全性和 Agent 经济学），同时 **Neuro-Symbolic（神经符号）** 方法在解决 LLM 幻觉和关系推理上展现了强劲势头，另外，Tabular Foundation Model（表格基础模型）也有了新的 SOTA 更新。\n\n---\n\n### 🚨 焦点：Agent 安全与生态基础设施\n*Agent 不仅仅是模型，更是新的经济主体和安全隐患。*\n\n**1. We Urgently Need Privilege Management in MCP: A Measurement of API Usage in MCP Ecosystems**\n**(在 MCP 中我们迫切需要权限管理：MCP 生态系统 API 使用情况的测量)**\n> **Core:** 这是一篇非常及时的安全分析文章。随着 Model Context Protocol (MCP) 成为连接 LLM 和外部工具的标准，作者对 2,562 个 MCP 应用进行了大规模实证分析。\n> **Findings:** 发现很多插件拥有过大的系统权限（网络和文件访问占主导），且缺乏隔离。作者不仅展示了提权和数据篡改的攻击路径，还呼吁建立动态权限模型。这是给所有正在构建 Agent 基础设施的开发者的警钟。\n\n**2. Agent Exchange: Shaping the Future of AI Agent Economics**\n**(Agent Exchange：塑造 AI Agent 经济学的未来)**\n> **Core:** 当 Agent 成为自主的经济参与者时，我们需要什么样的市场？本文提出了 Agent Exchange (AEX)，一个受到即时广告竞价（RTB）系统启发的拍卖平台。\n> **Innovation:** 它定义了 User-Side、Agent-Side、Hubs 和 DMP 四个组件，旨在解决 Agent 之间的价值交换、任务协调和知识共享问题。这标志着研究视野从“如何构建 Agent”转向了“Agent 之间如何交易”。\n\n**3. How to Train Your LLM Web Agent: A Statistical Diagnosis**\n**(如何训练你的 LLM Web Agent：统计诊断)**\n> **Core:** 针对 Web Agent 训练成本高、多步交互难的问题，提出了一套高性价比的训练管线。\n> **Method:** 使用 Llama 3.3 70B 作为教师，训练 Llama 3.1 8B 学生模型（SFT + 在线 RL）。\n> **Findings:** 发现 SFT 结合在线 RL 的效果优于单一方法，且仅需 55% 的计算量就能达到纯 SFT 的峰值性能，是目前缩小开源与闭源 Web Agent 差距的有效路径。\n\n---\n\n### 🧠 逻辑推理与神经符号集成\n*LLM 依然会瞎编，符号逻辑和图结构来救场。*\n\n**4. SymbolicThought: Integrating Language Models and Symbolic Reasoning for Consistent and Interpretable Human Relationship Understanding**\n**(SymbolicThought：集成语言模型与符号推理以实现一致且可解释的人际关系理解)**\n> **Core:** 针对 LLM 在理解复杂人物关系时的幻觉和逻辑不一致问题，提出了一个 Human-in-the-loop 框架。\n> **Method:** 系统利用 LLM 提取信息构建“人物关系图”，然后利用 7 种逻辑约束进行优化。\n> **Implication:** 这种结合符号推理（Symbolic Reasoning）的方法在 narrative understanding（叙事理解）任务上显著提高了准确性和一致性，是 Neuro-Symbolic 路线的一个典型应用。\n\n**5. CortexDebate: Debating Sparsely and Equally for Multi-Agent Debate**\n**(CortexDebate：多智能体辩论中的稀疏与平等辩论)**\n> **Core:** 多智能体辩论（Multi-Agent Debate）常面临上下文过长和“迷之自信”模型主导辩论的问题。\n> **Method:** 模仿人脑皮层的稀疏网络，构建了一个稀疏辩论图，引入“麦肯锡信任公式”作为类白质（White Matter）机制来动态优化辩论结构。这让 Agent 只与对它有帮助的伙伴辩论，提高了辩论效率。\n\n**6. Dissecting Clinical Reasoning in Language Models: A Comparative Study of Prompts and Model Adaptation Strategies**\n**(剖析语言模型中的临床推理：提示与模型适应策略的比较研究)**\n> **Core:** 在临床 NLI 任务中，Prompt 结构和微调到底谁重要？\n> **Findings:** 这是一个非常扎实的实证研究。发现 Prompt 结构本身就能解释高达 44% 的性能方差。同时，使用 LoRA 微调的小模型（4B参数）配合高质量 Prompt，性能可以逼近 GPT-4o-mini（差距缩小至 7.1%）。结论：在专业领域，Prompt 设计仍然是第一驱动力。\n\n---\n\n### 📊 基础模型与机器学习优化\n*表格数据、Sink Token 和 Sink 令牌的正交性。*\n\n**7. Real-TabPFN: Improving Tabular Foundation Models via Continued Pre-training With Real-World Data**\n**(Real-TabPFN：通过真实世界数据的持续预训练改进表格基础模型)**\n> **Core:** TabPFN 是表格数据领域的神器。这篇文章指出，仅靠合成数据预训练是不够的。\n> **Method:** 作者使用精选的**真实世界大数据集**进行持续预训练（Continued Pre-training）。\n> **Result:** 得到的 Real-TabPFN 在 OpenML AutoML 基准测试的 29 个数据集上取得了显著的性能提升。\n\n**8. OrthoRank: Token Selection via Sink Token Orthogonality for Efficient LLM inference**\n**(OrthoRank：基于 Sink Token 正交性的令牌选择以实现高效 LLM 推理)**\n> **Core:** 深入研究了 LLM 中的 \"Sink Token\"（那些语义意义不大但注意力极高的 Token）。\n> **Discovery:** 发现随着层数加深，Sink Token 的隐藏状态几乎不变，而其他 Token 逐渐向其“靠拢”。\n> **Method:** 提出 OrthoRank，根据 Token 向 Sink Token 移动的速度（正交性）来筛选重要 Token，在保持性能的同时实现了高效推理。\n\n---\n\n### 👁️ 视觉与多模态应用\n*从 PPT 动画到 CAD 自动化。*\n\n**9. Animation Needs Attention: A Holistic Approach to Slides Animation Comprehension with Visual-Language Models**\n**(动画需要关注：基于视觉语言模型的幻灯片动画理解整体方法)**\n> **Core:** 这是一个很有趣的应用点。目前的 VLM 很难理解 PPT 里的淡入、飞入等动画。\n> **Contribution:** 发布了首个 PPT 动画数据集（12,000 个三元组），并使用 LoRA 微调 Qwen-2.5-VL，使其能理解并生成 PPT 动画指令。\n\n**10. Generative AI for CAD Automation: Leveraging Large Language Models for 3D Modelling**\n**(用于 CAD 自动化的生成式 AI：利用大型语言模型进行 3D 建模)**\n> **Core:** 尝试用 LLM 直接生成 FreeCAD 脚本。\n> **Reality Check:** 诚实地指出，LLM 搞定简单模型没问题，但面对高约束的复杂模型时经常“翻车”，需要反复的人工介入和反馈。这表明工程设计领域的生成式 AI 还有很长的路要走。\n\n---\n\n### 🛡️ 对抗攻击与防御\n*安全攻防永无止境。*\n\n**11. False Alarms, Real Damage: Adversarial Attacks Using LLM-based Models on Text-based Cyber Threat Intelligence Systems**\n**(虚假警报，真实损害：在基于文本的网络威胁情报系统上使用基于 LLM 的模型进行对抗性攻击)**\n> **Core:** 研究了针对 CTI（网络威胁情报）系统的攻击。\n> **Method:** 利用 LLM 生成虚假的网络安全文本（看起来很像真的威胁情报），成功实施了逃逸、泛洪和投毒攻击，严重干扰了自动化防御系统的判断。\n\n**12. A Survey on Proactive Defense Strategies Against Misinformation in Large Language Models**\n**(大型语言模型中针对虚假信息的主动防御策略综述)**\n> **Core:** 面对 LLM 生成的虚假信息，被动检测已经不够了。本文综述了“主动防御”策略（如数据免疫、推理时的自我纠正），指出这些方法比传统方法有效率提升高达 63%。\n\n---\n\n### 🧩 其他值得关注的论文 (Lightning Round)\n\n*   **Structure As Search: Unsupervised Permutation Learning for Combinatorial Optimization**\n    *(结构即搜索：组合优化的无监督排列学习)*\n    > 不做显式搜索，直接通过神经网络学习 TSP 问题的排列矩阵，证明了神经网络可以直接捕捉组合结构。\n*   **Physics-Informed Graph Neural Networks to Reconstruct Local Fields Considering Finite Strain Hyperelasticity**\n    *(考虑有限应变超弹性的物理信息图神经网络重构局部场)*\n    > 用 GNN 加速材料微观结构的应力场计算，比传统有限元（FE）快得多，适合大规模多尺度模拟。\n*   **Coarse Addition and the St. Petersburg Paradox: A Heuristic Perspective**\n    *(粗略加法与圣彼得堡悖论：一种启发式视角)*\n    > 一篇有趣的理论文章。通过修改“加法”的定义（基于感知的粗略划分）来解释经典的圣彼得堡悖论，为人类有限认知下的决策行为提供了数学模型。\n*   **TopoMAS: Large Language Model Driven Topological Materials Multiagent System**\n    *(TopoMAS：大语言模型驱动的拓扑材料多智能体系统)*\n    > 这是一个材料科学领域的 Agent 系统，不仅能查资料，还能推导理论、生成晶体结构并进行第一性原理验证，已经帮助发现了新的拓扑相 SrSbO3。\n\n篇幅有限，今天就聊到这里。Agent 的基础设施建设和安全问题显然是当下的重中之重，而 Neuro-Symbolic 的复兴也值得持续关注。祝大家科研顺利！",
   "papers": [
     {
       "arxiv_id": "2507.04189v2",
@@ -1730,7 +1730,7 @@
     {
       "arxiv_id": "2507.03895v1",
       "title": "TayFCS: Towards Light Feature Combination Selection for Deep Recommender Systems",
-      "title_zh": "",
+      "title_zh": "TayFCS：面向深度推荐系统的轻量级特征组合选择",
       "authors": [
         "Xianquan Wang",
         "Zhaocheng Du",
@@ -1740,7 +1740,7 @@
         "Zhenhua Dong"
       ],
       "abstract": "Feature interaction modeling is crucial for deep recommendation models. A common and effective approach is to construct explicit feature combinations to enhance model performance. However, in practice, only a small fraction of these combinations are truly informative. Thus it is essential to select useful feature combinations to reduce noise and manage memory consumption. While feature selection methods have been extensively studied, they are typically limited to selecting individual features. Extending these methods for high-order feature combination selection presents a significant challenge due to the exponential growth in time complexity when evaluating feature combinations one by one. In this paper, we propose $\\textbf{TayFCS}$, a lightweight feature combination selection method that significantly improves model performance. Specifically, we propose the Taylor Expansion Scorer (TayScorer) module for field-wise Taylor expansion on the base model. Instead of evaluating all potential feature combinations' importance by repeatedly running experiments with feature adding and removal, this scorer only needs to approximate the importance based on their sub-components' gradients. This can be simply computed with one backward pass based on a trained recommendation model. To further reduce information redundancy among feature combinations and their sub-components, we introduce Logistic Regression Elimination (LRE), which estimates the corresponding information gain based on the model prediction performance. Experimental results on three benchmark datasets validate both the effectiveness and efficiency of our approach. Furthermore, online A/B test results demonstrate its practical applicability and commercial value.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究针对深度推荐模型中特征交叉建模面临的噪声干扰及高阶组合筛选计算复杂度呈指数级增长的问题，提出了轻量化特征组合选择方法 TayFCS。其核心组件 Taylor Expansion Scorer (TayScorer) 通过对基础模型进行域级 Taylor Expansion，仅需一次反向传播即可利用子组件梯度近似评估所有潜在特征组合的重要性，显著提升了筛选效率。为进一步降低特征组合及其子组件间的信息冗余，研究还引入了 Logistic Regression Elimination (LRE) 机制，通过评估模型预测性能来提取具有高信息增益的组合。在三个基准数据集上的实验验证了该方法在显著提升模型性能的同时兼顾了计算效率。最后，在线 A/B 测试的结果进一步证明了 TayFCS 在真实商业场景中的实用价值与显著的落地意义。",
       "categories": [
         "cs.IR",
         "cs.AI"
@@ -1750,18 +1750,21 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03895v1",
       "published_date": "2025-07-05 04:22:42 UTC",
       "updated_date": "2025-07-05 04:22:42 UTC",
-      "processing_status": "in_progress",
+      "processing_status": "completed",
       "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:41:25.222786+00:00"
+      "last_update": "2026-01-24T02:41:47.277512+00:00"
     },
     {
       "arxiv_id": "2507.03893v1",
       "title": "Hierarchical Semantic-Visual Fusion of Visible and Near-infrared Images for Long-range Haze Removal",
-      "title_zh": "",
+      "title_zh": "面向远距离去雾的可见光与近红外图像层次化语义-视觉融合",
       "authors": [
         "Yi Li",
         "Xiaoxiong Wang",
@@ -1771,7 +1774,7 @@
         "Luxin Yan"
       ],
       "abstract": "While image dehazing has advanced substantially in the past decade, most efforts have focused on short-range scenarios, leaving long-range haze removal under-explored. As distance increases, intensified scattering leads to severe haze and signal loss, making it impractical to recover distant details solely from visible images. Near-infrared, with superior fog penetration, offers critical complementary cues through multimodal fusion. However, existing methods focus on content integration while often neglecting haze embedded in visible images, leading to results with residual haze. In this work, we argue that the infrared and visible modalities not only provide complementary low-level visual features, but also share high-level semantic consistency. Motivated by this, we propose a Hierarchical Semantic-Visual Fusion (HSVF) framework, comprising a semantic stream to reconstruct haze-free scenes and a visual stream to incorporate structural details from the near-infrared modality. The semantic stream first acquires haze-robust semantic prediction by aligning modality-invariant intrinsic representations. Then the shared semantics act as strong priors to restore clear and high-contrast distant scenes under severe haze degradation. In parallel, the visual stream focuses on recovering lost structural details from near-infrared by fusing complementary cues from both visible and near-infrared images. Through the cooperation of dual streams, HSVF produces results that exhibit both high-contrast scenes and rich texture details. Moreover, we introduce a novel pixel-aligned visible-infrared haze dataset with semantic labels to facilitate benchmarking. Extensive experiments demonstrate the superiority of our method over state-of-the-art approaches in real-world long-range haze removal.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究针对远距离除雾过程中可见光图像因散射导致信号严重丢失及现有方法残留雾气的问题，提出了一种名为Hierarchical Semantic-Visual Fusion (HSVF)的分层语义-视觉融合框架。该框架利用Near-infrared (NIR)图像优于可见光的穿透能力，通过语义流(semantic stream)和视觉流(visual stream)实现多模态信息的深度集成。语义流通过对齐模态不变的内在特征获取haze-robust的语义预测，并将其作为先验知识来恢复高对比度的远景场景。与此同时，视觉流专注于融合可见光与近红外图像的互补线索，旨在精确恢复丢失的结构与纹理细节。此外，研究团队还推出了一个带有语义标签的像素对齐可见光-红外除雾数据集，填补了远距离除雾基准数据的空白。实验结果表明，HSVF在处理真实世界远距离除雾任务时，其性能显著优于现有的state-of-the-art方法。",
       "categories": [
         "cs.CV",
         "cs.AI"
@@ -1781,18 +1784,21 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03893v1",
       "published_date": "2025-07-05 04:19:36 UTC",
       "updated_date": "2025-07-05 04:19:36 UTC",
-      "processing_status": "in_progress",
+      "processing_status": "completed",
       "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:41:25.223514+00:00"
+      "last_update": "2026-01-24T02:41:47.003236+00:00"
     },
     {
       "arxiv_id": "2507.06250v1",
       "title": "We Urgently Need Privilege Management in MCP: A Measurement of API Usage in MCP Ecosystems",
-      "title_zh": "",
+      "title_zh": "MCP 亟需权限管理：针对 MCP 生态系统中 API 使用情况的测量研究",
       "authors": [
         "Zhihao Li",
         "Kun Li",
@@ -1802,7 +1808,7 @@
         "Xiuzhen Cheng"
       ],
       "abstract": "The Model Context Protocol (MCP) has emerged as a widely adopted mechanism for connecting large language models to external tools and resources. While MCP promises seamless extensibility and rich integrations, it also introduces a substantially expanded attack surface: any plugin can inherit broad system privileges with minimal isolation or oversight. In this work, we conduct the first large-scale empirical analysis of MCP security risks. We develop an automated static analysis framework and systematically examine 2,562 real-world MCP applications spanning 23 functional categories. Our measurements reveal that network and system resource APIs dominate usage patterns, affecting 1,438 and 1,237 servers respectively, while file and memory resources are less frequent but still significant. We find that Developer Tools and API Development plugins are the most API-intensive, and that less popular plugins often contain disproportionately high-risk operations. Through concrete case studies, we demonstrate how insufficient privilege separation enables privilege escalation, misinformation propagation, and data tampering. Based on these findings, we propose a detailed taxonomy of MCP resource access, quantify security-relevant API usage, and identify open challenges for building safer MCP ecosystems, including dynamic permission models and automated trust assessment.",
-      "tldr_zh": "",
+      "tldr_zh": "这项研究针对 Model Context Protocol (MCP) 在连接大语言模型与外部工具时带来的安全风险，开展了首次大规模实证分析。研究团队开发了一个自动化静态分析框架，对 2,562 个涵盖 23 个功能类别的真实 MCP 应用进行了系统性检测。测量结果显示，网络和系统资源 API 的使用率最高，分别影响了 1,438 和 1,237 个服务器，而 Developer Tools 和 API Development 插件被识别为 API 使用最密集的类别。研究发现一些受众较少的插件往往包含不成比例的高风险操作，且当前的 MCP 机制由于缺乏有效的隔离和监管，面临显著的攻击面扩大风险。通过具体案例研究，论文展示了权限分离不足如何导致权限提升 (privilege escalation)、虚假信息传播和数据篡改等后果。最后，研究者提出了 MCP 资源访问的详细分类学，并识别了构建更安全生态系统的挑战，包括开发动态权限模型和自动化信任评估工具。",
       "categories": [
         "cs.CR",
         "cs.AI",
@@ -1813,25 +1819,28 @@
       "pdf_url": "https://arxiv.org/pdf/2507.06250v1",
       "published_date": "2025-07-05 03:39:30 UTC",
       "updated_date": "2025-07-05 03:39:30 UTC",
-      "processing_status": "in_progress",
+      "processing_status": "completed",
       "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:41:25.224064+00:00"
+      "last_update": "2026-01-24T02:41:50.950743+00:00"
     },
     {
       "arxiv_id": "2507.03876v1",
       "title": "LLMs model how humans induce logically structured rules",
-      "title_zh": "",
+      "title_zh": "LLMs 对人类逻辑结构化规则归纳过程的建模",
       "authors": [
         "Alyssa Loo",
         "Ellie Pavlick",
         "Roman Feiman"
       ],
       "abstract": "A central goal of cognitive science is to provide a computationally explicit account of both the structure of the mind and its development: what are the primitive representational building blocks of cognition, what are the rules via which those primitives combine, and where do these primitives and rules come from in the first place? A long-standing debate concerns the adequacy of artificial neural networks as computational models that can answer these questions, in particular in domains related to abstract cognitive function, such as language and logic. This paper argues that recent advances in neural networks -- specifically, the advent of large language models (LLMs) -- represent an important shift in this debate. We test a variety of LLMs on an existing experimental paradigm used for studying the induction of rules formulated over logical concepts. Across four experiments, we find converging empirical evidence that LLMs provide at least as good a fit to human behavior as models that implement a Bayesian probablistic language of thought (pLoT), which have been the best computational models of human behavior on the same task. Moreover, we show that the LLMs make qualitatively different predictions about the nature of the rules that are inferred and deployed in order to complete the task, indicating that the LLM is unlikely to be a mere implementation of the pLoT solution. Based on these results, we argue that LLMs may instantiate a novel theoretical account of the primitive representations and computations necessary to explain human logical concepts, with which future work in cognitive science should engage.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究探讨了大型语言模型(LLMs)在模拟人类归纳逻辑结构化规则方面的潜力，挑战了关于神经网络在处理抽象认知功能时是否具备充分性的长期争论。研究人员在现有的实验范式下测试了多种 LLMs，并将其与目前认知科学中拟合人类行为最佳的贝叶斯概率思维语言(pLoT)模型进行对比。通过四项实验，结果显示 LLMs 对人类行为的拟合程度至少与 pLoT 模型相当。更重要的是，LLMs 对任务中推理和部署的规则性质提出了定性不同的预测，表明 LLMs 并非仅仅是 pLoT 方案的简单实现。该研究认为 LLMs 可能为解释人类逻辑概念所需的原始表征与计算提供了一种全新的理论解释，值得认知科学领域的未来研究深入关注。",
       "categories": [
         "cs.AI"
       ],
@@ -1840,18 +1849,21 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03876v1",
       "published_date": "2025-07-05 03:24:18 UTC",
       "updated_date": "2025-07-05 03:24:18 UTC",
-      "processing_status": "in_progress",
+      "processing_status": "completed",
       "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:41:40.533382+00:00"
+      "last_update": "2026-01-24T02:41:51.251447+00:00"
     },
     {
       "arxiv_id": "2507.03875v1",
       "title": "Demystifying ChatGPT: How It Masters Genre Recognition",
-      "title_zh": "",
+      "title_zh": "揭秘 ChatGPT：其如何精通流派识别",
       "authors": [
         "Subham Raj",
         "Sriparna Saha",
@@ -1859,7 +1871,7 @@
         "Niranjan Pedanekar"
       ],
       "abstract": "The introduction of ChatGPT has garnered significant attention within the NLP community and beyond. Previous studies have demonstrated ChatGPT's substantial advancements across various downstream NLP tasks, highlighting its adaptability and potential to revolutionize language-related applications. However, its capabilities and limitations in genre prediction remain unclear. This work analyzes three Large Language Models (LLMs) using the MovieLens-100K dataset to assess their genre prediction capabilities. Our findings show that ChatGPT, without fine-tuning, outperformed other LLMs, and fine-tuned ChatGPT performed best overall. We set up zero-shot and few-shot prompts using audio transcripts/subtitles from movie trailers in the MovieLens-100K dataset, covering 1682 movies of 18 genres, where each movie can have multiple genres. Additionally, we extended our study by extracting IMDb movie posters to utilize a Vision Language Model (VLM) with prompts for poster information. This fine-grained information was used to enhance existing LLM prompts. In conclusion, our study reveals ChatGPT's remarkable genre prediction capabilities, surpassing other language models. The integration of VLM further enhances our findings, showcasing ChatGPT's potential for content-related applications by incorporating visual information from movie posters.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究深入探讨了 ChatGPT 在体裁识别 (genre recognition) 领域的表现及局限性。通过在 MovieLens-100K 数据集上分析三种大语言模型 (LLMs)，研究发现未经微调的 ChatGPT 的表现已超越其他模型，而经过微调的 ChatGPT 则在整体性能上达到最优。实验利用电影预告片的音频转录与字幕，设计了零样本 (zero-shot) 和少样本 (few-shot) 提示词 (prompts)，覆盖了 1682 部电影的 18 种体裁。此外，研究引入视觉语言模型 (VLM) 从 IMDb 电影海报中提取精细化信息，以此增强现有的提示词效果。实验结果证明，ChatGPT 具有卓越的体裁预测潜力，且结合视觉多模态信息后能显著提升模型在内容相关任务中的准确性。",
       "categories": [
         "cs.CL",
         "cs.AI"
@@ -1869,24 +1881,27 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03875v1",
       "published_date": "2025-07-05 03:22:48 UTC",
       "updated_date": "2025-07-05 03:22:48 UTC",
-      "processing_status": "pending",
-      "attempts": 0,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:36:48.976561+00:00"
+      "last_update": "2026-01-24T02:41:58.143779+00:00"
     },
     {
       "arxiv_id": "2507.03871v1",
       "title": "Enhancing Adaptive Behavioral Interventions with LLM Inference from Participant-Described States",
-      "title_zh": "",
+      "title_zh": "利用大语言模型对参与者描述状态的推理增强适应性行为干预",
       "authors": [
         "Karine Karine",
         "Benjamin M. Marlin"
       ],
       "abstract": "The use of reinforcement learning (RL) methods to support health behavior change via personalized and just-in-time adaptive interventions is of significant interest to health and behavioral science researchers focused on problems such as smoking cessation support and physical activity promotion. However, RL methods are often applied to these domains using a small collection of context variables to mitigate the significant data scarcity issues that arise from practical limitations on the design of adaptive intervention trials. In this paper, we explore an approach to significantly expanding the state space of an adaptive intervention without impacting data efficiency. The proposed approach enables intervention participants to provide natural language descriptions of aspects of their current state. It then leverages inference with pre-trained large language models (LLMs) to better align the policy of a base RL method with these state descriptions. To evaluate our method, we develop a novel physical activity intervention simulation environment that generates text-based state descriptions conditioned on latent state variables using an auxiliary LLM. We show that this approach has the potential to significantly improve the performance of online policy learning methods.",
-      "tldr_zh": "",
+      "tldr_zh": "本研究探讨了如何利用大语言模型(LLMs)推理来增强自适应行为干预，旨在解决强化学习(Reinforcement Learning)在健康行为改变领域因数据稀缺而限制状态空间的问题。该方法允许参与者通过自然语言描述(Natural Language Descriptions)提供其当前状态信息，并利用预训练的LLMs进行推理，使基础强化学习策略与这些描述更精准地对齐。研究人员开发了一个新型的体力活动干预模拟环境，利用辅助LLM根据潜在变量生成文本状态描述以进行评估。实验结果证明，该方法能在不影响数据效率的情况下有效扩展状态空间，具有显著提升在线策略学习(Online Policy Learning)方法性能的潜力。",
       "categories": [
         "cs.LG",
         "cs.AI",
@@ -1897,18 +1912,21 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03871v1",
       "published_date": "2025-07-05 02:52:51 UTC",
       "updated_date": "2025-07-05 02:52:51 UTC",
-      "processing_status": "pending",
-      "attempts": 0,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:36:48.976590+00:00"
+      "last_update": "2026-01-24T02:41:59.621163+00:00"
     },
     {
       "arxiv_id": "2507.03870v2",
       "title": "Uncovering Systemic and Environment Errors in Autonomous Systems Using Differential Testing",
-      "title_zh": "",
+      "title_zh": "利用差分测试揭示自主系统中的系统性错误与环境错误",
       "authors": [
         "Yashwanthi Anand",
         "Rahil P Mehta",
@@ -1916,7 +1934,7 @@
         "Sandhya Saisubramanian"
       ],
       "abstract": "When an autonomous agent behaves undesirably, including failure to complete a task, it can be difficult to determine whether the behavior is due to a systemic agent error, such as flaws in the model or policy, or an environment error, where a task is inherently infeasible under a given environment configuration, even for an ideal agent. As agents and their environments grow more complex, identifying the error source becomes increasingly difficult but critical for reliable deployment. We introduce AIProbe, a novel black-box testing technique that applies differential testing to attribute undesirable agent behaviors either to agent deficiencies, such as modeling or training flaws, or due to environmental infeasibility. AIProbe first generates diverse environmental configurations and tasks for testing the agent, by modifying configurable parameters using Latin Hypercube sampling. It then solves each generated task using a search-based planner, independent of the agent. By comparing the agent's performance to the planner's solution, AIProbe identifies whether failures are due to errors in the agent's model or policy, or due to unsolvable task conditions. Our evaluation across multiple domains shows that AIProbe significantly outperforms state-of-the-art techniques in detecting both total and unique errors, thereby contributing to a reliable deployment of autonomous agents.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究提出了AIProbe，一种创新的黑盒测试技术，旨在通过差分测试(Differential Testing)区分自主系统中的系统性智能体错误(Systemic agent error)与环境错误(Environment error)。AIProbe利用拉丁超立方采样(Latin Hypercube sampling)生成多样化的环境配置与任务，并引入独立于智能体的基于搜索的规划器(search-based planner)来寻找任务解。通过将智能体的实际表现与规划器的解进行对比，AIProbe能够有效识别失败是源于智能体的模型或策略缺陷，还是由于任务在特定环境下本身不可行。实验评估表明，AIProbe在检测总错误和唯一错误方面均显著优于现有最先进技术，为自主智能体的可靠部署和错误溯源贡献了重要力量。",
       "categories": [
         "cs.AI"
       ],
@@ -1925,18 +1943,21 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03870v2",
       "published_date": "2025-07-05 02:50:41 UTC",
       "updated_date": "2026-01-14 19:39:22 UTC",
-      "processing_status": "pending",
-      "attempts": 0,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:36:48.976619+00:00"
+      "last_update": "2026-01-24T02:42:04.841857+00:00"
     },
     {
       "arxiv_id": "2507.03868v1",
       "title": "From Query to Explanation: Uni-RAG for Multi-Modal Retrieval-Augmented Learning in STEM",
-      "title_zh": "",
+      "title_zh": "从查询到解释：面向STEM领域多模态检索增强学习的Uni-RAG",
       "authors": [
         "Xinyi Wu",
         "Yanhao Jia",
@@ -1946,7 +1967,7 @@
         "Erik Cambria"
       ],
       "abstract": "In AI-facilitated teaching, leveraging various query styles to interpret abstract educational content is crucial for delivering effective and accessible learning experiences. However, existing retrieval systems predominantly focus on natural text-image matching and lack the capacity to address the diversity and ambiguity inherent in real-world educational scenarios. To address this limitation, we develop a lightweight and efficient multi-modal retrieval module, named Uni-Retrieval, which extracts query-style prototypes and dynamically matches them with tokens from a continually updated Prompt Bank. This Prompt Bank encodes and stores domain-specific knowledge by leveraging a Mixture-of-Expert Low-Rank Adaptation (MoE-LoRA) module and can be adapted to enhance Uni-Retrieval's capability to accommodate unseen query types at test time. To enable natural language educational content generation, we integrate the original Uni-Retrieval with a compact instruction-tuned language model, forming a complete retrieval-augmented generation pipeline named Uni-RAG. Given a style-conditioned query, Uni-RAG first retrieves relevant educational materials and then generates human-readable explanations, feedback, or instructional content aligned with the learning objective. Experimental results on SER and other multi-modal benchmarks show that Uni-RAG outperforms baseline retrieval and RAG systems in both retrieval accuracy and generation quality, while maintaining low computational cost. Our framework provides a scalable, pedagogically grounded solution for intelligent educational systems, bridging retrieval and generation to support personalized, explainable, and efficient learning assistance across diverse STEM scenarios.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究提出了Uni-RAG，一种专为STEM教育设计的跨模态检索增强学习框架，旨在解决现有检索系统在处理多样化和模糊化教学查询时的局限性。该框架核心包含一个轻量级的Uni-Retrieval模块，通过提取查询风格原型并将其与动态更新的Prompt Bank进行匹配。该Prompt Bank利用Mixture-of-Expert Low-Rank Adaptation (MoE-LoRA)技术编码领域知识，能够有效适应测试中未见过的查询类型。Uni-RAG通过将检索模块与精简的指令微调语言模型集成，实现了从相关教学材料检索到生成高质量、可解释反馈的完整流水线。在SER等多个多模态基准测试上的实验结果证明，Uni-RAG在检索准确率和生成质量上均显著优于基线RAG系统，同时保持了较低的计算成本。该框架为智能教育系统提供了一种可扩展且符合教育学逻辑的解决方案，为STEM场景下的个性化与高效学习辅助提供了有力支持。",
       "categories": [
         "cs.AI",
         "cs.CE",
@@ -1958,25 +1979,28 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03868v1",
       "published_date": "2025-07-05 02:44:38 UTC",
       "updated_date": "2025-07-05 02:44:38 UTC",
-      "processing_status": "pending",
-      "attempts": 0,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:36:48.976648+00:00"
+      "last_update": "2026-01-24T02:42:08.538502+00:00"
     },
     {
       "arxiv_id": "2507.03865v2",
       "title": "OrthoRank: Token Selection via Sink Token Orthogonality for Efficient LLM inference",
-      "title_zh": "",
+      "title_zh": "OrthoRank：基于 Sink Token 正交性的高效 LLM 推理 Token 选择",
       "authors": [
         "Seungjun Shin",
         "Jaehoon Oh",
         "Dokwan Oh"
       ],
       "abstract": "Attention mechanisms are central to the success of large language models (LLMs), enabling them to capture intricate token dependencies and implicitly assign importance to each token. Recent studies have revealed the sink token, which receives disproportionately high attention despite their limited semantic role. In this paper, we first expand the relationship between the sink token and other tokens, moving beyond attention to explore their similarity in hidden states, considering the layer depth. We observe that as the layers get deeper, the cosine similarity between the normalized hidden states of the sink token and those of other tokens increases, and that the normalized hidden states of the sink token exhibit negligible changes. These imply that other tokens consistently are directed toward the sink token throughout the layers. Next, we propose a dynamic token selection method, called OrthoRank, using these findings to select important tokens. Specifically, in a certain layer, we define token importance by the speed at which the token moves toward the sink token. This is converted into orthogonality with the sink token, meaning that tokens that are more orthogonal to the sink token are assigned greater importance. Finally, through extensive experiments, we demonstrated that our method results in lower perplexity and higher zero-shot accuracy compared to layer pruning methods at the same sparsity ratio with comparable throughput, while also achieving superior performance on LongBench.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究提出了OrthoRank，一种基于sink token正交性进行动态令牌选择的方法，旨在提升大语言模型(LLMs)的推理效率。通过分析隐藏状态的相似性，研究发现随着层数加深，普通令牌逐渐向sink token靠拢，而sink token的状态保持稳定。OrthoRank利用这一特性，将令牌向sink token移动的速度转化为正交性指标，从而识别并保留重要令牌。实验证明，在相同的稀疏度下，OrthoRank相比层剪枝(layer pruning)方法实现了更低的困惑度(perplexity)和更高的零样本(zero-shot)准确率。此外，该方法在LongBench长文本测试中表现出色，并在保证吞吐量的同时提升了模型性能。",
       "categories": [
         "cs.CL",
         "cs.AI",
@@ -1987,18 +2011,21 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03865v2",
       "published_date": "2025-07-05 02:29:23 UTC",
       "updated_date": "2025-08-16 11:42:58 UTC",
-      "processing_status": "pending",
-      "attempts": 0,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:36:48.976678+00:00"
+      "last_update": "2026-01-24T02:42:24.159453+00:00"
     },
     {
       "arxiv_id": "2507.03863v1",
       "title": "Enhanced accuracy through ensembling of randomly initialized auto-regressive models for time-dependent PDEs",
-      "title_zh": "",
+      "title_zh": "通过随机初始化自回归模型集成提升含时偏微分方程的求解精度",
       "authors": [
         "Ishan Khurjekar",
         "Indrashish Saha",
@@ -2006,7 +2033,7 @@
         "Somdatta Goswami"
       ],
       "abstract": "Systems governed by partial differential equations (PDEs) require computationally intensive numerical solvers to predict spatiotemporal field evolution. While machine learning (ML) surrogates offer faster solutions, autoregressive inference with ML models suffer from error accumulation over successive predictions, limiting their long-term accuracy. We propose a deep ensemble framework to address this challenge, where multiple ML surrogate models with random weight initializations are trained in parallel and aggregated during inference. This approach leverages the diversity of model predictions to mitigate error propagation while retaining the autoregressive strategies ability to capture the system's time dependent relations. We validate the framework on three PDE-driven dynamical systems - stress evolution in heterogeneous microstructures, Gray-Scott reaction-diffusion, and planetary-scale shallow water system - demonstrating consistent reduction in error accumulation over time compared to individual models. Critically, the method requires only a few time steps as input, enabling full trajectory predictions with inference times significantly faster than numerical solvers. Our results highlight the robustness of ensemble methods in diverse physical systems and their potential as efficient and accurate alternatives to traditional solvers. The codes for this work are available on GitHub (https://github.com/Graham-Brady-Research-Group/AutoregressiveEnsemble_SpatioTemporal_Evolution).",
-      "tldr_zh": "",
+      "tldr_zh": "该研究针对机器学习(ML)代理模型在处理受偏微分方程(PDEs)控制的时变系统时，其自回归推理(autoregressive inference)容易出现误差累积(error accumulation)并限制长期准确性的挑战。为此，作者提出了一种深度集成框架(deep ensemble framework)，通过并行训练多个具有随机权重初始化(random weight initializations)的ML代理模型，并在推理阶段进行聚合。该方法利用模型预测的多样性来减轻误差传播，同时保留了自回归策略捕捉系统时间依赖关系的能力。研究在非均质微观结构应力演化、Gray-Scott 反应扩散系统以及行星尺度浅水系统这三个物理动力系统上验证了该框架，证明其能一致且显著地减少误差累积。实验结果显示，该方法仅需少量时间步作为输入即可预测完整轨迹，且推理速度远快于传统的数值求解器(numerical solvers)。这一研究证明了集成方法在多种物理系统中的鲁棒性，展示了其作为高效、准确的数值求解器替代方案的巨大潜力。",
       "categories": [
         "cs.LG",
         "cs.AI",
@@ -2017,23 +2044,26 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03863v1",
       "published_date": "2025-07-05 02:25:12 UTC",
       "updated_date": "2025-07-05 02:25:12 UTC",
-      "processing_status": "pending",
-      "attempts": 0,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:36:48.976707+00:00"
+      "last_update": "2026-01-24T02:42:22.443587+00:00"
     },
     {
       "arxiv_id": "2507.10562v1",
       "title": "SAMEP: A Secure Protocol for Persistent Context Sharing Across AI Agents",
-      "title_zh": "",
+      "title_zh": "SAMEP：一种面向 AI 智能体间持久化上下文共享的安全协议",
       "authors": [
         "Hari Masoor"
       ],
       "abstract": "Current AI agent architectures suffer from ephemeral memory limitations, preventing effective collaboration and knowledge sharing across sessions and agent boundaries. We introduce SAMEP (Secure Agent Memory Exchange Protocol), a novel framework that enables persistent, secure, and semantically searchable memory sharing among AI agents. Our protocol addresses three critical challenges: (1) persistent context preservation across agent sessions, (2) secure multi-agent collaboration with fine-grained access control, and (3) efficient semantic discovery of relevant historical context. SAMEP implements a distributed memory repository with vector-based semantic search, cryptographic access controls (AES-256-GCM), and standardized APIs compatible with existing agent communication protocols (MCP, A2A). We demonstrate SAMEP's effectiveness across diverse domains including multi-agent software development, healthcare AI with HIPAA compliance, and multi-modal processing pipelines. Experimental results show 73% reduction in redundant computations, 89% improvement in context relevance scores, and complete compliance with regulatory requirements including audit trail generation. SAMEP enables a new paradigm of persistent, collaborative AI agent ecosystems while maintaining security and privacy guarantees.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究提出了SAMEP (Secure Agent Memory Exchange Protocol)，旨在解决当前AI智能体架构中因内存碎片化和短暂性导致的协作与知识共享受限问题。该协议构建了一个分布式内存仓库，支持持久化的上下文保存，并通过向量检索实现高效的语义搜索。为了确保协作安全性，SAMEP集成了AES-256-GCM加密技术和细粒度的访问控制，并提供与现有的MCP和A2A通信协议兼容的标准API。实验在多智能体软件开发、医疗AI（符合HIPAA标准）及多模态处理流水线等领域验证了其有效性。结果显示，该方案能显著减少73%的重复计算，并将上下文相关性评分提升89%，同时生成符合监管要求的审计追踪。SAMEP在保障安全与隐私的前提下，为构建持久化、协作化的AI智能体生态系统提供了一种全新的范式。",
       "categories": [
         "cs.AI",
         "cs.CR",
@@ -2045,24 +2075,27 @@
       "pdf_url": "https://arxiv.org/pdf/2507.10562v1",
       "published_date": "2025-07-05 02:20:09 UTC",
       "updated_date": "2025-07-05 02:20:09 UTC",
-      "processing_status": "pending",
-      "attempts": 0,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:36:48.976737+00:00"
+      "last_update": "2026-01-24T02:42:25.674024+00:00"
     },
     {
       "arxiv_id": "2507.03847v2",
       "title": "KEA Explain: Explanations of Hallucinations using Graph Kernel Analysis",
-      "title_zh": "",
+      "title_zh": "KEA Explain：基于图核分析的幻觉解释",
       "authors": [
         "Reilly Haskins",
         "Benjamin Adams"
       ],
       "abstract": "Large Language Models (LLMs) frequently generate hallucinations: statements that are syntactically plausible but lack factual grounding. This research presents KEA (Kernel-Enriched AI) Explain: a neurosymbolic framework that detects and explains such hallucinations by comparing knowledge graphs constructed from LLM outputs with ground truth data from Wikidata or contextual documents. Using graph kernels and semantic clustering, the method provides explanations for detected hallucinations, ensuring both robustness and interpretability. Our framework achieves competitive accuracy in detecting hallucinations across both open- and closed-domain tasks, and is able to generate contrastive explanations, enhancing transparency. This research advances the reliability of LLMs in high-stakes domains and provides a foundation for future work on precision improvements and multi-source knowledge integration.",
-      "tldr_zh": "",
+      "tldr_zh": "该研究提出了 KEA (Kernel-Enriched AI) Explain，这是一个旨在检测和解释大型语言模型 (LLMs) 幻觉现象的神经符号 (neurosymbolic) 框架。该框架通过将 LLM 输出构建的知识图谱 (Knowledge Graphs) 与来自 Wikidata 或上下文文档的基准事实数据进行对比，能够有效识别缺乏事实依据的陈述。通过结合图核 (graph kernels) 分析和语义聚类 (semantic clustering)，该方法不仅确保了检测的稳健性，还为幻觉的产生提供了具有可解释性的分析。实验表明，KEA Explain 在开放和封闭领域任务中均取得了具有竞争力的检测准确率，并能生成对比性解释 (contrastive explanations) 以提升模型透明度。这项工作显著增强了 LLM 在高风险应用场景中的可靠性，为未来多源知识集成和精度优化研究奠定了基础。",
       "categories": [
         "cs.LG",
         "cs.AI"
@@ -2072,23 +2105,26 @@
       "pdf_url": "https://arxiv.org/pdf/2507.03847v2",
       "published_date": "2025-07-05 00:55:15 UTC",
       "updated_date": "2025-08-21 01:34:15 UTC",
-      "processing_status": "pending",
-      "attempts": 0,
+      "processing_status": "completed",
+      "attempts": 1,
       "max_attempts": 3,
       "error": null,
-      "completed_steps": [],
+      "completed_steps": [
+        "translation",
+        "tldr"
+      ],
       "llm_backup_calls": 0,
-      "last_update": "2026-01-24T02:36:48.976766+00:00"
+      "last_update": "2026-01-24T02:42:29.564730+00:00"
     }
   ],
-  "processing_status": "in_progress",
+  "processing_status": "completed",
   "error": null,
   "raw_papers_fetched": true,
   "papers_count": 64,
-  "processed_papers_count": 52,
+  "processed_papers_count": 64,
   "failed_papers_count": 0,
   "llm_backup_calls": 0,
-  "summary_generated": false,
-  "daily_data_saved": false,
-  "last_update": "2026-01-24T02:41:42.708762+00:00"
+  "summary_generated": true,
+  "daily_data_saved": true,
+  "last_update": "2026-01-24T02:44:13.617220+00:00"
 }
