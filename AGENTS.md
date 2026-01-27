@@ -1,5 +1,16 @@
 # Repository Guidelines
 
+daydayarxiv 是一个网站，每天 (大约) UTC 02:20 (左右) 更新最新的 arXiv 文章摘要，而且是中文的。
+
+像刷信息流一样，在垃圾时间刷 arXiv 文章，看看有没有什么值得注意的文章。用中文所以你在刷的时候完全不用思考，一点都不累！
+
+这个项目的目标是把刷 arXiv，跟上 arXiv 最新进展的行为变得非常愉悦，非常无脑，让普通人有事没事就可以刷刷 arXiv。
+
+这个网站是个纯静态网站，用 GitHub action 每天更新数据 (主要怕被打，不敢用数据库)，数据直接以 json 格式储存在 `daydayarxiv_frontend/public/data` 目录下。每日数据实现了懒加载和浏览器缓存。
+
+更新数据的逻辑用 astral uv + python 实现。
+
+
 ## Project Structure & Module Organization
 - `src/daydayarxiv/` holds the core Python package (CLI, pipeline, clients, settings).
 - `fetch_arxiv.py` is a legacy entry point kept for compatibility.

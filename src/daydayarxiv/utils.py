@@ -6,6 +6,8 @@ import re
 from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
 
+from daydayarxiv.arxiv_schedule import latest_announcement_utc_date
+
 SUPPORTED_DATE_FORMATS = (
     "%Y-%m-%d",
     "%Y%m%d",
@@ -77,8 +79,8 @@ def build_date_range(start: str, end: str) -> list[str]:
 
 
 def default_date_list() -> list[str]:
-    """Default to two days ago in UTC (matching existing behavior)."""
-    default_date = datetime.now(UTC) - timedelta(days=2)
+    """Default to the latest UTC announcement date."""
+    default_date = latest_announcement_utc_date(datetime.now(UTC))
     return [default_date.strftime("%Y-%m-%d")]
 
 

@@ -1,12 +1,14 @@
 import { ExternalLink } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import type { Paper } from "@/lib/types"
+import { formatLocalTimestamp } from "@/lib/utils"
 
 interface PaperCardProps {
   paper: Paper
 }
 
 export default function PaperCard({ paper }: PaperCardProps) {
+  const publishedLabel = formatLocalTimestamp(paper.published_date)
   return (
     <div className="bg-white/85 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-black border-opacity-50">
       <h2 className="text-xl font-medium mb-2">{paper.title_zh}</h2>
@@ -25,7 +27,7 @@ export default function PaperCard({ paper }: PaperCardProps) {
             {category}
           </span>
         ))}
-        <span className="bg-[#0e0e0f] text-white px-3 py-1 rounded-md text-sm">{paper.published_date}</span>
+        <span className="bg-[#0e0e0f] text-white px-3 py-1 rounded-md text-sm">{publishedLabel}</span>
       </div>
 
       <div className="flex gap-4">

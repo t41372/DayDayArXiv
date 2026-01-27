@@ -7,7 +7,7 @@ import {
   cacheIndex,
   initCache
 } from "./dataCache"
-import { parseLocalDate } from "./utils"
+import { formatUtcDateFromLocal, parseLocalDate } from "./utils"
 
 // Initialize cache when this module is imported
 if (typeof window !== 'undefined') {
@@ -27,7 +27,7 @@ export async function fetchDailyData(date: Date, category: string): Promise<Dail
     }
     
     // Not in cache, fetch from network
-    const dateStr = format(date, "yyyy-MM-dd");
+    const dateStr = formatUtcDateFromLocal(date);
     console.log(`Fetching data for ${dateStr}/${category} from network`);
     
     const response = await fetch(`/data/${dateStr}/${category}.json`);
@@ -66,7 +66,7 @@ export async function fetchDailyData(date: Date, category: string): Promise<Dail
     return data;
   } catch (error) {
     console.error("Failed to load data:", error);
-    const dateStr = format(date, "yyyy-MM-dd");
+    const dateStr = formatUtcDateFromLocal(date);
     const message = `Failed to load ${dateStr}/${category}: ${error instanceof Error ? error.message : String(error)}`;
     // Return a default response for any errors
     return {
@@ -133,7 +133,7 @@ export async function dataExists(date: Date, category: string): Promise<boolean>
       }
     }
 
-    const dateStr = format(date, "yyyy-MM-dd");
+    const dateStr = formatUtcDateFromLocal(date);
     const index = await getAvailableIndex();
     if (index) {
       return index.by_date[dateStr]?.includes(category) ?? false;

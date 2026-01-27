@@ -65,3 +65,13 @@ async def test_fetch_papers_raises(monkeypatch):
             max_results=10,
             retries=[0],
         )
+
+
+@pytest.mark.asyncio
+async def test_fetch_papers_no_announcement(monkeypatch):
+    def _no_call(*_args, **_kwargs):
+        raise AssertionError("arxiv.Client should not be called when no announcement")
+
+    monkeypatch.setattr("daydayarxiv.arxiv_client.arxiv.Client", _no_call)
+    papers = await fetch_papers(category="cs.AI", date_str="2026-01-17", max_results=10)
+    assert papers == []

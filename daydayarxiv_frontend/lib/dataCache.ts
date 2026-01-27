@@ -1,7 +1,6 @@
 // IndexedDB caching system for arxiv data files
-import { format } from 'date-fns';
 import type { DailyData, DataIndex } from './types';
-import { parseLocalDate } from './utils';
+import { formatUtcDateFromLocal, parseLocalDate } from './utils';
 
 const DB_NAME = 'daydayarxivCache';
 const DATA_STORE_NAME = 'dataCache';
@@ -58,7 +57,7 @@ export async function cacheData(date: Date, category: string, data: DailyData): 
     const transaction = db.transaction(DATA_STORE_NAME, 'readwrite');
     const store = transaction.objectStore(DATA_STORE_NAME);
     
-    const key = `${format(date, 'yyyy-MM-dd')}/${category}`;
+    const key = `${formatUtcDateFromLocal(date)}/${category}`;
     const entry: CacheEntry = {
       data,
       timestamp: Date.now(),
@@ -83,7 +82,7 @@ export async function getCachedData(date: Date, category: string): Promise<Daily
     const transaction = db.transaction(DATA_STORE_NAME, 'readonly');
     const store = transaction.objectStore(DATA_STORE_NAME);
     
-    const key = `${format(date, 'yyyy-MM-dd')}/${category}`;
+    const key = `${formatUtcDateFromLocal(date)}/${category}`;
     
     return new Promise((resolve, reject) => {
       const request = store.get(key);
@@ -177,7 +176,7 @@ export async function getCachedIndex(): Promise<DataIndex | null> {
 
 // Cache available dates metadata (legacy helper)
 export async function cacheAvailableDates(dates: Date[], categories: string[] = ['cs.AI']): Promise<void> {
-  const dateStrings = dates.map(date => format(date, 'yyyy-MM-dd'));
+  const dateStrings = dates.map(date => formatUtcDateFromLocal(date));
   const byDate: Record<string, string[]> = {};
   for (const date of dateStrings) {
     byDate[date] = [...categories];
