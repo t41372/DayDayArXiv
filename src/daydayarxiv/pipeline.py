@@ -123,9 +123,18 @@ class Pipeline:
         else:
             state = self.state_manager.load(date_str, category)
 
+        recheck_no_papers = False
         if state.daily_data_saved and not force:
             issues = validate_daily_data(state, self.settings.failure_patterns)
-            if not issues:
+            if state.processing_status == DailyStatus.NO_PAPERS or not state.papers:
+                recheck_no_papers = True
+                if issues:
+                    logger.warning(
+                        f"Existing no-paper data incomplete: {issues}; rechecking arXiv."
+                    )
+                else:
+                    logger.info("Existing data has no papers; rechecking arXiv for new papers.")
+            elif not issues:
                 if state.processing_status in {DailyStatus.COMPLETED, DailyStatus.NO_PAPERS}:
                     logger.info("Existing data is complete; skipping.")
                     return True
@@ -143,7 +152,8 @@ class Pipeline:
                 state.error = None
                 self.state_manager.save()
                 return True
-            logger.warning(f"Existing data incomplete: {issues}")
+            else:
+                logger.warning(f"Existing data incomplete: {issues}")
 
         if not force and not state.daily_data_saved:
             reset_count = self.state_manager.reset_failed_papers()
@@ -155,7 +165,12 @@ class Pipeline:
         self.state_manager.save()
 
         try:
-            raw_papers = await self._load_or_fetch_raw(date_str, category, max_results, force)
+            raw_papers = await self._load_or_fetch_raw(
+                date_str,
+                category,
+                max_results,
+                refresh_raw=force or recheck_no_papers,
+            )
         except ArxivFetchError as exc:
             self._mark_daily_failure(state, f"arXiv fetch failed: {exc}")
             return False
@@ -250,10 +265,11 @@ class Pipeline:
         date_str: str,
         category: str,
         max_results: int,
-        force: bool,
+        *,
+        refresh_raw: bool,
     ) -> list[RawPaper]:
         raw_path = self.paths.raw_path(date_str, category)
-        if raw_path.exists() and not force:
+        if raw_path.exists() and not refresh_raw:
             try:
                 raw_data = read_json(raw_path)
                 return [RawPaper.model_validate(item) for item in raw_data]

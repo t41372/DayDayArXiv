@@ -24,6 +24,14 @@ def test_submission_window_utc_sunday_announcement() -> None:
     )
 
 
+def test_submission_window_utc_monday_announcement() -> None:
+    window = submission_window_utc_for_utc_date(date(2026, 1, 13))
+    assert window == (
+        datetime(2026, 1, 9, 19, 0, tzinfo=UTC),
+        datetime(2026, 1, 12, 19, 0, tzinfo=UTC),
+    )
+
+
 def test_submission_window_utc_weekend_none() -> None:
     assert submission_window_utc_for_utc_date(date(2026, 1, 17)) is None
 

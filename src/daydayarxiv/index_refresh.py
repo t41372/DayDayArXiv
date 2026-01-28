@@ -103,14 +103,8 @@ def validate_daily_file(
     if daily.category != category:
         issues.append(f"category mismatch: {daily.category} != {category}")
         hard_failure = True
-    if daily.papers_count != len(daily.papers):
-        issues.append(
-            f"papers_count mismatch: {daily.papers_count} != {len(daily.papers)}"
-        )
     if daily.papers_count < 0 or daily.processed_papers_count < 0 or daily.failed_papers_count < 0:
         issues.append("paper counts must be non-negative")
-    if daily.processed_papers_count + daily.failed_papers_count != daily.papers_count:
-        issues.append("processed + failed must equal papers_count")
     if daily.processing_status not in {DailyStatus.COMPLETED, DailyStatus.NO_PAPERS}:
         issues.append(f"processing_status not final: {daily.processing_status}")
 

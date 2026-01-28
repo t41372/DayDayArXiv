@@ -252,6 +252,120 @@ async def test_pipeline_no_papers(monkeypatch, tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_pipeline_rechecks_no_papers(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    output_paths = OutputPaths(settings.data_dir)
+    daily = DailyData(
+        date="2025-01-09",
+        category="cs.AI",
+        summary="在 2025-01-09 没有发现 cs.AI 分类下的新论文。",
+        papers=[],
+        processing_status=DailyStatus.NO_PAPERS,
+        raw_papers_fetched=True,
+        papers_count=0,
+        processed_papers_count=0,
+        failed_papers_count=0,
+        summary_generated=True,
+        daily_data_saved=True,
+        last_update=datetime.now(),
+    )
+    output_paths.ensure_dir("2025-01-09")
+    from daydayarxiv.storage import write_json_atomic
+
+    write_json_atomic(
+        output_paths.daily_path("2025-01-09", "cs.AI"),
+        daily.model_dump(mode="json"),
+    )
+    write_json_atomic(output_paths.raw_path("2025-01-09", "cs.AI"), [])
+
+    called = {"count": 0}
+
+    async def _fetch(*_args, **_kwargs):
+        called["count"] += 1
+        return [_raw_paper()]
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    manager = StateManager(output_paths)
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-09",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is True
+    assert called["count"] == 1
+    output = read_json(output_paths.daily_path("2025-01-09", "cs.AI"))
+    assert output["papers_count"] == 1
+    assert output["processing_status"] == "completed"
+
+
+@pytest.mark.asyncio
+async def test_pipeline_existing_invalid_data_reprocesses(monkeypatch, tmp_path):
+    settings = _settings(tmp_path)
+    output_paths = OutputPaths(settings.data_dir)
+    daily = DailyData(
+        date="2025-01-10",
+        category="cs.AI",
+        summary="生成失败",
+        papers=[
+            Paper(
+                arxiv_id="1234.5678v1",
+                title="Title",
+                title_zh="翻译失败",
+                authors=["Author"],
+                abstract="Abstract",
+                tldr_zh="摘要",
+                categories=["cs.AI"],
+                primary_category="cs.AI",
+                comment="",
+                pdf_url="https://example.com",
+                published_date="2025-01-10 00:00:00 UTC",
+                updated_date="2025-01-10 00:00:00 UTC",
+                processing_status=TaskStatus.FAILED,
+                attempts=0,
+                max_attempts=2,
+            )
+        ],
+        papers_count=1,
+        processed_papers_count=0,
+        failed_papers_count=0,
+        summary_generated=True,
+        daily_data_saved=True,
+        last_update=datetime.now(),
+    )
+    output_paths.ensure_dir("2025-01-10")
+    from daydayarxiv.storage import write_json_atomic
+
+    write_json_atomic(
+        output_paths.daily_path("2025-01-10", "cs.AI"),
+        daily.model_dump(mode="json"),
+    )
+
+    called = {"count": 0}
+
+    async def _fetch(*_args, **_kwargs):
+        called["count"] += 1
+        return [_raw_paper()]
+
+    monkeypatch.setattr("daydayarxiv.pipeline.fetch_papers", _fetch)
+
+    manager = StateManager(output_paths)
+    pipeline = Pipeline(settings, DummyLLM(), manager)
+    ok = await pipeline.run_for_date(
+        date_str="2025-01-10",
+        category="cs.AI",
+        max_results=10,
+        force=False,
+    )
+    assert ok is True
+    assert called["count"] == 1
+    output = read_json(output_paths.daily_path("2025-01-10", "cs.AI"))
+    assert output["processing_status"] == "completed"
+
+
+@pytest.mark.asyncio
 async def test_pipeline_fetch_failure_marks_failed(monkeypatch, tmp_path):
     settings = _settings(tmp_path)
     manager = StateManager(OutputPaths(settings.data_dir))
