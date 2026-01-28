@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { format, isSameDay } from "date-fns"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,12 +19,41 @@ export default function Home() {
   const [dailyData, setDailyData] = useState<DailyData | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [availableDates, setAvailableDates] = useState<Date[]>([])
+  const userSelectedRef = useRef<boolean>(false)
+
+  useEffect(() => {
+    userSelectedRef.current = false
+  }, [selectedCategory])
+
+  const findPreviousAvailableDate = (current: Date, dates: Date[]): Date | null => {
+    if (dates.length === 0) {
+      return null
+    }
+    const sorted = [...dates].sort((a, b) => b.getTime() - a.getTime())
+    const currentIndex = sorted.findIndex((date) => isSameDay(date, current))
+    if (currentIndex < 0) {
+      return sorted[0] ?? null
+    }
+    return sorted[currentIndex + 1] ?? null
+  }
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true)
       try {
         const data = await fetchDailyData(selectedDate, selectedCategory)
+        if (
+          !userSelectedRef.current &&
+          availableDates.length > 0 &&
+          data.processing_status === "no_papers" &&
+          data.papers.length === 0
+        ) {
+          const fallback = findPreviousAvailableDate(selectedDate, availableDates)
+          if (fallback) {
+            setSelectedDate(fallback)
+            return
+          }
+        }
         setDailyData(data)
       } catch (error) {
         console.error("Failed to load data:", error)
@@ -35,7 +64,7 @@ export default function Home() {
     }
 
     loadData()
-  }, [selectedDate, selectedCategory])
+  }, [availableDates, selectedCategory, selectedDate])
 
   useEffect(() => {
     let active = true
@@ -64,6 +93,7 @@ export default function Home() {
   }, [availableDates, selectedDate])
 
   const handleDateChange = (date: Date) => {
+    userSelectedRef.current = true
     setSelectedDate(date)
   }
 

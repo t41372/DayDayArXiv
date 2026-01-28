@@ -82,33 +82,29 @@ export async function fetchDailyData(date: Date, category: string): Promise<Dail
 
 // Function to get available dates (would check which JSON files exist)
 export async function getAvailableIndex(): Promise<DataIndex | null> {
+  let cachedIndex: DataIndex | null = null
+  if (typeof window !== "undefined") {
+    cachedIndex = await getCachedIndex().catch(() => null)
+  }
+
   try {
-    // First check if we have this data in cache
-    if (typeof window !== 'undefined') {
-      const cachedIndex = await getCachedIndex();
-      if (cachedIndex) {
-        console.log('Using cached available index');
-        return cachedIndex;
-      }
-    }
-    
-    const response = await fetch(`/data/index.json`, { cache: 'no-store' });
+    const response = await fetch(`/data/index.json`, { cache: "no-store" })
     if (!response.ok) {
-      console.error('No index.json available');
-      return null;
+      console.error("No index.json available")
+      return cachedIndex
     }
-    const index = (await response.json()) as DataIndex;
-    
-    // Cache the index
-    if (typeof window !== 'undefined') {
-      await cacheIndex(index)
-        .catch(err => console.error('Failed to cache available index:', err));
+    const index = (await response.json()) as DataIndex
+
+    if (typeof window !== "undefined") {
+      await cacheIndex(index).catch((err) =>
+        console.error("Failed to cache available index:", err),
+      )
     }
-    
-    return index;
+
+    return index
   } catch (error) {
-    console.error("Error in getAvailableIndex:", error);
-    return null;
+    console.error("Error in getAvailableIndex:", error)
+    return cachedIndex
   }
 }
 
